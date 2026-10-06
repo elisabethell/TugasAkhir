@@ -1,453 +1,544 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MetaScout - Riwayat Pertandingan Seri MWI</title>
-    <style>
-        body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif; padding: 25px 20px; background-color: #f1f4f9; color: #2c3e50; line-height: 1.5; }
-        .container { max-width: 1240px; margin: 0 auto; }
-        
-        /* Header & Top Bar */
-        .top-bar { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
-        h2 { color: #1e293b; margin: 0 0 6px 0; font-size: 24px; font-weight: 700; }
-        p.subtitle { color: #64748b; margin: 0; font-size: 14px; }
-        
-        .action-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: #1e293b; color: white; text-decoration: none; border-radius: 8px; font-size: 13px; font-weight: 600; border: 1px solid transparent; cursor: pointer; transition: all 0.2s ease; }
-        .btn:hover { background: #0f172a; }
-        .btn-outline { background: #ffffff; color: #1e293b; border: 1px solid #cbd5e1; }
-        .btn-outline:hover { background: #f8fafc; border-color: #94a3b8; }
-        
-        .stats-summary { background: #ffffff; border-radius: 10px; padding: 12px 18px; margin-bottom: 25px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-        .stat-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #475569; }
-        .stat-badge span { background: #e2e8f0; color: #0f172a; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+@extends('layouts.app')
 
-        /* Series Card */
-        .series-card { background: #ffffff; border-radius: 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); margin-bottom: 30px; overflow: hidden; border: 1px solid #e2e8f0; }
-        
-        /* Series Header */
-        .series-header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; padding: 16px 22px; }
-        .series-meta { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; font-size: 12px; color: #94a3b8; }
-        .series-meta-item { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.08); padding: 4px 10px; border-radius: 6px; }
-        .series-meta-item.bracket { color: #facc15; font-weight: 700; background: rgba(250, 204, 21, 0.15); border: 1px solid rgba(250, 204, 21, 0.3); }
+@section('title', 'Dataset Pertandingan Resmi - MetaScout Admin')
+@section('hide_navbar', true)
+@section('hide_footer', true)
 
-        .series-matchup { display: flex; justify-content: space-between; align-items: center; gap: 15px; }
-        .series-team { flex: 1; display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; }
-        .series-team.team-right { justify-content: flex-end; }
-        
-        .series-score-box { background: rgba(255, 255, 255, 0.12); padding: 6px 18px; border-radius: 10px; font-size: 22px; font-weight: 800; letter-spacing: 2px; color: #f8fafc; border: 1px solid rgba(255,255,255,0.2); white-space: nowrap; }
-        .series-score-box .sep { color: #94a3b8; margin: 0 4px; font-weight: 400; }
-        
-        .badge-winner { background: #10b981; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
-        .badge-loser { background: rgba(239, 68, 68, 0.2); color: #fca5a5; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; border: 1px solid rgba(239, 68, 68, 0.4); }
+@section('content')
+<div class="space-y-6">
 
-        /* Series Body */
-        .series-body { padding: 18px 20px; }
-        
-        /* Game Tabs */
-        .game-tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; }
-        .tab-btn { background: #f8fafc; border: 1px solid #cbd5e1; color: #475569; padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease; }
-        .tab-btn:hover { background: #f1f5f9; color: #0f172a; border-color: #94a3b8; }
-        .tab-btn.active { background: #2563eb; color: #ffffff; border-color: #2563eb; box-shadow: 0 2px 6px rgba(37,99,235,0.25); }
-        .tab-btn .tab-sub { font-size: 11px; opacity: 0.85; font-weight: 400; }
+    <!-- 1. ADMIN TOP NAVIGATION BAR -->
+    <header class="bg-white border border-[#F3E8E8] rounded-full px-5 py-2.5 flex items-center justify-between shadow-sm flex-wrap gap-3">
+        <!-- Brand Logo -->
+        <a href="{{ route('home') }}" class="flex items-center gap-2.5">
+            <span class="w-3 h-3 rounded-full bg-[#700B1A] inline-block shadow-[0_0_8px_rgba(112,11,26,0.5)]"></span>
+            <span class="font-black text-sm tracking-widest text-[#18181B] uppercase">METASCOUT</span>
+        </a>
 
-        /* Game Section */
-        .game-section { margin-bottom: 22px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-        .game-section:last-child { margin-bottom: 0; }
-        
-        .game-strip { background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 13px; }
-        .game-strip-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-        .game-pill { background: #1e293b; color: white; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; }
-        
-        .map-badge { display: inline-flex; align-items: center; gap: 6px; background: #ffffff; padding: 3px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-weight: 600; font-size: 12px; color: #334155; }
-        .map-thumb { width: 28px; height: 18px; border-radius: 3px; object-fit: cover; border: 1px solid #cbd5e1; }
-        
-        .game-strip-right { display: flex; align-items: center; gap: 12px; font-size: 12px; }
-        .game-winner-text { font-weight: 700; }
-        .game-winner-text.blue { color: #2563eb; }
-        .game-winner-text.red { color: #dc2626; }
+        <!-- Admin Links -->
+        <nav class="flex items-center gap-1.5 sm:gap-2 flex-wrap text-xs font-bold uppercase tracking-wider">
+            <a href="{{ route('home') }}" class="text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
+                DASHBOARD
+            </a>
+            <a href="{{ route('matches') }}" class="bg-[#700B1A] text-white px-4 py-1.5 rounded-full transition shadow-sm">
+                DATASET PERTANDINGAN
+            </a>
+            <a href="{{ route('heroes') }}" class="text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
+                MANAJEMEN HERO
+            </a>
+            <a href="{{ route('home') }}" class="text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
+                KEMBALI KE PORTAL PUBLIK
+            </a>
+        </nav>
 
-        /* Unified Match Table */
-        .table-wrap { overflow-x: auto; padding: 10px 12px; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; white-space: nowrap; }
-        th, td { padding: 9px 10px; border-bottom: 1px solid #f1f5f9; }
-        
-        .th-side-blue { background: #eff6ff; color: #1d4ed8; font-weight: 700; font-size: 13px; border-right: 2px solid #cbd5e1; text-align: left; padding-left: 14px; }
-        .th-role { background: #f8fafc; color: #64748b; font-weight: 700; font-size: 11px; text-transform: uppercase; width: 70px; }
-        .th-side-red { background: #fef2f2; color: #b91c1c; font-weight: 700; font-size: 13px; border-left: 2px solid #cbd5e1; text-align: left; padding-left: 14px; }
-        
-        .sub-header th { font-size: 11px; color: #64748b; background: #f8fafc; font-weight: 600; padding: 6px 10px; }
-        .sub-header th.border-r { border-right: 2px solid #cbd5e1; }
-        .sub-header th.border-l { border-left: 2px solid #cbd5e1; }
-        
-        .td-blue { background-color: #fafcff; }
-        .td-blue-player { text-align: left; font-weight: 700; color: #1e3a8a; }
-        .td-role { background-color: #f8fafc; font-weight: 700; color: #475569; }
-        .td-red { background-color: #fffbfb; }
-        .td-red-player { text-align: left; font-weight: 700; color: #991b1b; }
-        
-        .border-r { border-right: 2px solid #e2e8f0; }
-        .border-l { border-left: 2px solid #e2e8f0; }
-
-        .flex-cell { display: inline-flex; align-items: center; gap: 7px; vertical-align: middle; }
-        .hero-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1.5px solid #cbd5e1; background: #e2e8f0; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-        .spell-avatar { width: 24px; height: 24px; border-radius: 6px; object-fit: cover; border: 1px solid #cbd5e1; background: #e2e8f0; flex-shrink: 0; }
-        .ban-avatar { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1; opacity: 0.9; }
-        
-        .badge-kda { font-weight: 700; color: #0f172a; }
-        .badge-lane-tag { background: #e2e8f0; color: #334155; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; display: inline-block; }
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        
-        <div class="top-bar">
-            <div>
-                <h2>Riwayat Pertandingan Seri - MetaScout</h2>
-                <p class="subtitle">Visualisasi terpadu data turnamen MWI X EWC 2026 per seri (Best-of) & 1 tabel utuh per game.</p>
+        <!-- Superadmin Info & Logout -->
+        <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1.5 text-[11px] font-extrabold text-[#700B1A] uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-[#700B1A]"></span>
+                <span>SUPERADMIN</span>
             </div>
-            <div class="action-group">
-                <a href="/" class="btn">&laquo; Kembali ke Data Hero</a>
-                <button type="button" class="btn btn-outline" onclick="expandAllGames()">📜 Buka Semua Game</button>
-                <button type="button" class="btn btn-outline" onclick="compactAllGames()">📑 Mode Ringkas (Tab)</button>
+            <a href="{{ route('home') }}" class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-gray-800 hover:text-[#700B1A] border border-[#E5E7EB] text-[11px] font-extrabold uppercase px-3.5 py-1.5 rounded-full transition">
+                LOGOUT
+            </a>
+            <div class="w-7 h-7 rounded-full bg-[#700B1A] text-white flex items-center justify-center font-black text-xs shadow-sm">
+                A
             </div>
         </div>
+    </header>
 
-        <div class="stats-summary">
-            <div class="stat-badge">🏆 Total Seri Turnamen: <span>{{ count($seriesList) }} Seri</span></div>
-            <div class="stat-badge">🎮 Total Game: <span>{{ collect($seriesList)->sum(fn($s) => count($s['games'])) }} Game</span></div>
-            <div class="stat-badge">🗺️ Varian Map: <span>Broken Walls, Dangerous Grass, Expanding Rivers, Flying Clouds</span></div>
+    <!-- 2. BREADCRUMBS & LIVE STATUS -->
+    <div class="flex items-center justify-between flex-wrap gap-2 pt-1">
+        <div class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <span>ADMIN</span>
+            <span>/</span>
+            <span class="text-[#700B1A] font-extrabold">DATASET PERTANDINGAN</span>
         </div>
 
-        @php
-            $mapImages = [
-                'broken walls'     => 'broken_wall.webp',
-                'broken wall'      => 'broken_wall.webp',
-                'dangerous grass'  => 'dangerous_grass.webp',
-                'expanding rivers' => 'expanding_river.webp',
-                'expanding river'  => 'expanding_river.webp',
-                'flying clouds'    => 'flying_cloud.webp',
-                'flying cloud'     => 'flying_cloud.webp',
-            ];
-
-            $getHeroImg = function($heroName) use ($heroPortraits) {
-                if (!$heroName || $heroName === '-') return null;
-                $clean = preg_replace('/[^a-z0-9]/', '', strtolower($heroName));
-                return $heroPortraits[$clean] ?? asset('images/heroes/' . $clean . '.png');
-            };
-        @endphp
-
-        @foreach($seriesList as $sIdx => $series)
-            @php
-                $totalGames = count($series['games']);
-                $t1Win = $series['score1'] > $series['score2'];
-            @endphp
-
-            <div class="series-card" id="series-card-{{ $sIdx }}">
-                
-                <!-- SERIES HEADER (RINGKASAN SERI) -->
-                <div class="series-header">
-                    <div class="series-meta">
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            <span class="series-meta-item bracket">🏆 {{ $series['bracket'] }}</span>
-                            <span class="series-meta-item">📅 {{ $series['date'] }}</span>
-                            <span class="series-meta-item">🎮 Best of {{ $totalGames <= 2 ? '3' : ($totalGames <= 3 && str_contains($series['bracket'], 'Quarter') ? '3' : ($totalGames <= 5 ? '5' : '7')) }} ({{ $totalGames }} Game)</span>
-                        </div>
-                        <div>
-                            <span style="font-weight: 600; color: #e2e8f0;">Seri #{{ $sIdx + 1 }}</span>
-                        </div>
-                    </div>
-
-                    <div class="series-matchup">
-                        <div class="series-team">
-                            <span style="color: #60a5fa;">{{ $series['team1'] }}</span>
-                            @if($t1Win)
-                                <span class="badge-winner">WINNER</span>
-                            @else
-                                <span class="badge-loser">DEFEAT</span>
-                            @endif
-                        </div>
-
-                        <div class="series-score-box">
-                            <span style="color: {{ $t1Win ? '#34d399' : '#f87171' }};">{{ $series['score1'] }}</span>
-                            <span class="sep">-</span>
-                            <span style="color: {{ !$t1Win ? '#34d399' : '#f87171' }};">{{ $series['score2'] }}</span>
-                        </div>
-
-                        <div class="series-team team-right">
-                            @if(!$t1Win)
-                                <span class="badge-winner">WINNER</span>
-                            @else
-                                <span class="badge-loser">DEFEAT</span>
-                            @endif
-                            <span style="color: #f87171;">{{ $series['team2'] }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SERIES BODY -->
-                <div class="series-body">
-                    
-                    <!-- TAB SELECTOR GAME -->
-                    <div class="game-tabs" id="tabs-{{ $sIdx }}">
-                        @foreach($series['games'] as $gIdx => $game)
-                            @php
-                                $gSample = $game->first();
-                                $gWin = $game->where('win_lose', 'Win')->first();
-                                $winTeam = $gWin ? $gWin->team : '-';
-                            @endphp
-                            <button type="button" 
-                                    class="tab-btn {{ $gIdx === 0 ? 'active' : '' }}" 
-                                    onclick="switchGame({{ $sIdx }}, {{ $gIdx }})">
-                                🎮 Game {{ $gIdx + 1 }}
-                                <span class="tab-sub">({{ $winTeam }} Win)</span>
-                            </button>
-                        @endforeach
-                        <button type="button" 
-                                class="tab-btn btn-all-tab" 
-                                onclick="switchGame({{ $sIdx }}, 'all')">
-                            👁️ Tampilkan Semua Game
-                        </button>
-                    </div>
-
-                    <!-- GAME SECTIONS (1 TABEL LENGKAP PER GAME) -->
-                    @foreach($series['games'] as $gIdx => $game)
-                        @php
-                            $blueTeam = $game->where('side', 'Blue')->values();
-                            $redTeam = $game->where('side', 'Red')->values();
-
-                            $blueRecord = $blueTeam->first();
-                            $redRecord = $redTeam->first();
-
-                            $blueTeamName = $blueRecord->team ?? ($redRecord->opponent ?? 'Blue Team');
-                            $redTeamName = $redRecord->team ?? ($blueRecord->opponent ?? 'Red Team');
-                            $blueWin = $blueRecord && $blueRecord->win_lose == 'Win';
-
-                            $sample = $game->first();
-                            $mapNorm = strtolower(trim($sample->map));
-                            $mapFile = $mapImages[$mapNorm] ?? 'broken_wall.webp';
-
-                            $rolesOrder = ['Explane', 'Jungler', 'Midlane', 'Goldlane', 'Roam'];
-                            $blueByRole = $blueTeam->keyBy('role');
-                            $redByRole = $redTeam->keyBy('role');
-                        @endphp
-
-                        <div class="game-section game-item-{{ $sIdx }}" 
-                             id="game-item-{{ $sIdx }}-{{ $gIdx }}" 
-                             style="display: {{ $gIdx === 0 ? 'block' : 'none' }};">
-                            
-                            <!-- STRIP INFO GAME -->
-                            <div class="game-strip">
-                                <div class="game-strip-left">
-                                    <span class="game-pill">Game {{ $gIdx + 1 }}</span>
-                                    
-                                    <span class="map-badge">
-                                        <img src="{{ asset('images/maps/' . $mapFile) }}" 
-                                             class="map-thumb" 
-                                             alt="{{ $sample->map }}"
-                                             onerror="this.style.display='none'">
-                                        <span>{{ $sample->map }}</span>
-                                    </span>
-                                    
-                                    <span style="color: #64748b; font-weight: 600;">⏱️ {{ str_replace('.', ':', $sample->duration) }}</span>
-                                    <span style="color: #64748b;">•</span>
-                                    <span>Skor Game: <strong>{{ $blueRecord ? $blueRecord->skor_game : $sample->skor_game }}</strong></span>
-                                </div>
-
-                                <div class="game-strip-right">
-                                    <span>Pemenang Game:</span>
-                                    @if($blueWin)
-                                        <span class="game-winner-text blue">💙 {{ $blueTeamName }} (Blue)</span>
-                                    @else
-                                        <span class="game-winner-text red">❤️ {{ $redTeamName }} (Red)</span>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <!-- 1 TABEL PERTANDINGAN UTUH (BLUE vs RED) -->
-                            <div class="table-wrap">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th colspan="5" class="th-side-blue">
-                                                💙 Blue Side: {{ $blueTeamName }}
-                                                @if($blueWin) <span class="badge-winner" style="font-size: 10px; margin-left: 6px;">WIN</span> @endif
-                                            </th>
-                                            <th class="th-role">Role</th>
-                                            <th colspan="5" class="th-side-red">
-                                                ❤️ Red Side: {{ $redTeamName }}
-                                                @if(!$blueWin) <span class="badge-winner" style="font-size: 10px; margin-left: 6px;">WIN</span> @endif
-                                            </th>
-                                        </tr>
-                                        <tr class="sub-header">
-                                            <th style="text-align: left; padding-left: 14px;">Player</th>
-                                            <th>Hero</th>
-                                            <th>Ban</th>
-                                            <th>Battle Spell</th>
-                                            <th class="border-r">K/D/A</th>
-                                            <th class="th-role">Lane</th>
-                                            <th class="border-l" style="text-align: left; padding-left: 14px;">Player</th>
-                                            <th>Hero</th>
-                                            <th>Ban</th>
-                                            <th>Battle Spell</th>
-                                            <th>K/D/A</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($rolesOrder as $role)
-                                            @php
-                                                $b = $blueByRole->get($role);
-                                                $r = $redByRole->get($role);
-
-                                                $bHeroImg = $b ? $getHeroImg($b->hero) : null;
-                                                $rHeroImg = $r ? $getHeroImg($r->hero) : null;
-
-                                                $bSpellImg = $b ? asset('images/spell/' . strtolower(trim($b->spell)) . '.jpeg') : null;
-                                                $rSpellImg = $r ? asset('images/spell/' . strtolower(trim($r->spell)) . '.jpeg') : null;
-
-                                                $bBanImg = ($b && $b->hero_ban) ? $getHeroImg($b->hero_ban) : null;
-                                                $rBanImg = ($r && $r->hero_ban) ? $getHeroImg($r->hero_ban) : null;
-                                            @endphp
-                                            <tr>
-                                                <!-- BLUE SIDE -->
-                                                <td class="td-blue td-blue-player" style="padding-left: 14px;">
-                                                    {{ $b->player ?? '-' }}
-                                                </td>
-                                                <td class="td-blue">
-                                                    @if($b)
-                                                        <div class="flex-cell">
-                                                            <img src="{{ $bHeroImg }}" 
-                                                                 class="hero-avatar" 
-                                                                 alt="{{ $b->hero }}"
-                                                                 onerror="this.src='https://via.placeholder.com/28?text=H'">
-                                                            <strong style="color: #1e293b;">{{ $b->hero }}</strong>
-                                                        </div>
-                                                    @else - @endif
-                                                </td>
-                                                <td class="td-blue" style="color: #64748b; font-size: 11px;">
-                                                    @if($b && $b->hero_ban)
-                                                        <div class="flex-cell" style="justify-content: center;">
-                                                            @if($bBanImg)
-                                                                <img src="{{ $bBanImg }}" class="ban-avatar" onerror="this.style.display='none'">
-                                                            @endif
-                                                            <span>{{ $b->hero_ban }}</span>
-                                                        </div>
-                                                    @else - @endif
-                                                </td>
-                                                <td class="td-blue">
-                                                    @if($b)
-                                                        <div class="flex-cell">
-                                                            <img src="{{ $bSpellImg }}" 
-                                                                 class="spell-avatar" 
-                                                                 alt="{{ $b->spell }}"
-                                                                 onerror="this.src='https://via.placeholder.com/24?text=S'">
-                                                            <span>{{ $b->spell }}</span>
-                                                        </div>
-                                                    @else - @endif
-                                                </td>
-                                                <td class="td-blue border-r">
-                                                    <span class="badge-kda">{{ $b ? "{$b->kill_stat}/{$b->death_stat}/{$b->assist_stat}" : '-' }}</span>
-                                                </td>
-
-                                                <!-- ROLE TENGAH -->
-                                                <td class="td-role">
-                                                    <span class="badge-lane-tag">{{ $role }}</span>
-                                                </td>
-
-                                                <!-- RED SIDE -->
-                                                <td class="td-red border-l td-red-player" style="padding-left: 14px;">
-                                                    {{ $r->player ?? '-' }}
-                                                </td>
-                                                <td class="td-red">
-                                                    @if($r)
-                                                        <div class="flex-cell">
-                                                            <img src="{{ $rHeroImg }}" 
-                                                                 class="hero-avatar" 
-                                                                 alt="{{ $r->hero }}"
-                                                                 onerror="this.src='https://via.placeholder.com/28?text=H'">
-                                                            <strong style="color: #1e293b;">{{ $r->hero }}</strong>
-                                                        </div>
-                                                    @else - @endif
-                                                </td>
-                                                <td class="td-red" style="color: #64748b; font-size: 11px;">
-                                                    @if($r && $r->hero_ban)
-                                                        <div class="flex-cell" style="justify-content: center;">
-                                                            @if($rBanImg)
-                                                                <img src="{{ $rBanImg }}" class="ban-avatar" onerror="this.style.display='none'">
-                                                            @endif
-                                                            <span>{{ $r->hero_ban }}</span>
-                                                        </div>
-                                                    @else - @endif
-                                                </td>
-                                                <td class="td-red">
-                                                    @if($r)
-                                                        <div class="flex-cell">
-                                                            <img src="{{ $rSpellImg }}" 
-                                                                 class="spell-avatar" 
-                                                                 alt="{{ $r->spell }}"
-                                                                 onerror="this.src='https://via.placeholder.com/24?text=S'">
-                                                            <span>{{ $r->spell }}</span>
-                                                        </div>
-                                                    @else - @endif
-                                                </td>
-                                                <td class="td-red">
-                                                    <span class="badge-kda">{{ $r ? "{$r->kill_stat}/{$r->death_stat}/{$r->assist_stat}" : '-' }}</span>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-
-                        </div>
-                    @endforeach
-
-                </div>
-            </div>
-        @endforeach
-
+        <div class="flex items-center gap-2 text-[11px] font-extrabold text-[#700B1A] bg-[#FCECEE] border border-[#F8B4BD] rounded-full px-3.5 py-1 shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-[#700B1A]"></span>
+            <span>LIVE DATABASE V1.9.14</span>
+        </div>
     </div>
 
-    <script>
-        function switchGame(seriesIdx, targetGameIdx) {
-            const card = document.getElementById('series-card-' + seriesIdx);
-            if (!card) return;
+    <!-- 3. PAGE HEADING & TOP ACTION BUTTONS -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-black text-[#18181B] tracking-tight uppercase">
+                DATASET PERTANDINGAN RESMI
+            </h1>
+            <p class="text-xs text-gray-600 mt-1 max-w-2xl font-medium">
+                Kelola match sheet turnamen pro 5v5, validasi draft pick/ban, sinkronisasi power spike data, dan tambah rekaman pertandingan baru.
+            </p>
+        </div>
 
-            const tabs = card.querySelectorAll('.tab-btn');
-            const sections = card.querySelectorAll('.game-item-' + seriesIdx);
+        <div class="flex items-center gap-2.5 flex-wrap">
+            <button type="button" 
+                    onclick="toggleInputForm()" 
+                    class="bg-[#700B1A] hover:bg-[#550713] text-white text-xs font-extrabold uppercase tracking-wider px-4 py-2 rounded-full shadow-sm flex items-center gap-1.5 transition">
+                <span>+ INPUT MATCH SHEET BARU</span>
+            </button>
 
-            tabs.forEach((tab, idx) => {
-                tab.classList.remove('active');
-                if (targetGameIdx === 'all') {
-                    if (tab.classList.contains('btn-all-tab')) tab.classList.add('active');
-                } else if (idx === targetGameIdx) {
-                    tab.classList.add('active');
-                }
+            <button type="button" 
+                    onclick="exportDatasetCSV()" 
+                    class="bg-white hover:bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] text-xs font-bold uppercase tracking-wider px-3.5 py-2 rounded-full shadow-sm flex items-center gap-1.5 transition">
+                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                <span>Export Dataset (CSV/JSON)</span>
+            </button>
+
+            <button type="button" 
+                    class="bg-white hover:bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] text-xs font-bold uppercase tracking-wider px-3.5 py-2 rounded-full shadow-sm flex items-center gap-1.5 transition">
+                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                <span>Import Bulk Replay Data</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 4. TWO SUMMARY STAT CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Total Rekaman Match -->
+        <div class="card-custom p-5 flex items-center justify-between">
+            <div>
+                <div class="text-[11px] font-black uppercase tracking-wider text-gray-400 mb-1">
+                    TOTAL REKAMAN MATCH
+                </div>
+                <div class="text-3xl font-black text-[#18181B] tracking-tight">
+                    {{ $totalGames }} <span class="text-sm font-bold text-gray-500 font-sans">Game</span>
+                </div>
+            </div>
+            <div class="w-14 h-14 rounded-full bg-[#FCECEE] flex items-center justify-center text-[#700B1A]">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Rata-Rata Durasi -->
+        <div class="card-custom p-5 flex items-center justify-between">
+            <div>
+                <div class="text-[11px] font-black uppercase tracking-wider text-gray-400 mb-1">
+                    RATA-RATA DURASI
+                </div>
+                <div class="text-3xl font-black text-[#18181B] tracking-tight">
+                    {{ $avgDuration }} <span class="text-sm font-bold text-gray-500 font-sans">Menit</span>
+                </div>
+                <div class="text-[11px] font-medium text-gray-500 mt-1">
+                    Tercepat {{ $fastestDuration }} • Terlama {{ $longestDuration }}
+                </div>
+            </div>
+            <div class="w-14 h-14 rounded-full bg-[#FCECEE] flex items-center justify-center text-[#700B1A]">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. FORM INPUT MATCH SHEET CEPAT -->
+    <div class="card-custom p-6 space-y-5" id="quickInputForm">
+        <!-- Form Title -->
+        <div class="flex items-center gap-2.5 text-xs font-black uppercase tracking-wider text-[#18181B] pb-3 border-b border-[#FAF0F1]">
+            <span class="w-6 h-6 rounded-lg bg-[#FCECEE] text-[#700B1A] flex items-center justify-center font-black">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+            </span>
+            <span>FORM INPUT MATCH SHEET CEPAT</span>
+        </div>
+
+        <!-- Top Inputs: Tournament, Match ID, Round, Duration -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-[10px] font-extrabold uppercase text-gray-500 mb-1">Turnamen Resmi</label>
+                <select class="w-full bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl px-3 py-2 text-xs font-semibold text-[#18181B] focus:outline-none focus:border-[#700B1A]">
+                    <option value="MWI x EWC 2026">MWI x EWC 2026</option>
+                    <option value="MPL ID S14">MPL ID S14</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-extrabold uppercase text-gray-500 mb-1">Match ID & Stage</label>
+                <input type="text" value="MWI - G070" class="w-full bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl px-3 py-2 text-xs font-bold text-[#18181B] focus:outline-none focus:border-[#700B1A]">
+            </div>
+            <div>
+                <label class="block text-[10px] font-extrabold uppercase text-gray-500 mb-1">Round / Fase</label>
+                <input type="text" value="Grand Finals Game 4" class="w-full bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl px-3 py-2 text-xs font-semibold text-[#18181B] focus:outline-none focus:border-[#700B1A]">
+            </div>
+            <div>
+                <label class="block text-[10px] font-extrabold uppercase text-gray-500 mb-1">Durasi Match (MM:SS)</label>
+                <input type="text" value="16:42" class="w-full bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl px-3 py-2 text-xs font-mono font-bold text-[#18181B] focus:outline-none focus:border-[#700B1A]">
+            </div>
+        </div>
+
+        <!-- Blue Side vs Red Side Columns -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <!-- Blue Side Card -->
+            <div class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-2xl p-4 space-y-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5 text-xs font-black text-sky-800 uppercase tracking-wider">
+                        <span class="w-2.5 h-2.5 rounded-full bg-sky-600"></span>
+                        <span>BLUE SIDE TEAM</span>
+                    </div>
+                    <span class="bg-white border border-[#F3E8E8] text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">First Pick Phase</span>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-semibold text-gray-500 mb-1">Nama Tim Blue</label>
+                    <input type="text" value="Team Vitality" class="w-full bg-white border border-[#F3E8E8] rounded-xl px-3 py-2 text-xs font-bold text-[#18181B] focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-semibold text-gray-500 mb-1">Draft Hero Picks (5 Heroes)</label>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <span class="bg-white border border-[#F3E8E8] text-xs font-bold px-2.5 py-1 rounded-lg">Harith <span class="text-[9px] bg-[#FCECEE] text-[#700B1A] px-1 py-0.2 rounded font-black">Gold</span></span>
+                        <span class="bg-white border border-[#F3E8E8] text-xs font-bold px-2.5 py-1 rounded-lg">Terizla <span class="text-[9px] bg-[#FCECEE] text-[#700B1A] px-1 py-0.2 rounded font-black">Exp</span></span>
+                        <span class="bg-white border border-[#F3E8E8] text-xs font-bold px-2.5 py-1 rounded-lg">Baxia <span class="text-[9px] bg-[#FCECEE] text-[#700B1A] px-1 py-0.2 rounded font-black">Jungle</span></span>
+                        <span class="bg-white border border-[#F3E8E8] text-xs font-bold px-2.5 py-1 rounded-lg">Yve <span class="text-[9px] bg-[#FCECEE] text-[#700B1A] px-1 py-0.2 rounded font-black">Mid</span></span>
+                        <span class="bg-white border border-[#F3E8E8] text-xs font-bold px-2.5 py-1 rounded-lg">Tigreal <span class="text-[9px] bg-[#FCECEE] text-[#700B1A] px-1 py-0.2 rounded font-black">Roam</span></span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-semibold text-gray-500 mb-1">Draft Hero Bans (5 Bans)</label>
+                    <div class="flex items-center gap-1.5 flex-wrap text-[11px] font-semibold text-gray-600">
+                        <span class="bg-white border border-[#F3E8E8] px-2 py-0.5 rounded">Fanny</span>
+                        <span class="bg-white border border-[#F3E8E8] px-2 py-0.5 rounded">Ling</span>
+                        <span class="bg-white border border-[#F3E8E8] px-2 py-0.5 rounded">Nolan</span>
+                        <span class="bg-white border border-[#F3E8E8] px-2 py-0.5 rounded">Roger</span>
+                        <span class="bg-white border border-[#F3E8E8] px-2 py-0.5 rounded">Zhuxin</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Red Side Card -->
+            <div class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-2xl p-4 space-y-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1.5 text-xs font-black text-rose-800 uppercase tracking-wider">
+                        <span class="w-2.5 h-2.5 rounded-full bg-rose-600"></span>
+                        <span>RED SIDE TEAM</span>
+                    </div>
+                    <span class="bg-white border border-[#F3E8E8] text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Second Pick Phase</span>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-semibold text-gray-500 mb-1">Nama Tim Red</label>
+                    <input type="text" value="Falcons Vega" class="w-full bg-white border border-[#F3E8E8] rounded-xl px-3 py-2 text-xs font-bold text-[#18181B] focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-semibold text-gray-500 mb-1">Draft Hero Picks (5 Heroes)</label>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <span class="bg-white border border-[#F3E8E8] text-xs font-bold px-2.5 py-1 rounded-lg">Karrie <span class="text-[9px] bg-[#FCECEE] text-[#700B1A] px-1 py-0.2 rounded font-black">Gold</span></span>
+                        <span class="bg-white border border-[#F3E8E8] text-xs font-bold px-2.5 py-1 rounded-lg">Suyou <span class="text-[9px] bg-[#FCECEE] text-[#700B1A] px-1 py-0.2 rounded font-black">Jungle</span></span>
+                        <span class="bg-white border border-[#F3E8E8] text-xs font-bold px-2.5 py-1 rounded-lg">Valentina <span class="text-[9px] bg-[#FCECEE] text-[#700B1A] px-1 py-0.2 rounded font-black">Mid</span></span>
+                        <span class="bg-white border border-[#F3E8E8] text-xs font-bold px-2.5 py-1 rounded-lg">Edith <span class="text-[9px] bg-[#FCECEE] text-[#700B1A] px-1 py-0.2 rounded font-black">Exp</span></span>
+                        <span class="bg-white border border-[#F3E8E8] text-xs font-bold px-2.5 py-1 rounded-lg">Rafaela <span class="text-[9px] bg-[#FCECEE] text-[#700B1A] px-1 py-0.2 rounded font-black">Roam</span></span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-semibold text-gray-500 mb-1">Draft Hero Bans (5 Bans)</label>
+                    <div class="flex items-center gap-1.5 flex-wrap text-[11px] font-semibold text-gray-600">
+                        <span class="bg-white border border-[#F3E8E8] px-2 py-0.5 rounded">Claude</span>
+                        <span class="bg-white border border-[#F3E8E8] px-2 py-0.5 rounded">Marcel</span>
+                        <span class="bg-white border border-[#F3E8E8] px-2 py-0.5 rounded">Mathilda</span>
+                        <span class="bg-white border border-[#F3E8E8] px-2 py-0.5 rounded">Joy</span>
+                        <span class="bg-white border border-[#F3E8E8] px-2 py-0.5 rounded">Hayabusa</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result & Submit Row -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-3 border-t border-[#FAF0F1]">
+            <div>
+                <label class="block text-[10px] font-extrabold uppercase text-gray-500 mb-1.5">PEMENANG PERTANDINGAN (MATCH RESULT)</label>
+                <div class="flex items-center gap-4 text-xs font-bold text-[#18181B]">
+                    <label class="flex items-center gap-1.5 cursor-pointer">
+                        <input type="radio" name="match_winner" value="blue" checked class="text-[#700B1A] focus:ring-[#700B1A]">
+                        <span>Blue Side (Team Vitality)</span>
+                    </label>
+                    <label class="flex items-center gap-1.5 cursor-pointer">
+                        <input type="radio" name="match_winner" value="red" class="text-[#700B1A] focus:ring-[#700B1A]">
+                        <span>Red Side (Falcons Vega)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button type="button" class="bg-white hover:bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] text-xs font-bold px-4 py-2 rounded-full transition">
+                    Reset Form
+                </button>
+                <button type="button" class="bg-[#700B1A] hover:bg-[#550713] text-white text-xs font-extrabold px-5 py-2 rounded-full transition shadow-sm flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span>Simpan & Validasi Dataset</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. FILTER TOOLBAR -->
+    <div class="card-custom p-4 flex flex-col md:flex-row items-center justify-between gap-3 flex-wrap">
+        <!-- Search Input -->
+        <div class="relative w-full md:w-80 flex-shrink-0">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </span>
+            <input type="text" 
+                   id="matchSearchInput" 
+                   oninput="filterMatchTable()" 
+                   placeholder="Cari Match ID, Tim, atau Hero..." 
+                   class="w-full bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl py-2 pl-9 pr-3 text-xs font-medium text-[#18181B] placeholder-gray-400 focus:outline-none focus:border-[#700B1A] transition">
+        </div>
+
+        <!-- Filter Dropdowns -->
+        <div class="flex items-center gap-2 flex-wrap w-full md:w-auto justify-start md:justify-end">
+            <select id="tournamentFilter" class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-700 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none cursor-pointer">
+                <option value="">MWI x EWC 2026</option>
+            </select>
+            <select id="patchFilter" class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-700 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none cursor-pointer">
+                <option value="">Patch 1.9.14</option>
+            </select>
+            <select id="winnerFilter" onchange="filterMatchTable()" class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-700 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none cursor-pointer">
+                <option value="">Semua Winner</option>
+                <option value="blue">Blue Side Winner</option>
+                <option value="red">Red Side Winner</option>
+            </select>
+            <button type="button" onclick="resetMatchFilter()" class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-gray-600 hover:text-[#700B1A] border border-[#F3E8E8] rounded-xl px-3 py-2 text-xs font-bold flex items-center gap-1.5 transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span>Reset Filter</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 7. MATCHES TABLE -->
+    <div class="card-custom overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse" id="matchesTable">
+                <thead>
+                    <tr class="bg-[#FAF8F8] border-b border-[#F3E8E8] text-[10px] font-black uppercase text-gray-500 tracking-wider">
+                        <th class="py-3 px-4 w-10 text-center">#</th>
+                        <th class="py-3 px-4">MATCH ID</th>
+                        <th class="py-3 px-4">TURNAMEN & FASE</th>
+                        <th class="py-3 px-4">TEAMS (BLUE VS RED)</th>
+                        <th class="py-3 px-4">DURASI</th>
+                        <th class="py-3 px-4">WINNER</th>
+                        <th class="py-3 px-4 min-w-[300px]">PICK SHEET (BLUE / RED)</th>
+                        <th class="py-3 px-4">OBJECTIVES</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#F3E8E8]" id="matchesTbody">
+                    @foreach($matches as $m)
+                        <tr class="hover:bg-[#FAF8F8] transition match-row"
+                            data-search="{{ strtolower(($m->match_id ?? $m['match_id']) . ' ' . ($m->tournament ?? $m['tournament']) . ' ' . ($m->phase ?? $m['phase']) . ' ' . ($m->team_blue ?? $m['team_blue']) . ' ' . ($m->team_red ?? $m['team_red']) . ' ' . ($m->blue_picks_str ?? '') . ' ' . ($m->red_picks_str ?? '')) }}"
+                            data-winner="{{ strtolower($m->winner_side ?? $m['winner_side']) }}">
+                            
+                            <!-- Index -->
+                            <td class="py-3.5 px-4 text-center font-bold text-gray-400">
+                                {{ $m->index ?? $m['index'] }}
+                            </td>
+
+                            <!-- Match ID -->
+                            <td class="py-3.5 px-4 font-mono font-black text-[#700B1A]">
+                                {{ $m->match_id ?? $m['match_id'] }}
+                            </td>
+
+                            <!-- Tournament & Phase -->
+                            <td class="py-3.5 px-4">
+                                <div class="font-extrabold text-[#18181B] text-xs leading-snug">
+                                    {{ $m->tournament ?? $m['tournament'] }}
+                                </div>
+                                <div class="text-[10px] text-gray-500 font-medium">
+                                    {{ $m->phase ?? $m['phase'] }}
+                                </div>
+                            </td>
+
+                            <!-- Teams -->
+                            <td class="py-3.5 px-4 text-xs font-semibold text-gray-700">
+                                <span class="font-bold text-[#18181B]">{{ $m->team_blue ?? $m['team_blue'] }} (Blue)</span> 
+                                <span class="text-gray-400 font-normal">vs</span> 
+                                <span class="font-bold text-[#18181B]">{{ $m->team_red ?? $m['team_red'] }} (Red)</span>
+                            </td>
+
+                            <!-- Duration -->
+                            <td class="py-3.5 px-4 font-mono font-bold text-gray-800">
+                                {{ $m->duration ?? $m['duration'] }}
+                            </td>
+
+                            <!-- Winner -->
+                            <td class="py-3.5 px-4">
+                                <span class="bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD] text-[10px] font-extrabold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shadow-sm whitespace-nowrap">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#700B1A]"></span>
+                                    <span>{{ $m->winner ?? $m['winner'] }}</span>
+                                </span>
+                            </td>
+
+                            <!-- Pick Sheet -->
+                            <td class="py-3.5 px-4 text-[11px] leading-tight space-y-1.5">
+                                @if(is_array($m->blue_picks) && isset($m->blue_picks[0]['hero']))
+                                    <!-- Blue Side Picks -->
+                                    <div class="flex items-center gap-1 flex-wrap">
+                                        <span class="font-extrabold text-sky-800 text-[10px] uppercase w-8">Blue:</span>
+                                        @foreach($m->blue_picks as $bp)
+                                            <div class="inline-flex items-center gap-1 bg-[#FAF8F8] border border-[#F3E8E8] rounded-md px-1.5 py-0.5 shadow-2xs">
+                                                <img src="{{ $bp['portrait'] }}" 
+                                                     alt="{{ $bp['hero'] }}" 
+                                                     class="w-4 h-4 rounded-full object-cover bg-gray-100"
+                                                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($bp['hero']) }}&background=700B1A&color=fff';">
+                                                <span class="font-bold text-[10px] text-gray-800">{{ $bp['hero'] }}</span>
+                                                <img src="{{ $bp['spell_image'] }}" 
+                                                     title="{{ $bp['spell'] }}" 
+                                                     alt="{{ $bp['spell'] }}" 
+                                                     class="w-3.5 h-3.5 rounded object-cover">
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <!-- Red Side Picks -->
+                                    <div class="flex items-center gap-1 flex-wrap">
+                                        <span class="font-extrabold text-rose-800 text-[10px] uppercase w-8">Red:</span>
+                                        @foreach($m->red_picks as $rp)
+                                            <div class="inline-flex items-center gap-1 bg-[#FAF8F8] border border-[#F3E8E8] rounded-md px-1.5 py-0.5 shadow-2xs">
+                                                <img src="{{ $rp['portrait'] }}" 
+                                                     alt="{{ $rp['hero'] }}" 
+                                                     class="w-4 h-4 rounded-full object-cover bg-gray-100"
+                                                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($rp['hero']) }}&background=700B1A&color=fff';">
+                                                <span class="font-bold text-[10px] text-gray-800">{{ $rp['hero'] }}</span>
+                                                <img src="{{ $rp['spell_image'] }}" 
+                                                     title="{{ $rp['spell'] }}" 
+                                                     alt="{{ $rp['spell'] }}" 
+                                                     class="w-3.5 h-3.5 rounded object-cover">
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="text-gray-700">
+                                        <span class="font-extrabold text-sky-800">Blue:</span> {{ is_string($m->blue_picks) ? $m->blue_picks : $m->blue_picks_str }}
+                                    </div>
+                                    <div class="text-gray-700">
+                                        <span class="font-extrabold text-rose-800">Red:</span> {{ is_string($m->red_picks) ? $m->red_picks : $m->red_picks_str }}
+                                    </div>
+                                @endif
+                            </td>
+
+                            <!-- Objectives & Map -->
+                            <td class="py-3.5 px-4 font-mono text-[11px] text-gray-600 leading-tight">
+                                <div class="flex items-center gap-2">
+                                    @if(!empty($m->map_image))
+                                        <img src="{{ $m->map_image }}" 
+                                             alt="{{ $m->map }}" 
+                                             title="{{ $m->map }}" 
+                                             class="w-8 h-8 rounded-lg object-cover border border-[#F3E8E8] shadow-2xs flex-shrink-0">
+                                    @endif
+                                    <div>
+                                        <div class="font-bold text-[10px] text-gray-800 font-sans truncate">{{ $m->map }}</div>
+                                        <div class="text-[9px] text-gray-500">{{ $m->objectives_lord }}</div>
+                                        <div class="text-[9px] text-gray-400">{{ $m->objectives_turtle }}</div>
+                                    </div>
+                                </div>
+                            </td>
+
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Table Footer Pagination -->
+        <div class="p-4 border-t border-[#F3E8E8] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-semibold text-gray-500">
+            <div>
+                Menampilkan <span class="text-[#18181B] font-bold" id="matchVisibleCount">{{ count($matches) }}</span> total match sheet terverifikasi
+            </div>
+
+            <div class="flex items-center gap-1 font-bold text-xs">
+                <button type="button" class="px-2.5 py-1 rounded-lg border border-[#F3E8E8] bg-white text-gray-500 hover:bg-[#FAF8F8]">Sebelumnya</button>
+                <button type="button" class="w-7 h-7 rounded-lg bg-[#700B1A] text-white">1</button>
+                <button type="button" class="w-7 h-7 rounded-lg border border-[#F3E8E8] bg-white text-gray-700 hover:bg-[#FAF8F8]">2</button>
+                <button type="button" class="w-7 h-7 rounded-lg border border-[#F3E8E8] bg-white text-gray-700 hover:bg-[#FAF8F8]">3</button>
+                <span class="px-1 text-gray-400">...</span>
+                <button type="button" class="w-7 h-7 rounded-lg border border-[#F3E8E8] bg-white text-gray-700 hover:bg-[#FAF8F8]">12</button>
+                <button type="button" class="px-2.5 py-1 rounded-lg border border-[#F3E8E8] bg-white text-gray-500 hover:bg-[#FAF8F8]">Selanjutnya</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. ADMIN FOOTER -->
+    <footer class="border-t border-[#F3E8E8] pt-6 pb-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-gray-500">
+        <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#700B1A]"></span>
+            <span class="font-extrabold text-[#18181B] tracking-wider uppercase">METASCOUT : LAND OF DAWN</span>
+            <span class="text-gray-300">•</span>
+            <span class="text-gray-400">ADMIN PANEL</span>
+        </div>
+        <div class="flex items-center gap-4 uppercase tracking-wider text-[11px] text-gray-400 font-bold">
+            <span>ALL TIMESTAMPS IN UTC+7</span>
+            <span>•</span>
+            <span class="text-[#700B1A] font-extrabold">VERSI 1.9.14</span>
+        </div>
+    </footer>
+
+</div>
+
+@push('scripts')
+<script>
+    function toggleInputForm() {
+        const form = document.getElementById('quickInputForm');
+        form.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function filterMatchTable() {
+        const query = (document.getElementById('matchSearchInput').value || '').toLowerCase().trim();
+        const winner = (document.getElementById('winnerFilter').value || '').toLowerCase().trim();
+
+        const rows = document.querySelectorAll('.match-row');
+        rows.forEach(r => {
+            const search = r.dataset.search || '';
+            const win = r.dataset.winner || '';
+
+            const matchQuery = !query || search.includes(query);
+            const matchWin = !winner || win === winner;
+
+            if (matchQuery && matchWin) {
+                r.style.display = '';
+            } else {
+                r.style.display = 'none';
+            }
+        });
+    }
+
+    function resetMatchFilter() {
+        document.getElementById('matchSearchInput').value = '';
+        document.getElementById('winnerFilter').value = '';
+        filterMatchTable();
+    }
+
+    function exportDatasetCSV() {
+        const rows = document.querySelectorAll('#matchesTable tr');
+        let csv = [];
+        rows.forEach(r => {
+            if (r.style.display === 'none') return;
+            let cells = [];
+            r.querySelectorAll('th, td').forEach(c => {
+                let text = c.innerText.replace(/(\r\n|\n|\r)/gm, ' ').replace(/\s+/g, ' ').trim();
+                cells.push('"' + text.replace(/"/g, '""') + '"');
             });
-
-            sections.forEach((sec, idx) => {
-                if (targetGameIdx === 'all' || idx === targetGameIdx) {
-                    sec.style.display = 'block';
-                } else {
-                    sec.style.display = 'none';
-                }
-            });
-        }
-
-        function expandAllGames() {
-            document.querySelectorAll('.series-card').forEach((card, sIdx) => {
-                switchGame(sIdx, 'all');
-            });
-        }
-
-        function compactAllGames() {
-            document.querySelectorAll('.series-card').forEach((card, sIdx) => {
-                switchGame(sIdx, 0);
-            });
-        }
-    </script>
-
-</body>
-</html>
+            csv.push(cells.join(','));
+        });
+        const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'metascout_tournament_matches.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+</script>
+@endpush
+@endsection

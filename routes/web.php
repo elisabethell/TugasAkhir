@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DraftController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\DatasetController;
@@ -15,18 +16,26 @@ use App\Http\Controllers\RbrRuleController;
 | Menggunakan Metode Rule-Based Reasoning (RBR)
 */
 
-// 1. Homepage: Draft Recommendation & Gameplay Analyzer (Tanpa Login!)
-Route::get('/', [DraftController::class, 'index'])->name('draft.analyzer');
+// 1. Homepage Utama (Sesuai Desain Mockup)
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// 2. Fitur Rekomendasi Draft & Analisis Gameplay (RBR Engine)
+Route::get('/rekomendasi-draft', [DraftController::class, 'index'])->name('draft.analyzer');
 Route::post('/api/analyze-draft', [DraftController::class, 'analyze'])->name('draft.analyze.api');
 
-// 2. Statistik Hero Pro Turnamen (Liquipedia-Style Academic View)
+// 3. Statistik Pro Hero & Tier List (Liquipedia-Style Academic View)
 Route::get('/statistics', [StatisticsController::class, 'index'])->name('hero.statistics');
 
-// 3. Riwayat Pertandingan Turnamen (Tournament Series per Match)
+// 4. Riwayat Pertandingan Seri Turnamen (Tournament Best-of Series)
 Route::get('/datasets', [DatasetController::class, 'index'])->name('matches');
 
-// 4. Kamus Data Hero
+// 5. Kamus Data Hero
 Route::get('/heroes', [HeroController::class, 'index'])->name('heroes');
 
-// 5. Knowledge Base Aturan RBR (Transparansi Akademik)
+// 6. Knowledge Base Aturan RBR (Transparansi Akademik)
 Route::get('/rules', [RbrRuleController::class, 'index'])->name('rules');
+
+// 7. Route Admin Placeholder
+Route::get('/login', function() {
+    return redirect()->route('home');
+})->name('login');

@@ -1,176 +1,241 @@
 @extends('layouts.app')
 
-@section('title', 'Statistik Pro Hero MWI 2026 - MetaScout: Land of Dawn')
+@section('title', 'Statistik Hero & Tier List Pro Meta - MetaScout: Land of Dawn')
 
 @section('content')
 <div class="space-y-6">
 
-    <!-- HEADER & OVERALL STATS SUMMARY -->
-    <div class="flex justify-between items-start flex-wrap gap-4">
-        <div>
-            <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-cyan-950 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-2 border border-cyan-800">
-                <span>🏆 Data Resmi Turnamen MWI X EWC 2026</span>
-            </div>
-            <h1 class="text-3xl font-extrabold text-white tracking-tight">
-                Statistik Pro Hero & Meta Turnamen
-            </h1>
-            <p class="text-gray-400 text-sm mt-1 max-w-2xl">
-                Distribusi Pick, Ban, Win Rate, dan Analisis Bias Sisi (Blue vs Red Side) dari seluruh 69 pertandingan turnamen internasional MLBB.
-            </p>
+    <!-- 1. BREADCRUMBS & REGISTERED BADGE -->
+    <div class="flex items-center justify-between flex-wrap gap-3 pt-2">
+        <div class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <a href="{{ route('home') }}" class="hover:text-[#700B1A] transition">HOME</a>
+            <span>/</span>
+            <span class="text-[#700B1A] font-extrabold">STATISTIK HERO</span>
         </div>
 
-        <div class="flex items-center gap-3">
-            <a href="{{ route('matches') }}" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 rounded-lg text-xs font-semibold transition">
-                🏆 Lihat Riwayat Seri Match
-            </a>
-            <a href="{{ route('draft.analyzer') }}" class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-extrabold rounded-lg text-xs tracking-wider uppercase transition shadow-[0_0_15px_rgba(0,242,255,0.25)]">
-                🎮 Rekomendasi Draft (RBR)
-            </a>
+        <div class="flex items-center gap-2 text-xs font-bold text-gray-700 bg-white border border-[#F3E8E8] rounded-full px-4 py-1.5 shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span class="uppercase tracking-wider text-[11px] font-extrabold text-[#18181B]">133 HEROES REGISTERED</span>
         </div>
     </div>
 
-    <!-- SIDE BIAS SUMMARY BAR (LIQUEPEDIA STYLE) -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="card-custom p-4 bg-gray-900/60 flex items-center justify-between border-gray-800">
-            <div>
-                <span class="text-xs text-gray-400 font-semibold block uppercase">Total Pertandingan</span>
-                <span class="text-2xl font-black text-white">{{ $summary['total_games'] }} Game</span>
-            </div>
-            <span class="text-3xl">🎮</span>
+    <!-- 2. SEARCH & FILTER TOOLBAR -->
+    <div class="card-custom p-4 flex flex-col md:flex-row items-center justify-between gap-3 flex-wrap">
+        
+        <!-- Search Input -->
+        <div class="relative w-full md:w-72 flex-shrink-0">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </span>
+            <input type="text" 
+                   id="statSearchInput" 
+                   oninput="filterStatsTable()" 
+                   placeholder="Search hero name..." 
+                   class="w-full bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl py-2 pl-9 pr-3 text-xs font-medium text-[#18181B] placeholder-gray-400 focus:outline-none focus:border-[#700B1A] transition">
         </div>
 
-        <div class="card-custom p-4 bg-blue-950/20 border-blue-900/40 flex items-center justify-between">
-            <div>
-                <span class="text-xs text-blue-400 font-semibold block uppercase">💙 Blue Side Dominance</span>
-                <span class="text-2xl font-black text-blue-300">{{ $summary['blue_wins'] }}W - {{ $summary['blue_losses'] }}L</span>
-                <span class="text-xs font-bold text-blue-400 block mt-0.5">Win Rate: {{ $summary['blue_wr'] }}%</span>
-            </div>
-            <div class="text-right">
-                <span class="text-xs bg-blue-900/50 text-blue-300 px-2 py-1 rounded font-mono font-bold">42.03%</span>
-            </div>
+        <!-- Dropdowns & Actions -->
+        <div class="flex items-center gap-2 flex-wrap w-full md:w-auto justify-start md:justify-end">
+            <!-- Role Dropdown -->
+            <select id="roleSelect" onchange="filterStatsTable()" class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-700 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-[#700B1A] cursor-pointer">
+                <option value="">ROLE (ALL)</option>
+                <option value="Mage">Mage</option>
+                <option value="Marksman">Marksman</option>
+                <option value="Tank">Tank</option>
+                <option value="Fighter">Fighter</option>
+                <option value="Assassin">Assassin</option>
+                <option value="Support">Support</option>
+            </select>
+
+            <!-- Lane Dropdown -->
+            <select id="laneSelect" onchange="filterStatsTable()" class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-700 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-[#700B1A] cursor-pointer">
+                <option value="">LANE (ALL)</option>
+                <option value="Gold Lane">Gold Lane</option>
+                <option value="Mid">Mid Lane</option>
+                <option value="Exp Lane">Exp Lane</option>
+                <option value="Jungle">Jungle</option>
+                <option value="Roam">Roam</option>
+            </select>
+
+            <!-- Speciality Dropdown -->
+            <select id="specSelect" onchange="filterStatsTable()" class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-700 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-[#700B1A] cursor-pointer">
+                <option value="">SPECIALITY (ALL)</option>
+                <option value="Damage">Damage</option>
+                <option value="Crowd Control">Crowd Control</option>
+                <option value="Charge">Charge</option>
+                <option value="Burst">Burst</option>
+                <option value="Initiator">Initiator</option>
+                <option value="Regen">Regen</option>
+                <option value="Guard">Guard</option>
+            </select>
+
+            <!-- Reset Button -->
+            <button type="button" onclick="resetStatsFilters()" class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-gray-600 hover:text-[#700B1A] border border-[#F3E8E8] rounded-xl px-3 py-2 text-xs font-bold flex items-center gap-1.5 transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span>RESET FILTERS</span>
+            </button>
+
+            <!-- Export CSV -->
+            <button type="button" onclick="exportTableToCSV('metascout_hero_statistics.csv')" class="bg-[#700B1A] hover:bg-[#550713] text-white rounded-xl px-4 py-2 text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                <span>EXPORT CSV</span>
+            </button>
         </div>
 
-        <div class="card-custom p-4 bg-red-950/20 border-red-900/40 flex items-center justify-between">
-            <div>
-                <span class="text-xs text-red-400 font-semibold block uppercase">❤️ Red Side Dominance</span>
-                <span class="text-2xl font-black text-red-300">{{ $summary['red_wins'] }}W - {{ $summary['red_losses'] }}L</span>
-                <span class="text-xs font-bold text-red-400 block mt-0.5">Win Rate: {{ $summary['red_wr'] }}%</span>
-            </div>
-            <div class="text-right">
-                <span class="text-xs bg-red-900/50 text-red-300 px-2 py-1 rounded font-mono font-bold">57.97%</span>
-            </div>
-        </div>
     </div>
 
-    <!-- FILTER & SEARCH BAR -->
-    <div class="card-custom p-4 bg-[#121620] border-gray-800 flex justify-between items-center flex-wrap gap-4">
-        <div class="flex-1 min-w-[240px]">
-            <input type="text" id="stats-search" onkeyup="filterStatsTable()" placeholder="Cari nama hero (misal: Claude, Karrie, Esmeralda)..." 
-                   class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3.5 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500">
-        </div>
-        <div class="flex items-center gap-1.5 text-xs flex-wrap">
-            <span class="text-gray-400 mr-1 font-semibold">Filter Role:</span>
-            <button type="button" onclick="filterStatsByClass('all')" class="class-filter-btn px-2.5 py-1 rounded bg-cyan-600 text-white font-bold">Semua</button>
-            <button type="button" onclick="filterStatsByClass('tank')" class="class-filter-btn px-2.5 py-1 rounded bg-gray-800 text-gray-300 hover:bg-gray-700">Tank</button>
-            <button type="button" onclick="filterStatsByClass('fighter')" class="class-filter-btn px-2.5 py-1 rounded bg-gray-800 text-gray-300 hover:bg-gray-700">Fighter</button>
-            <button type="button" onclick="filterStatsByClass('assassin')" class="class-filter-btn px-2.5 py-1 rounded bg-gray-800 text-gray-300 hover:bg-gray-700">Assassin</button>
-            <button type="button" onclick="filterStatsByClass('mage')" class="class-filter-btn px-2.5 py-1 rounded bg-gray-800 text-gray-300 hover:bg-gray-700">Mage</button>
-            <button type="button" onclick="filterStatsByClass('marksman')" class="class-filter-btn px-2.5 py-1 rounded bg-gray-800 text-gray-300 hover:bg-gray-700">Marksman</button>
-            <button type="button" onclick="filterStatsByClass('support')" class="class-filter-btn px-2.5 py-1 rounded bg-gray-800 text-gray-300 hover:bg-gray-700">Support</button>
-        </div>
-    </div>
-
-    <!-- LIQUEPEDIA-STYLE TABLE -->
-    <div class="card-custom bg-[#121620] border-gray-800 overflow-hidden shadow-xl">
+    <!-- 3. STATISTICS TABLE -->
+    <div class="card-custom overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
-            <table class="w-full text-xs text-left border-collapse whitespace-nowrap" id="stats-table">
+            <table class="w-full text-left text-xs border-collapse" id="statsTable">
                 <thead>
-                    <tr class="bg-[#1a2233] text-gray-300 border-b border-gray-700 font-bold uppercase text-[11px]">
-                        <th rowspan="2" class="p-3 text-center border-r border-gray-800 w-12">#</th>
-                        <th rowspan="2" class="p-3 border-r border-gray-800 min-w-[160px]">Hero</th>
-                        <th colspan="5" class="p-2 text-center bg-gray-800/60 border-r border-gray-800">Total Picks</th>
-                        <th colspan="4" class="p-2 text-center bg-blue-950/40 text-blue-300 border-r border-gray-800">Blue Side</th>
-                        <th colspan="4" class="p-2 text-center bg-red-950/40 text-red-300 border-r border-gray-800">Red Side</th>
-                        <th colspan="2" class="p-2 text-center bg-gray-800/60 border-r border-gray-800">Bans</th>
-                        <th colspan="2" class="p-2 text-center bg-cyan-950/40 text-cyan-300">Picks & Bans</th>
-                    </tr>
-                    <tr class="bg-[#151c2a] text-gray-400 border-b border-gray-800 text-[10px] font-semibold">
-                        <!-- Picks -->
-                        <th class="p-2 text-center">Σ</th>
-                        <th class="p-2 text-center text-emerald-400">W</th>
-                        <th class="p-2 text-center text-red-400">L</th>
-                        <th class="p-2 text-center">WR %</th>
-                        <th class="p-2 text-center border-r border-gray-800">%T</th>
-                        <!-- Blue -->
-                        <th class="p-2 text-center">Σ</th>
-                        <th class="p-2 text-center text-emerald-400">W</th>
-                        <th class="p-2 text-center text-red-400">L</th>
-                        <th class="p-2 text-center border-r border-gray-800">WR %</th>
-                        <!-- Red -->
-                        <th class="p-2 text-center">Σ</th>
-                        <th class="p-2 text-center text-emerald-400">W</th>
-                        <th class="p-2 text-center text-red-400">L</th>
-                        <th class="p-2 text-center border-r border-gray-800">WR %</th>
-                        <!-- Bans -->
-                        <th class="p-2 text-center">Σ</th>
-                        <th class="p-2 text-center border-r border-gray-800">%T</th>
-                        <!-- Pick + Ban -->
-                        <th class="p-2 text-center">Σ</th>
-                        <th class="p-2 text-center">%T</th>
+                    <tr class="bg-[#FAF8F8] border-b border-[#F3E8E8] text-[11px] font-black uppercase text-gray-500 tracking-wider">
+                        <th class="py-3 px-4 w-12 text-center">#</th>
+                        <th class="py-3 px-4 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(1)">
+                            HERO NAME <span class="text-gray-400">⇅</span>
+                        </th>
+                        <th class="py-3 px-4 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(2, true)">
+                            WIN RATE <span class="text-[#700B1A]">↓</span>
+                        </th>
+                        <th class="py-3 px-4 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(3, true)">
+                            PICK RATE <span class="text-gray-400">⇅</span>
+                        </th>
+                        <th class="py-3 px-4 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(4, true)">
+                            BAN RATE <span class="text-gray-400">⇅</span>
+                        </th>
+                        <th class="py-3 px-4 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(5)">
+                            ROLE <span class="text-gray-400">⇅</span>
+                        </th>
+                        <th class="py-3 px-4">LANE</th>
+                        <th class="py-3 px-4">SPECIALITY</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-800/60" id="stats-tbody">
-                    @php $rank = 1; @endphp
-                    @foreach($stats as $heroKey => $s)
-                        <tr class="hover:bg-[#182133] transition stat-row" 
-                            data-name="{{ strtolower($s['name']) }}"
-                            data-class="{{ strtolower($s['class']) }}">
-                            <td class="p-2.5 text-center text-gray-500 font-mono border-r border-gray-800/60">{{ $rank++ }}</td>
-                            <td class="p-2.5 border-r border-gray-800/60">
-                                <div class="flex items-center gap-2.5">
-                                    <img src="{{ $s['portrait'] }}" 
-                                         class="w-7 h-7 rounded-full object-cover border border-gray-700 bg-gray-800"
-                                         alt="{{ $s['name'] }}"
-                                         onerror="this.src='https://via.placeholder.com/28?text=H'">
-                                    <div>
-                                        <span class="font-bold text-gray-200 block leading-tight">{{ $s['name'] }}</span>
-                                        <span class="text-[9px] text-gray-400">{{ $s['class'] }}</span>
-                                    </div>
+                <tbody class="divide-y divide-[#F3E8E8]" id="statsTbody">
+                    @foreach($heroRows as $idx => $row)
+                        <tr class="hover:bg-[#FAF8F8] transition stat-table-row"
+                            data-name="{{ strtolower($row['name']) }}"
+                            data-role="{{ strtolower($row['role']) }}"
+                            data-lane="{{ strtolower(implode(' ', (array)$row['lane'])) }}"
+                            data-spec="{{ strtolower(implode(' ', (array)$row['speciality'])) }}"
+                            data-wr="{{ $row['wr'] }}"
+                            data-pr="{{ $row['pick_rate'] }}"
+                            data-br="{{ $row['ban_rate'] }}">
+                            
+                            <!-- Index -->
+                            <td class="py-3.5 px-4 text-center font-bold text-gray-400 text-xs">
+                                {{ $idx + 1 }}
+                            </td>
+
+                            <!-- Hero Name with Avatar Box -->
+                            <td class="py-3.5 px-4">
+                                <div class="flex items-center gap-3">
+                                    @if(!empty($row['portrait']))
+                                        <img src="{{ $row['portrait'] }}" 
+                                             alt="{{ $row['name'] }}" 
+                                             class="w-7 h-7 rounded-lg object-cover border border-[#F3E8E8] flex-shrink-0"
+                                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($row['name']) }}&background=700B1A&color=fff';">
+                                    @else
+                                        <div class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shadow-sm flex-shrink-0 {{ $row['initial_bg'] }}">
+                                            {{ $row['initial'] }}
+                                        </div>
+                                    @endif
+                                    <span class="font-extrabold text-[#18181B] text-xs">
+                                        {{ $row['name'] }}
+                                    </span>
                                 </div>
                             </td>
 
-                            <!-- Total Picks -->
-                            <td class="p-2.5 text-center font-bold text-cyan-400">{{ $s['picks'] }}</td>
-                            <td class="p-2.5 text-center text-emerald-400 font-medium">{{ $s['wins'] }}</td>
-                            <td class="p-2.5 text-center text-red-400 font-medium">{{ $s['losses'] }}</td>
-                            <td class="p-2.5 text-center font-bold {{ $s['wr'] >= 55 ? 'text-emerald-400 font-extrabold' : ($s['wr'] <= 45 && $s['picks'] > 0 ? 'text-red-400' : 'text-gray-300') }}">
-                                {{ $s['picks'] > 0 ? number_format($s['wr'], 2) . '%' : '-' }}
-                            </td>
-                            <td class="p-2.5 text-center text-gray-400 border-r border-gray-800/60">{{ number_format($s['pick_rate'], 2) }}%</td>
-
-                            <!-- Blue Side -->
-                            <td class="p-2.5 text-center font-medium text-blue-300">{{ $s['blue_picks'] }}</td>
-                            <td class="p-2.5 text-center text-emerald-400 font-medium">{{ $s['blue_wins'] }}</td>
-                            <td class="p-2.5 text-center text-red-400 font-medium">{{ $s['blue_losses'] }}</td>
-                            <td class="p-2.5 text-center border-r border-gray-800/60 font-semibold text-gray-300">
-                                {{ $s['blue_picks'] > 0 ? number_format($s['blue_wr'], 2) . '%' : '-' }}
-                            </td>
-
-                            <!-- Red Side -->
-                            <td class="p-2.5 text-center font-medium text-red-300">{{ $s['red_picks'] }}</td>
-                            <td class="p-2.5 text-center text-emerald-400 font-medium">{{ $s['red_wins'] }}</td>
-                            <td class="p-2.5 text-center text-red-400 font-medium">{{ $s['red_losses'] }}</td>
-                            <td class="p-2.5 text-center border-r border-gray-800/60 font-semibold text-gray-300">
-                                {{ $s['red_picks'] > 0 ? number_format($s['red_wr'], 2) . '%' : '-' }}
+                            <!-- Win Rate -->
+                            <td class="py-3.5 px-4 font-mono">
+                                <div>
+                                    @if($row['wr'] >= 58)
+                                        <div class="font-extrabold text-emerald-600 text-xs">
+                                            {{ number_format($row['wr'], 2) }}%
+                                        </div>
+                                        <div class="text-[9px] font-extrabold text-emerald-600 tracking-wider">HIGH</div>
+                                    @elseif($row['wr'] >= 50)
+                                        <div class="font-extrabold text-gray-700 text-xs">
+                                            {{ number_format($row['wr'], 2) }}%
+                                        </div>
+                                        <div class="text-[9px] font-bold text-gray-500 tracking-wider">AVERAGE</div>
+                                    @else
+                                        <div class="font-extrabold text-red-600 text-xs">
+                                            {{ number_format($row['wr'], 2) }}%
+                                        </div>
+                                        <div class="text-[9px] font-extrabold text-red-600 tracking-wider">LOW</div>
+                                    @endif
+                                </div>
                             </td>
 
-                            <!-- Bans -->
-                            <td class="p-2.5 text-center font-bold text-amber-400">{{ $s['bans'] }}</td>
-                            <td class="p-2.5 text-center text-gray-400 border-r border-gray-800/60">{{ number_format($s['ban_rate'], 2) }}%</td>
+                            <!-- Pick Rate -->
+                            <td class="py-3.5 px-4 font-mono">
+                                <div class="font-bold text-gray-800 text-xs">
+                                    {{ number_format($row['pick_rate'], 2) }}%
+                                </div>
+                                <div class="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">
+                                    {{ $row['pick_tag'] }}
+                                </div>
+                            </td>
 
-                            <!-- Contest -->
-                            <td class="p-2.5 text-center font-extrabold text-white">{{ $s['contest_count'] }}</td>
-                            <td class="p-2.5 text-center font-bold text-cyan-300">{{ number_format($s['contest_rate'], 2) }}%</td>
+                            <!-- Ban Rate -->
+                            <td class="py-3.5 px-4 font-mono">
+                                @if($row['ban_rate'] >= 50)
+                                    <div class="font-extrabold text-red-600 text-xs">
+                                        {{ number_format($row['ban_rate'], 2) }}%
+                                    </div>
+                                    <div class="text-[9px] font-extrabold text-red-600 uppercase tracking-wider">
+                                        OFTEN BANNED
+                                    </div>
+                                @elseif($row['ban_rate'] >= 20)
+                                    <div class="font-bold text-gray-700 text-xs">
+                                        {{ number_format($row['ban_rate'], 2) }}%
+                                    </div>
+                                    <div class="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">
+                                        MODERATE
+                                    </div>
+                                @else
+                                    <div class="font-bold text-gray-700 text-xs">
+                                        {{ number_format($row['ban_rate'], 2) }}%
+                                    </div>
+                                    <div class="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">
+                                        LOW
+                                    </div>
+                                @endif
+                            </td>
+
+                            <!-- Role -->
+                            <td class="py-3.5 px-4 text-gray-700 font-medium text-xs">
+                                {{ $row['role'] }}
+                            </td>
+
+                            <!-- Lane Pills -->
+                            <td class="py-3.5 px-4">
+                                <div class="flex items-center gap-1 flex-wrap">
+                                    @foreach((array)$row['lane'] as $l)
+                                        <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-600 text-[10px] font-semibold px-2 py-0.5 rounded-md">
+                                            {{ $l }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            </td>
+
+                            <!-- Speciality Pills -->
+                            <td class="py-3.5 px-4">
+                                <div class="flex items-center gap-1 flex-wrap">
+                                    @foreach((array)$row['speciality'] as $s)
+                                        <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-600 text-[10px] font-semibold px-2 py-0.5 rounded-md">
+                                            {{ $s }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            </td>
+
                         </tr>
                     @endforeach
                 </tbody>
@@ -178,24 +243,94 @@
         </div>
     </div>
 
+    <!-- 4. THREE BOTTOM INSIGHT CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+        
+        <!-- Insight Card 1: Power Spike Insight -->
+        <div class="card-custom p-5 flex flex-col justify-between hover:shadow-md transition">
+            <div>
+                <div class="flex items-center gap-2 mb-2.5">
+                    <span class="w-6 h-6 rounded-lg bg-[#FCECEE] text-[#700B1A] flex items-center justify-center font-black text-xs">!</span>
+                    <h4 class="font-extrabold text-sm text-[#18181B]">Power Spike Insight</h4>
+                </div>
+                <p class="text-xs text-gray-600 leading-relaxed">
+                    Harith dan Karrie mencatat 70%+ win rate dominan ketika dipasangkan dengan setup roamer CC keras seperti Tigreal atau Baxia.
+                </p>
+            </div>
+            <div class="flex items-center justify-between text-[11px] font-bold text-gray-400 pt-4 mt-3 border-t border-[#FAF0F1]">
+                <span class="uppercase tracking-wider">FASE DRAFT 1-3</span>
+                <a href="{{ route('draft.analyzer') }}" class="text-[#700B1A] hover:underline flex items-center gap-1">
+                    <span>LIHAT DETAIL</span>
+                    <span>&gt;</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Insight Card 2: Priority Permabans -->
+        <div class="card-custom p-5 flex flex-col justify-between hover:shadow-md transition">
+            <div>
+                <div class="flex items-center gap-2 mb-2.5">
+                    <span class="w-6 h-6 rounded-lg bg-[#FCECEE] text-[#700B1A] flex items-center justify-center font-black text-xs">⊘</span>
+                    <h4 class="font-extrabold text-sm text-[#18181B]">Priority Permabans</h4>
+                </div>
+                <p class="text-xs text-gray-600 leading-relaxed">
+                    Ban rate 91.3% Harith menjadikannya ancaman mutlak di patch 1.9.14, memaksa tim sisi merah merelakan first phase bans.
+                </p>
+            </div>
+            <div class="flex items-center justify-between text-[11px] font-bold text-gray-400 pt-4 mt-3 border-t border-[#FAF0F1]">
+                <span class="uppercase tracking-wider">BAN RATE TINGGI</span>
+                <a href="{{ route('draft.analyzer') }}" class="text-[#700B1A] hover:underline flex items-center gap-1">
+                    <span>SIMULASI DRAFT</span>
+                    <span>&gt;</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Insight Card 3: Surprise Pocket Picks -->
+        <div class="card-custom p-5 flex flex-col justify-between hover:shadow-md transition">
+            <div>
+                <div class="flex items-center gap-2 mb-2.5">
+                    <span class="w-6 h-6 rounded-lg bg-[#ECFDF5] text-emerald-700 flex items-center justify-center font-black text-xs">✪</span>
+                    <h4 class="font-extrabold text-sm text-[#18181B]">Surprise Pocket Picks</h4>
+                </div>
+                <p class="text-xs text-gray-600 leading-relaxed">
+                    Aulus dan Rafaela mempertahankan tingkat kemenangan 59%+ meskipun pick rate di bawah 2%, sangat efektif sebagai counter-draft situasional.
+                </p>
+            </div>
+            <div class="flex items-center justify-between text-[11px] font-bold text-gray-400 pt-4 mt-3 border-t border-[#FAF0F1]">
+                <span class="uppercase tracking-wider">EFFICIENCY RATING</span>
+                <a href="{{ route('matches') }}" class="text-[#700B1A] hover:underline flex items-center gap-1">
+                    <span>ANALISIS SERI</span>
+                    <span>&gt;</span>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
 </div>
 
 @push('scripts')
 <script>
-    let activeClassFilter = 'all';
-
     function filterStatsTable() {
-        const query = document.getElementById('stats-search').value.toLowerCase().trim();
-        const rows = document.querySelectorAll('.stat-row');
+        const query = (document.getElementById('statSearchInput').value || '').toLowerCase().trim();
+        const role = (document.getElementById('roleSelect').value || '').toLowerCase().trim();
+        const lane = (document.getElementById('laneSelect').value || '').toLowerCase().trim();
+        const spec = (document.getElementById('specSelect').value || '').toLowerCase().trim();
 
+        const rows = document.querySelectorAll('.stat-table-row');
         rows.forEach(row => {
-            const name = row.getAttribute('data-name');
-            const heroClass = row.getAttribute('data-class');
+            const nameText = row.dataset.name || '';
+            const roleText = row.dataset.role || '';
+            const laneText = row.dataset.lane || '';
+            const specText = row.dataset.spec || '';
 
-            const matchQuery = !query || name.includes(query);
-            const matchClass = activeClassFilter === 'all' || heroClass.includes(activeClassFilter);
+            const matchQuery = !query || nameText.includes(query);
+            const matchRole = !role || roleText.includes(role);
+            const matchLane = !lane || laneText.includes(lane);
+            const matchSpec = !spec || specText.includes(spec);
 
-            if (matchQuery && matchClass) {
+            if (matchQuery && matchRole && matchLane && matchSpec) {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';
@@ -203,18 +338,67 @@
         });
     }
 
-    function filterStatsByClass(cls) {
-        activeClassFilter = cls;
-        const buttons = document.querySelectorAll('.class-filter-btn');
-        buttons.forEach(btn => {
-            btn.classList.remove('bg-cyan-600', 'text-white');
-            btn.classList.add('bg-gray-800', 'text-gray-300');
-            if (btn.innerText.toLowerCase().includes(cls) || (cls === 'all' && btn.innerText.toLowerCase().includes('semua'))) {
-                btn.classList.add('bg-cyan-600', 'text-white');
-                btn.classList.remove('bg-gray-800', 'text-gray-300');
-            }
-        });
+    function resetStatsFilters() {
+        document.getElementById('statSearchInput').value = '';
+        document.getElementById('roleSelect').value = '';
+        document.getElementById('laneSelect').value = '';
+        document.getElementById('specSelect').value = '';
         filterStatsTable();
+    }
+
+    function sortTable(colIndex, isNumeric = false) {
+        const tbody = document.getElementById('statsTbody');
+        const rows = Array.from(tbody.querySelectorAll('.stat-table-row'));
+        const isAsc = tbody.dataset.sortOrder !== 'asc';
+        tbody.dataset.sortOrder = isAsc ? 'asc' : 'desc';
+
+        rows.sort((a, b) => {
+            let valA, valB;
+            if (colIndex === 1) { // Name
+                valA = a.dataset.name;
+                valB = b.dataset.name;
+                return isAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+            } else if (colIndex === 2) { // Win Rate
+                valA = parseFloat(a.dataset.wr) || 0;
+                valB = parseFloat(b.dataset.wr) || 0;
+            } else if (colIndex === 3) { // Pick Rate
+                valA = parseFloat(a.dataset.pr) || 0;
+                valB = parseFloat(b.dataset.pr) || 0;
+            } else if (colIndex === 4) { // Ban Rate
+                valA = parseFloat(a.dataset.br) || 0;
+                valB = parseFloat(b.dataset.br) || 0;
+            } else if (colIndex === 5) { // Role
+                valA = a.dataset.role;
+                valB = b.dataset.role;
+                return isAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+            }
+            return isAsc ? (valA - valB) : (valB - valA);
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+    }
+
+    function exportTableToCSV(filename) {
+        const rows = document.querySelectorAll('#statsTable tr');
+        let csv = [];
+        
+        rows.forEach(row => {
+            if (row.style.display === 'none') return;
+            let rowData = [];
+            row.querySelectorAll('th, td').forEach(cell => {
+                let text = cell.innerText.replace(/(\r\n|\n|\r)/gm, ' ').replace(/\s+/g, ' ').trim();
+                rowData.push('"' + text.replace(/"/g, '""') + '"');
+            });
+            csv.push(rowData.join(','));
+        });
+
+        const csvContent = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv.join('\n'));
+        const link = document.createElement('a');
+        link.setAttribute('href', csvContent);
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 </script>
 @endpush
