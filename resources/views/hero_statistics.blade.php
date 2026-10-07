@@ -138,10 +138,10 @@
                                     @if(!empty($row['portrait']))
                                         <img src="{{ $row['portrait'] }}" 
                                              alt="{{ $row['name'] }}" 
-                                             class="w-7 h-7 rounded-lg object-cover border border-[#F3E8E8] flex-shrink-0"
+                                             class="w-7 h-7 rounded-full object-cover border border-[#F3E8E8] flex-shrink-0"
                                              onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($row['name']) }}&background=700B1A&color=fff';">
                                     @else
-                                        <div class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs shadow-sm flex-shrink-0 {{ $row['initial_bg'] }}">
+                                        <div class="w-7 h-7 rounded-full flex items-center justify-center font-black text-xs shadow-sm flex-shrink-0 {{ $row['initial_bg'] }}">
                                             {{ $row['initial'] }}
                                         </div>
                                     @endif

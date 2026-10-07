@@ -45,14 +45,14 @@
                 <a href="{{ route('home') }}" class="bg-maroon text-white px-4 py-1.5 rounded-full transition shadow-sm">
                     HOMEPAGE
                 </a>
+                <a href="{{ route('counter.picks') }}" class="text-gray-600 hover:text-maroon hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
+                    COUNTER PICKS
+                </a>
                 <a href="{{ route('draft.analyzer') }}" class="text-gray-600 hover:text-maroon hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
                     REKOMENDASI DRAFT
                 </a>
                 <a href="{{ route('hero.statistics') }}" class="text-gray-600 hover:text-maroon hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
                     STATISTIK HERO
-                </a>
-                <a href="{{ route('matches') }}" class="text-gray-600 hover:text-maroon hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
-                    RIWAYAT SERI
                 </a>
             </nav>
 
@@ -185,24 +185,24 @@
         <!-- 4. CORE FEATURES (GRID 3 CARDS) -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-5">
 
-            <!-- Card 1: Rekomendasi Draft Cerdas -->
+            <!-- Card 1: Counter Picks & Analisis Lawan -->
             <div class="card-home p-6 flex flex-col justify-between hover:border-maroon/40 transition">
                 <div>
                     <div class="w-10 h-10 rounded-xl bg-maroon-subtle flex items-center justify-center text-maroon mb-4">
-                        <!-- Lightbulb Icon -->
+                        <!-- Shield / Swords Cross Icon -->
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                         </svg>
                     </div>
                     <h3 class="text-sm font-black text-[#18181B] uppercase tracking-wide">
-                        REKOMENDASI DRAFT CERDAS (RBR ENGINE)
+                        COUNTER PICKS & ANALISIS LAWAN
                     </h3>
                     <p class="text-xs text-gray-500 leading-relaxed mt-2 mb-6">
-                        Simulasi 5 role lane hero dengan deteksi power spike, komposisi damage, dan panduan taktis winning conditions secara real-time.
+                        Pilih 1–5 hero musuh untuk mendapatkan rekomendasi counter pick terbaik beserta alasan taktis dan statistik dari dataset.
                     </p>
                 </div>
-                <a href="{{ route('draft.analyzer') }}" class="w-full bg-maroon bg-maroon-hover text-white text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition shadow-sm uppercase tracking-wider">
-                    <span>BUKA REKOMENDASI DRAFT</span>
+                <a href="{{ route('counter.picks') }}" class="w-full bg-maroon bg-maroon-hover text-white text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition shadow-sm uppercase tracking-wider">
+                    <span>BUKA COUNTER PICKS</span>
                     <span>&rarr;</span>
                 </a>
             </div>
@@ -229,24 +229,24 @@
                 </a>
             </div>
 
-            <!-- Card 3: Riwayat Pertandingan -->
+            <!-- Card 3: Rekomendasi Draft Pick & Ban -->
             <div class="card-home p-6 flex flex-col justify-between hover:border-maroon/40 transition">
                 <div>
                     <div class="w-10 h-10 rounded-xl bg-maroon-subtle flex items-center justify-center text-maroon mb-4">
-                        <!-- Clock / History Icon -->
+                        <!-- Sliders / Draft Strategy Icon -->
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                         </svg>
                     </div>
                     <h3 class="text-sm font-black text-[#18181B] uppercase tracking-wide">
-                        RIWAYAT PERTANDINGAN
+                        REKOMENDASI DRAFT PICK & BAN
                     </h3>
                     <p class="text-xs text-gray-500 leading-relaxed mt-2 mb-6">
-                        Komparasi head-to-head pemain, diferensial kurva gold lead, dan kontrol objektif netral.
+                        Simulasi pemilihan hero draft dengan rekomendasi otomatis sinergi hero (Synergy Pick) dan prioritas larangan ancaman (Threat Ban).
                     </p>
                 </div>
-                <a href="{{ route('matches') }}" class="w-full bg-white hover:bg-[#FAF8F8] border border-subtle text-gray-900 hover:text-maroon text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition shadow-sm uppercase tracking-wider">
-                    <span>BUKA RIWAYAT SERI</span>
+                <a href="{{ route('draft.analyzer') }}" class="w-full bg-white hover:bg-[#FAF8F8] border border-subtle text-gray-900 hover:text-maroon text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition shadow-sm uppercase tracking-wider">
+                    <span>BUKA REKOMENDASI DRAFT</span>
                     <span>&rarr;</span>
                 </a>
             </div>
@@ -286,7 +286,7 @@
                                             <div class="flex items-center gap-3">
                                                 <img src="{{ $hero['portrait'] }}" 
                                                      alt="{{ $hero['name'] }}" 
-                                                     class="w-7 h-7 rounded-lg object-cover border border-rose-100 flex-shrink-0"
+                                                     class="w-7 h-7 rounded-full object-cover border border-rose-100 flex-shrink-0"
                                                      onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($hero['name']) }}&background=700B1A&color=fff';">
                                                 <strong class="font-extrabold text-[#18181B] text-xs">{{ $hero['name'] }}</strong>
                                             </div>

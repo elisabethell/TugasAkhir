@@ -12,6 +12,10 @@
            class="{{ request()->routeIs('home') ? 'bg-[#700B1A] text-white shadow-sm' : 'text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE]' }} px-4 py-1.5 rounded-full transition">
             HOMEPAGE
         </a>
+        <a href="{{ route('counter.picks') }}" 
+           class="{{ request()->routeIs('counter.picks') ? 'bg-[#700B1A] text-white shadow-sm' : 'text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE]' }} px-3.5 py-1.5 rounded-full transition">
+            COUNTER PICKS
+        </a>
         <a href="{{ route('draft.analyzer') }}" 
            class="{{ request()->routeIs('draft.analyzer') ? 'bg-[#700B1A] text-white shadow-sm' : 'text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE]' }} px-3.5 py-1.5 rounded-full transition">
             REKOMENDASI DRAFT
@@ -20,17 +24,23 @@
            class="{{ (request()->routeIs('hero.statistics') || request()->routeIs('heroes')) ? 'bg-[#700B1A] text-white shadow-sm' : 'text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE]' }} px-3.5 py-1.5 rounded-full transition">
             STATISTIK HERO
         </a>
-        <a href="{{ route('matches') }}" 
-           class="{{ request()->routeIs('matches') ? 'bg-[#700B1A] text-white shadow-sm' : 'text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE]' }} px-3.5 py-1.5 rounded-full transition">
-            RIWAYAT SERI
-        </a>
     </nav>
 
-    <!-- Admin Login Button -->
-    <div>
-        <a href="{{ route('matches') }}" class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-gray-800 hover:text-[#700B1A] border border-[#E5E7EB] text-[11px] font-extrabold uppercase tracking-wider px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition">
-            <span class="w-1.5 h-1.5 bg-gray-600 rounded-sm"></span>
-            <span>LOGIN ADMIN</span>
-        </a>
+    <!-- Admin State Button -->
+    <div class="flex items-center gap-2">
+        @if(session('admin_logged_in'))
+            <a href="{{ route('matches') }}" class="bg-[#700B1A] hover:bg-[#550713] text-white text-[11px] font-extrabold uppercase tracking-wider px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition shadow-sm">
+                <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                <span>DATASET ADMIN</span>
+            </a>
+            <a href="{{ route('admin.logout') }}" class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-gray-700 hover:text-[#700B1A] border border-[#E5E7EB] text-[11px] font-extrabold uppercase tracking-wider px-3 py-1.5 rounded-full transition">
+                <span>LOGOUT</span>
+            </a>
+        @else
+            <a href="{{ route('login') }}" class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-gray-800 hover:text-[#700B1A] border border-[#E5E7EB] text-[11px] font-extrabold uppercase tracking-wider px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition">
+                <span class="w-1.5 h-1.5 bg-gray-600 rounded-sm"></span>
+                <span>LOGIN ADMIN</span>
+            </a>
+        @endif
     </div>
 </header>

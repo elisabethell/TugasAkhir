@@ -9,6 +9,7 @@ class CsvDataService
     protected static ?Collection $heroesCache = null;
     protected static ?Collection $matchesCache = null;
     protected static ?array $statsCache = null;
+    protected static ?array $csvPortraitMap = null;
 
     /**
      * Mengambil seluruh data 133 hero dari database/data/data_hero.csv
@@ -118,6 +119,38 @@ class CsvDataService
     }
 
     /**
+     * Ambil pemetaan nama hero ke portrait URL dari database/data/data_hero.csv
+     */
+    public function getCsvPortraitMap(): array
+    {
+        if (self::$csvPortraitMap !== null) {
+            return self::$csvPortraitMap;
+        }
+
+        self::$csvPortraitMap = [];
+        $path = database_path('data/data_hero.csv');
+        if (file_exists($path)) {
+            $file = fopen($path, 'r');
+            $isHeader = true;
+            while (($data = fgetcsv($file, 10000, ',')) !== false) {
+                if ($isHeader) {
+                    $isHeader = false;
+                    continue;
+                }
+                if (isset($data[2]) && !empty(trim($data[2]))) {
+                    $name = trim($data[2]);
+                    $cKey = preg_replace('/[^a-z0-9]/', '', strtolower($name));
+                    $url = trim($data[3] ?? '');
+                    self::$csvPortraitMap[$cKey] = $url;
+                }
+            }
+            fclose($file);
+        }
+
+        return self::$csvPortraitMap;
+    }
+
+    /**
      * Resolusi Portrait Hero
      */
     public function resolveHeroPortrait(string $heroName, string $csvUrl = ''): string
@@ -141,12 +174,18 @@ class CsvDataService
             return asset('images/heroes/' . $localFile);
         }
 
-        // 3. Gunakan URL dari data_hero.csv jika valid (CDN Moonton)
+        // 3. Jika csvUrl kosong, cari dari data_hero.csv
+        if (empty($csvUrl)) {
+            $map = $this->getCsvPortraitMap();
+            $csvUrl = $map[$clean] ?? '';
+        }
+
+        // 4. Gunakan URL dari data_hero.csv jika valid (CDN Moonton)
         if (!empty($csvUrl) && str_starts_with($csvUrl, 'http') && !str_contains($csvUrl, 'deviantart') && !str_contains($csvUrl, 'mobilelegends.com')) {
             return $csvUrl;
         }
 
-        // 4. Fallback resmi CDN ByteDance / Moonton
+        // 5. Fallback resmi CDN ByteDance / Moonton
         return "https://akm-img-a-in.tos-alisg-byteoversea.com/tos-alisg-i-0000/mlbb_{$clean}.png";
     }
 

@@ -1,15 +1,20 @@
 @extends('layouts.app')
 
-@section('title', 'Counter Pick & Rekomendasi Draft - MetaScout: Land of Dawn')
+@section('title', 'Counter Picks - MetaScout: Land of Dawn')
 
 @section('content')
 <div class="space-y-6">
 
-    <!-- 1. HEADER & RESET DRAFT -->
+    <!-- 1. HEADER & RESET COUNTER PICKS -->
     <div class="flex items-center justify-between flex-wrap gap-3 pt-2">
-        <h1 class="text-2xl sm:text-3xl font-black text-[#18181B] tracking-tight">
-            Counter Pick & Rekomendasi Draft
-        </h1>
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-black text-[#18181B] tracking-tight">
+                Counter Picks & Rekomendasi Lawan
+            </h1>
+            <p class="text-xs text-gray-500 font-medium mt-0.5">
+                Pilih 1–5 hero musuh untuk mendapatkan rekomendasi counter pick terbaik berdasarkan dataset turnamen & rule-based reasoning.
+            </p>
+        </div>
 
         <button type="button" 
                 onclick="resetDraft()" 
@@ -17,7 +22,7 @@
             <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
             </svg>
-            <span>RESET DRAFT</span>
+            <span>RESET COUNTER PICKS</span>
         </button>
     </div>
 
@@ -212,7 +217,7 @@
             <div class="card-custom p-4 flex items-center justify-between gap-4">
                 <div class="flex items-center gap-2.5 text-xs font-bold text-gray-700">
                     <span class="text-[#700B1A] text-base">📈</span>
-                    <span>Data synthesized from 69 games</span>
+                    <span>Data synthesized from 69 tournament games (MWI X EWC)</span>
                 </div>
                 <div class="text-right">
                     <div class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
@@ -257,15 +262,17 @@
                 const heroObj = pickerHeroes.find(h => h.name.toLowerCase() === heroName.toLowerCase()) || { name: heroName, lane: 'flex', portrait: '' };
                 const portraitSrc = heroObj.portrait || `https://ui-avatars.com/api/?name=${encodeURIComponent(heroName)}&background=700B1A&color=fff`;
                 slotCol.innerHTML = `
-                    <div class="relative w-full aspect-square bg-[#700B1A]/5 border-2 border-[#700B1A] rounded-full flex items-center justify-center p-0.5 shadow-sm overflow-hidden">
-                        <img src="${portraitSrc}" 
-                             alt="${heroName}" 
-                             class="w-full h-full object-cover rounded-full"
-                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(heroName)}&background=700B1A&color=fff';">
+                    <div class="relative w-full aspect-square">
+                        <div class="w-full h-full bg-[#700B1A]/5 border-2 border-[#700B1A] rounded-full flex items-center justify-center p-0.5 shadow-sm overflow-hidden">
+                            <img src="${portraitSrc}" 
+                                 alt="${heroName}" 
+                                 class="w-full h-full object-cover rounded-full"
+                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(heroName)}&background=700B1A&color=fff';">
+                        </div>
                         <button type="button" 
                                 onclick="removeHero('${heroName}')" 
-                                title="Remove ${heroName}"
-                                class="absolute top-0 right-0 w-4 h-4 rounded-full bg-[#700B1A] hover:bg-[#550713] text-white text-[9px] font-black flex items-center justify-center shadow">
+                                title="Hapus ${heroName}"
+                                class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#700B1A] hover:bg-[#550713] text-white text-[10px] font-black flex items-center justify-center shadow-md border-2 border-white transition transform hover:scale-110 z-10 cursor-pointer">
                             ✕
                         </button>
                     </div>
