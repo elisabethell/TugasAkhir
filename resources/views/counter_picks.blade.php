@@ -42,7 +42,7 @@
                 </div>
 
                 <!-- 5 Slots Row -->
-                <div class="grid grid-cols-5 gap-2" id="selectedSlotsContainer">
+                <div class="grid grid-cols-5 gap-2 pt-2 px-1 pb-1" id="selectedSlotsContainer">
                     <!-- Populated dynamically via JS -->
                 </div>
 
@@ -272,8 +272,10 @@
                         <button type="button" 
                                 onclick="removeHero('${heroName}')" 
                                 title="Hapus ${heroName}"
-                                class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#700B1A] hover:bg-[#550713] text-white text-[10px] font-black flex items-center justify-center shadow-md border-2 border-white transition transform hover:scale-110 z-10 cursor-pointer">
-                            ✕
+                                class="absolute top-0 right-0 translate-x-1 -translate-y-1 w-5 h-5 rounded-full bg-[#700B1A] hover:bg-[#550713] text-white flex items-center justify-center shadow-md border-2 border-white transition transform hover:scale-110 z-20 cursor-pointer">
+                            <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
                         </button>
                     </div>
                     <span class="font-extrabold text-[11px] text-[#18181B] mt-1 truncate max-w-full text-center">${heroName}</span>

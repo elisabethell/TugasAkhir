@@ -45,23 +45,38 @@
                 <a href="{{ route('home') }}" class="bg-maroon text-white px-4 py-1.5 rounded-full transition shadow-sm">
                     HOMEPAGE
                 </a>
-                <a href="{{ route('counter.picks') }}" class="text-gray-600 hover:text-maroon hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
-                    COUNTER PICKS
+                <a href="{{ route('draft.recommendation') }}" class="text-gray-600 hover:text-maroon hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
+                    REKOM DRAFT
                 </a>
-                <a href="{{ route('draft.analyzer') }}" class="text-gray-600 hover:text-maroon hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
-                    REKOMENDASI DRAFT
+                <a href="{{ route('counter.picks') }}" class="text-gray-600 hover:text-maroon hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
+                    COUNTER PICK
+                </a>
+                <a href="{{ route('heroes') }}" class="text-gray-600 hover:text-maroon hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
+                    LIST HERO
                 </a>
                 <a href="{{ route('hero.statistics') }}" class="text-gray-600 hover:text-maroon hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
                     STATISTIK HERO
                 </a>
             </nav>
 
-            <!-- Admin Login Button -->
+            <!-- Admin Login / Console Action -->
             <div>
-                <a href="{{ route('login') }}" class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-gray-800 hover:text-maroon border border-[#E5E7EB] text-[11px] font-extrabold uppercase tracking-wider px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition">
-                    <span class="w-1.5 h-1.5 bg-gray-600 rounded-sm"></span>
-                    <span>LOGIN ADMIN</span>
-                </a>
+                @if(session('admin_logged_in'))
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('admin.dashboard') }}" class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD] text-[11px] font-extrabold uppercase tracking-wider px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition">
+                            <span class="w-1.5 h-1.5 bg-[#700B1A] rounded-full"></span>
+                            <span>ADMIN CONSOLE</span>
+                        </a>
+                        <a href="{{ route('admin.logout') }}" class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-gray-700 hover:text-[#700B1A] border border-[#E5E7EB] text-[11px] font-extrabold uppercase tracking-wider px-3 py-1.5 rounded-full transition">
+                            LOGOUT
+                        </a>
+                    </div>
+                @else
+                    <a href="{{ route('login') }}" class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-gray-800 hover:text-maroon border border-[#E5E7EB] text-[11px] font-extrabold uppercase tracking-wider px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition">
+                        <span class="w-1.5 h-1.5 bg-gray-600 rounded-sm"></span>
+                        <span>LOGIN ADMIN</span>
+                    </a>
+                @endif
             </div>
 
         </header>

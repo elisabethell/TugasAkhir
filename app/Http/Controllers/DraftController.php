@@ -207,41 +207,7 @@ class DraftController extends Controller
         }
 
         // Aturan spesifik counter interaktif (Rule-Based Reasoning)
-        $specificRules = [
-            'Beatrix' => [
-                'Granger' => ['rule' => 'counters Beatrix (out-ranges sniper, high burst mobility)', 'icon' => 'check', 'tier' => 'TIER S', 'impact' => 4.7],
-                'Kaja'    => ['rule' => 'counters Beatrix (suppression halts ultimate channeling)', 'icon' => 'lock', 'tier' => null, 'impact' => 3.8],
-                'Irithel' => ['rule' => 'counters Beatrix (continuous kite while shooting, evades rocket skill)', 'icon' => 'arrow', 'tier' => null, 'impact' => 3.2],
-                'Khufra'  => ['rule' => 'counters Beatrix (cancels dash with bouncing ball cc)', 'icon' => 'ban', 'tier' => null, 'impact' => 2.9],
-                'Natalia' => ['rule' => 'counters Beatrix (silence and burst eliminates sniper positioning)', 'icon' => 'check', 'tier' => null, 'impact' => 4.0],
-                'Lolita'  => ['rule' => 'counters Beatrix (shield blocks all sniper and rocket bullets)', 'icon' => 'check', 'tier' => 'TIER A', 'impact' => 4.5],
-            ],
-            'Fanny' => [
-                'Khufra'  => ['rule' => 'counters Fanny (bouncing ball membatalkan lintasan kabel baja)', 'icon' => 'ban', 'tier' => 'TIER S', 'impact' => 4.9],
-                'Franco'  => ['rule' => 'counters Fanny (suppression iron hook menghentikan rotasi terbang)', 'icon' => 'lock', 'tier' => 'TIER A', 'impact' => 4.4],
-                'Kaja'    => ['rule' => 'counters Fanny (suppression pick-off instan saat mendekat)', 'icon' => 'lock', 'tier' => 'TIER A', 'impact' => 4.3],
-                'Saber'   => ['rule' => 'counters Fanny (airborne lock & burst combo instan)', 'icon' => 'check', 'tier' => null, 'impact' => 4.1],
-            ],
-            'Ling' => [
-                'Khufra'  => ['rule' => 'counters Ling (bouncing ball menjatuhkan ling saat melompat dinding)', 'icon' => 'ban', 'tier' => 'TIER S', 'impact' => 4.8],
-                'Kaja'    => ['rule' => 'counters Ling (suppression instan sebelum tempest of blades)', 'icon' => 'lock', 'tier' => 'TIER A', 'impact' => 4.5],
-                'Ruby'    => ['rule' => 'counters Ling (stun dan hook konstan membatalkan mobilitas pedang)', 'icon' => 'check', 'tier' => null, 'impact' => 4.2],
-            ],
-            'Wanwan' => [
-                'Phoveus' => ['rule' => 'counters Wanwan (dash konstan memicu lompatan ultimate tiada henti)', 'icon' => 'check', 'tier' => 'TIER S', 'impact' => 4.8],
-                'Khufra'  => ['rule' => 'counters Wanwan (bouncing ball mengunci lompatan pasif)', 'icon' => 'ban', 'tier' => 'TIER A', 'impact' => 4.4],
-                'Lolita'  => ['rule' => 'counters Wanwan (shield memblokir proyektil jarum dan ultimate)', 'icon' => 'check', 'tier' => 'TIER A', 'impact' => 4.6],
-            ],
-            'Claude' => [
-                'Belerick' => ['rule' => 'counters Claude (blazing duet memicu deadly thorns bertubi-tubi)', 'icon' => 'check', 'tier' => 'TIER S', 'impact' => 4.9],
-                'Lolita'   => ['rule' => 'counters Claude (shield menahan semburan tembakan blazing duet)', 'icon' => 'check', 'tier' => 'TIER S', 'impact' => 4.7],
-                'Khufra'   => ['rule' => 'counters Claude (bouncing ball membatalkan teleportasi battle mirror image)', 'icon' => 'ban', 'tier' => 'TIER A', 'impact' => 4.4],
-            ],
-            'Tigreal' => [
-                'Diggie'   => ['rule' => 'counters Tigreal (time journey menghapus seluruh efek implosion)', 'icon' => 'check', 'tier' => 'TIER S', 'impact' => 5.0],
-                'Valir'    => ['rule' => 'counters Tigreal (burst fireball & knockback menggagalkan inisiasi)', 'icon' => 'ban', 'tier' => 'TIER A', 'impact' => 4.3],
-            ],
-        ];
+        $specificRules = $this->getSpecificRules();
 
         // Daftar spell dan map untuk rekomendasi lanjutan
         $spells = [
@@ -287,14 +253,48 @@ class DraftController extends Controller
             $heroPortraits[$h->clean_key] = $h->portrait;
         }
 
-        // Data JSON picker hero untuk frontend JS
-        $pickerHeroes = $heroes->map(function($h) {
+        // Membaca aturan hasil olahan Python engine (rbr_rules_generated.json)
+        $rbrGenerated = [];
+        $powerSpikesMap = [];
+        $rbrJsonPath = database_path('data/rbr_rules_generated.json');
+        if (file_exists($rbrJsonPath)) {
+            $jsonDecoded = json_decode(file_get_contents($rbrJsonPath), true);
+            $rbrGenerated = $jsonDecoded['rbr_rules'] ?? [];
+            $powerSpikesMap = $jsonDecoded['power_spikes'] ?? [];
+        }
+
+        $knownMagic = [
+            'harith', 'yve', 'valentina', 'pharsa', 'xavier', 'alice', 'cecilion',
+            'kagura', 'kadita', 'lylia', 'zhuxin', 'zetian', 'lunox', 'esmeralda',
+            'gusion', 'aamon', 'karina', 'joy', 'julian', 'guinevere', 'silvanna',
+            'phoveus', 'baxia', 'gloo', 'hylos', 'belerick', 'mathilda', 'angela',
+            'diggie', 'estes', 'floryn', 'rafaela', 'carmilla', 'kaja', 'faramis',
+            'cyclops', 'eudora', 'gord', 'harley', 'vale', 'vexana', 'novaria'
+        ];
+        $knownMixed = ['karrie', 'edith', 'natan', 'kimmy', 'lesley', 'bane', 'paquito', 'alpha'];
+
+        // Data JSON picker hero untuk frontend JS dengan damage type & power spike
+        $pickerHeroes = $heroes->map(function($h) use ($knownMagic, $knownMixed, $powerSpikesMap) {
+            $nameLower = strtolower($h->hero_name);
+            $classLower = strtolower($h->class ?: $h->primary_class);
+            $dmgType = 'Physical';
+            if (in_array($nameLower, $knownMagic) || str_contains($classLower, 'mage') || str_contains($classLower, 'support')) {
+                $dmgType = 'Magic';
+            } elseif (in_array($nameLower, $knownMixed)) {
+                $dmgType = 'Mixed';
+            }
+
+            $spikeInfo = $powerSpikesMap[$h->hero_name] ?? null;
+            $spike = $spikeInfo['empirical_spike'] ?? (str_contains($classLower, 'marksman') ? 'Late Game Scaler' : (str_contains($classLower, 'tank') ? 'Early Game' : 'Mid Game'));
+
             return [
-                'name'     => $h->hero_name,
-                'initial'  => $h->tag,
-                'lane'     => strtolower($h->laning),
-                'role'     => strtolower($h->primary_class),
-                'portrait' => $h->portrait,
+                'name'        => $h->hero_name,
+                'initial'     => $h->tag,
+                'lane'        => strtolower($h->laning),
+                'role'        => strtolower($h->primary_class),
+                'portrait'    => $h->portrait,
+                'damage_type' => $dmgType,
+                'power_spike' => $spike,
             ];
         });
 
@@ -586,6 +586,8 @@ class DraftController extends Controller
             ],
         ];
 
+        $specificRules = $this->getSpecificRules();
+
         return view('draft_recommendation', compact(
             'heroes',
             'pickerHeroes',
@@ -594,7 +596,10 @@ class DraftController extends Controller
             'heroSynergyMap',
             'heroStatsLookup',
             'defaultPicks',
-            'defaultBans'
+            'defaultBans',
+            'specificRules',
+            'rbrGenerated',
+            'powerSpikesMap'
         ));
     }
 
@@ -612,5 +617,47 @@ class DraftController extends Controller
         $result = $this->engine->analyze([], $enemyTeam, null);
 
         return response()->json($result);
+    }
+
+    /**
+     * Knowledge base aturan counter dan sinergi RBR
+     */
+    private function getSpecificRules(): array
+    {
+        return [
+            'Beatrix' => [
+                'Granger' => ['rule' => 'counters Beatrix (out-ranges sniper, high burst mobility)', 'icon' => 'check', 'tier' => 'TIER S', 'impact' => 4.7],
+                'Kaja'    => ['rule' => 'counters Beatrix (suppression halts ultimate channeling)', 'icon' => 'lock', 'tier' => null, 'impact' => 3.8],
+                'Irithel' => ['rule' => 'counters Beatrix (continuous kite while shooting, evades rocket skill)', 'icon' => 'arrow', 'tier' => null, 'impact' => 3.2],
+                'Khufra'  => ['rule' => 'counters Beatrix (cancels dash with bouncing ball cc)', 'icon' => 'ban', 'tier' => null, 'impact' => 2.9],
+                'Natalia' => ['rule' => 'counters Beatrix (silence and burst eliminates sniper positioning)', 'icon' => 'check', 'tier' => null, 'impact' => 4.0],
+                'Lolita'  => ['rule' => 'counters Beatrix (shield blocks all sniper and rocket bullets)', 'icon' => 'check', 'tier' => 'TIER A', 'impact' => 4.5],
+            ],
+            'Fanny' => [
+                'Khufra'  => ['rule' => 'counters Fanny (bouncing ball membatalkan lintasan kabel baja)', 'icon' => 'ban', 'tier' => 'TIER S', 'impact' => 4.9],
+                'Franco'  => ['rule' => 'counters Fanny (suppression iron hook menghentikan rotasi terbang)', 'icon' => 'lock', 'tier' => 'TIER A', 'impact' => 4.4],
+                'Kaja'    => ['rule' => 'counters Fanny (suppression pick-off instan saat mendekat)', 'icon' => 'lock', 'tier' => 'TIER A', 'impact' => 4.3],
+                'Saber'   => ['rule' => 'counters Fanny (airborne lock & burst combo instan)', 'icon' => 'check', 'tier' => null, 'impact' => 4.1],
+            ],
+            'Ling' => [
+                'Khufra'  => ['rule' => 'counters Ling (bouncing ball menjatuhkan ling saat melompat dinding)', 'icon' => 'ban', 'tier' => 'TIER S', 'impact' => 4.8],
+                'Kaja'    => ['rule' => 'counters Ling (suppression instan sebelum tempest of blades)', 'icon' => 'lock', 'tier' => 'TIER A', 'impact' => 4.5],
+                'Ruby'    => ['rule' => 'counters Ling (stun dan hook konstan membatalkan mobilitas pedang)', 'icon' => 'check', 'tier' => null, 'impact' => 4.2],
+            ],
+            'Wanwan' => [
+                'Phoveus' => ['rule' => 'counters Wanwan (dash konstan memicu lompatan ultimate tiada henti)', 'icon' => 'check', 'tier' => 'TIER S', 'impact' => 4.8],
+                'Khufra'  => ['rule' => 'counters Wanwan (bouncing ball mengunci lompatan pasif)', 'icon' => 'ban', 'tier' => 'TIER A', 'impact' => 4.4],
+                'Lolita'  => ['rule' => 'counters Wanwan (shield memblokir proyektil jarum dan ultimate)', 'icon' => 'check', 'tier' => 'TIER A', 'impact' => 4.6],
+            ],
+            'Claude' => [
+                'Belerick' => ['rule' => 'counters Claude (blazing duet memicu deadly thorns bertubi-tubi)', 'icon' => 'check', 'tier' => 'TIER S', 'impact' => 4.9],
+                'Lolita'   => ['rule' => 'counters Claude (shield menahan semburan tembakan blazing duet)', 'icon' => 'check', 'tier' => 'TIER S', 'impact' => 4.7],
+                'Khufra'   => ['rule' => 'counters Claude (bouncing ball membatalkan teleportasi battle mirror image)', 'icon' => 'ban', 'tier' => 'TIER A', 'impact' => 4.4],
+            ],
+            'Tigreal' => [
+                'Diggie'   => ['rule' => 'counters Tigreal (time journey menghapus seluruh efek implosion)', 'icon' => 'check', 'tier' => 'TIER S', 'impact' => 5.0],
+                'Valir'    => ['rule' => 'counters Tigreal (burst fireball & knockback menggagalkan inisiasi)', 'icon' => 'ban', 'tier' => 'TIER A', 'impact' => 4.3],
+            ],
+        ];
     }
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\DatasetController;
 use App\Http\Controllers\HeroController;
 use App\Http\Controllers\RbrRuleController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,34 +18,53 @@ use App\Http\Controllers\AuthController;
 | Menggunakan Metode Rule-Based Reasoning (RBR)
 */
 
-// 1. Homepage Utama (Sesuai Desain Mockup)
+// ==========================================
+// 1. PUBLIC ROUTES (Dapat diakses tanpa login)
+// ==========================================
+
+// Homepage Utama
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// 2. Counter Picks & Analisis Lawan (Pilih 1–5 Hero Musuh)
-Route::get('/counter-picks', [DraftController::class, 'counterPicks'])->name('counter.picks');
-
-// 3. Rekomendasi Draft (Pick & Ban Sinergi Tim & Counter Ancaman)
-Route::get('/rekomendasi-draft', [DraftController::class, 'draftRecommendation'])->name('draft.analyzer');
-Route::get('/draft-recommendation', [DraftController::class, 'draftRecommendation'])->name('draft.recommendation');
+// Rekomendasi Draft (Pick & Ban Sinergi Tim & Counter Ancaman)
+Route::get('/rekomendasi-draft', [DraftController::class, 'draftRecommendation'])->name('draft.recommendation');
+Route::get('/draft-recommendation', [DraftController::class, 'draftRecommendation'])->name('draft.analyzer');
 Route::post('/api/analyze-draft', [DraftController::class, 'analyze'])->name('draft.analyze.api');
 
-// 4. Statistik Pro Hero & Tier List (Liquipedia-Style Academic View)
-Route::get('/statistics', [StatisticsController::class, 'index'])->name('hero.statistics');
+// Counter Picks & Analisis Lawan (Pilih 1–5 Hero Musuh)
+Route::get('/counter-picks', [DraftController::class, 'counterPicks'])->name('counter.picks');
 
-// 5. Kamus Data Hero
+// List Hero (Direktori Kamus Data Hero)
 Route::get('/heroes', [HeroController::class, 'index'])->name('heroes');
 
-// 6. Knowledge Base Aturan RBR (Transparansi Akademik)
+// Statistik Hero (Statistik Turnamen Pro & Tier List)
+Route::get('/statistics', [StatisticsController::class, 'index'])->name('hero.statistics');
+
+// Knowledge Base Aturan RBR (Transparansi Akademik)
 Route::get('/rules', [RbrRuleController::class, 'index'])->name('rules');
 
-// 7. Autentikasi Admin Console
+
+// ==========================================
+// 2. AUTHENTICATION ROUTES (Admin Login)
+// ==========================================
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::get('/admin/logout', [AuthController::class, 'logout'])->name('admin.logout');
 Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.logout.post');
 
-// 8. Riwayat Pertandingan Seri Turnamen (KHUSUS ADMIN - Protected)
-Route::get('/admin/datasets', [DatasetController::class, 'index'])->name('matches');
+
+// ==========================================
+// 3. ADMIN ROUTES (HANYA BISA DIAKSES MELALUI LOGIN ADMIN)
+// ==========================================
+Route::prefix('admin')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/datasets', [DatasetController::class, 'index'])->name('matches');
+    Route::get('/heroes', [AdminController::class, 'heroes'])->name('admin.heroes');
+});
+
+// Redirects
+Route::get('/admin', function() {
+    return redirect()->route('admin.dashboard');
+});
 Route::get('/datasets', function() {
     return redirect()->route('matches');
 });

@@ -12,7 +12,7 @@ class AuthController extends Controller
     public function showLoginForm()
     {
         if (session('admin_logged_in')) {
-            return redirect()->route('matches');
+            return redirect()->route('admin.dashboard');
         }
         return view('auth.login');
     }
@@ -37,7 +37,7 @@ class AuthController extends Controller
             'admin_email'     => $loginId,
         ]);
 
-        return redirect()->route('matches')->with('success', 'Selamat datang di Admin Console MetaScout.');
+        return redirect()->route('admin.dashboard')->with('success', 'Selamat datang di Admin Console MetaScout.');
     }
 
     /**

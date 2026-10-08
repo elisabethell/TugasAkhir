@@ -1,0 +1,998 @@
+{
+  "generated_at": "2026-10-08T06:50:00+07:00",
+  "tournament": "MWI x EWC 2026",
+  "total_matches_analyzed": 138,
+  "total_heroes_cataloged": 133,
+  "rbr_rules": [
+    {
+      "rule_id": "RBR-CTR-01",
+      "type": "COUNTER",
+      "antecedent": "Enemy Pick contains 'Ling'",
+      "consequent": "Recommend Counter Pick / Priority Ban: 'Khufra'",
+      "confidence": "96.4%",
+      "impact_score": 4.9,
+      "target_enemy": "Ling",
+      "recommended_hero": "Khufra",
+      "rationale": "Bouncing ball membatalkan lintasan dash kabel dan menjatuhkan Ling dari dinding.",
+      "knowledge_source": "MWI 2026 Head-to-Head & Moonton Skill Dynamics"
+    },
+    {
+      "rule_id": "RBR-CTR-02",
+      "type": "COUNTER",
+      "antecedent": "Enemy Pick contains 'Fanny'",
+      "consequent": "Recommend Counter Pick / Priority Ban: 'Khufra'",
+      "confidence": "95.8%",
+      "impact_score": 4.9,
+      "target_enemy": "Fanny",
+      "recommended_hero": "Khufra",
+      "rationale": "Bouncing ball menginterupsi kabel baja berkecepatan tinggi secara konsisten.",
+      "knowledge_source": "MWI 2026 Head-to-Head & Moonton Skill Dynamics"
+    },
+    {
+      "rule_id": "RBR-CTR-03",
+      "type": "COUNTER",
+      "antecedent": "Enemy Pick contains 'Wanwan'",
+      "consequent": "Recommend Counter Pick / Priority Ban: 'Phoveus'",
+      "confidence": "94.7%",
+      "impact_score": 4.8,
+      "target_enemy": "Wanwan",
+      "recommended_hero": "Phoveus",
+      "rationale": "Lompatan pasif Wanwan terus-menerus memicu cooldown ultimate Malefic Terror.",
+      "knowledge_source": "MWI 2026 Head-to-Head & Moonton Skill Dynamics"
+    },
+    {
+      "rule_id": "RBR-CTR-04",
+      "type": "COUNTER",
+      "antecedent": "Enemy Pick contains 'Claude'",
+      "consequent": "Recommend Counter Pick / Priority Ban: 'Belerick'",
+      "confidence": "95.0%",
+      "impact_score": 4.9,
+      "target_enemy": "Claude",
+      "recommended_hero": "Belerick",
+      "rationale": "Blazing duet memicu semburan pasif Deadly Thorns bertubi-tubi yang mematikan.",
+      "knowledge_source": "MWI 2026 Head-to-Head & Moonton Skill Dynamics"
+    },
+    {
+      "rule_id": "RBR-CTR-05",
+      "type": "COUNTER",
+      "antecedent": "Enemy Pick contains 'Tigreal'",
+      "consequent": "Recommend Counter Pick / Priority Ban: 'Diggie'",
+      "confidence": "98.2%",
+      "impact_score": 5.0,
+      "target_enemy": "Tigreal",
+      "recommended_hero": "Diggie",
+      "rationale": "Time Journey menghapus seluruh crowd control implosion dan stun area.",
+      "knowledge_source": "MWI 2026 Head-to-Head & Moonton Skill Dynamics"
+    },
+    {
+      "rule_id": "RBR-CTR-06",
+      "type": "COUNTER",
+      "antecedent": "Enemy Pick contains 'Beatrix'",
+      "consequent": "Recommend Counter Pick / Priority Ban: 'Granger'",
+      "confidence": "91.5%",
+      "impact_score": 4.7,
+      "target_enemy": "Beatrix",
+      "recommended_hero": "Granger",
+      "rationale": "Mobilitas burst Rhapsody meng-outrange dan menghindari sniper/rocket Beatrix.",
+      "knowledge_source": "MWI 2026 Head-to-Head & Moonton Skill Dynamics"
+    },
+    {
+      "rule_id": "RBR-CTR-07",
+      "type": "COUNTER",
+      "antecedent": "Enemy Pick contains 'Harith'",
+      "consequent": "Recommend Counter Pick / Priority Ban: 'Minsitthar'",
+      "confidence": "93.8%",
+      "impact_score": 4.8,
+      "target_enemy": "Harith",
+      "recommended_hero": "Minsitthar",
+      "rationale": "King's Calling mengunci Chrono Dash sehingga Harith tidak bisa melompat.",
+      "knowledge_source": "MWI 2026 Head-to-Head & Moonton Skill Dynamics"
+    },
+    {
+      "rule_id": "RBR-CTR-08",
+      "type": "COUNTER",
+      "antecedent": "Enemy Pick contains 'Baxia'",
+      "consequent": "Recommend Counter Pick / Priority Ban: 'Karrie'",
+      "confidence": "92.0%",
+      "impact_score": 4.6,
+      "target_enemy": "Baxia",
+      "recommended_hero": "Karrie",
+      "rationale": "Speedy Lightwheel true damage menembus seluruh reduksi pasif Baxia Mark.",
+      "knowledge_source": "MWI 2026 Head-to-Head & Moonton Skill Dynamics"
+    },
+    {
+      "rule_id": "RBR-CTR-09",
+      "type": "COUNTER",
+      "antecedent": "Enemy Pick contains 'Hayabusa'",
+      "consequent": "Recommend Counter Pick / Priority Ban: 'Saber'",
+      "confidence": "90.5%",
+      "impact_score": 4.4,
+      "target_enemy": "Hayabusa",
+      "recommended_hero": "Saber",
+      "rationale": "Triple Sweep airborne suppression mengunci Hayabusa sebelum Quad Shadow aktif.",
+      "knowledge_source": "MWI 2026 Head-to-Head & Moonton Skill Dynamics"
+    },
+    {
+      "rule_id": "RBR-CTR-10",
+      "type": "COUNTER",
+      "antecedent": "Enemy Pick contains 'Yve'",
+      "consequent": "Recommend Counter Pick / Priority Ban: 'Yu Zhong'",
+      "confidence": "93.1%",
+      "impact_score": 4.6,
+      "target_enemy": "Yve",
+      "recommended_hero": "Yu Zhong",
+      "rationale": "Furious Dragon membelah Real World Manipulation dan menerobos lini belakang.",
+      "knowledge_source": "MWI 2026 Head-to-Head & Moonton Skill Dynamics"
+    },
+    {
+      "rule_id": "RBR-SYN-01",
+      "type": "SYNERGY",
+      "antecedent": "Ally Pick contains 'Tigreal'",
+      "consequent": "Recommend Synergy Pick: 'Yve'",
+      "confidence": "94.5%",
+      "impact_score": 4.5,
+      "target_ally": "Tigreal",
+      "recommended_hero": "Yve",
+      "rationale": "Kombinasi area: Implosion mengumpulkan 5 lawan, Real World Manipulation menghabisi dengan slow masif.",
+      "knowledge_source": "MWI 2026 Team Composition Co-occurrence Matrix"
+    },
+    {
+      "rule_id": "RBR-SYN-02",
+      "type": "SYNERGY",
+      "antecedent": "Ally Pick contains 'Aamon'",
+      "consequent": "Recommend Synergy Pick: 'Lolita'",
+      "confidence": "91.2%",
+      "impact_score": 4.5,
+      "target_ally": "Aamon",
+      "recommended_hero": "Lolita",
+      "rationale": "Guardian's Bulwark melindungi Aamon saat mengumpulkan shard invisibility.",
+      "knowledge_source": "MWI 2026 Team Composition Co-occurrence Matrix"
+    },
+    {
+      "rule_id": "RBR-SYN-03",
+      "type": "SYNERGY",
+      "antecedent": "Ally Pick contains 'Suyou'",
+      "consequent": "Recommend Synergy Pick: 'Carmilla'",
+      "confidence": "93.6%",
+      "impact_score": 4.5,
+      "target_ally": "Suyou",
+      "recommended_hero": "Carmilla",
+      "rationale": "Curse of Blood membagi damage pukulan burst Suyou ke seluruh musuh yang terhubung.",
+      "knowledge_source": "MWI 2026 Team Composition Co-occurrence Matrix"
+    },
+    {
+      "rule_id": "RBR-SYN-04",
+      "type": "SYNERGY",
+      "antecedent": "Ally Pick contains 'Granger'",
+      "consequent": "Recommend Synergy Pick: 'Belerick'",
+      "confidence": "92.4%",
+      "impact_score": 4.5,
+      "target_ally": "Granger",
+      "recommended_hero": "Belerick",
+      "rationale": "Frontline taunt Belerick membuka ruang aman untuk penembakan Rhapsody jarak jauh.",
+      "knowledge_source": "MWI 2026 Team Composition Co-occurrence Matrix"
+    },
+    {
+      "rule_id": "RBR-SYN-05",
+      "type": "SYNERGY",
+      "antecedent": "Ally Pick contains 'Harith'",
+      "consequent": "Recommend Synergy Pick: 'Mathilda'",
+      "confidence": "95.1%",
+      "impact_score": 4.5,
+      "target_ally": "Harith",
+      "recommended_hero": "Mathilda",
+      "rationale": "Guiding Wind memberikan perisai ganda dan mobilitas tak terbatas untuk Chrono Dash.",
+      "knowledge_source": "MWI 2026 Team Composition Co-occurrence Matrix"
+    },
+    {
+      "rule_id": "RBR-DMG-01",
+      "type": "DAMAGE_BALANCE",
+      "antecedent": "Ally Draft Physical Damage Ratio >= 80%",
+      "consequent": "Force Filter Recommendation: Prioritaskan Magic Damage Core / Midlaner",
+      "confidence": "97.5%",
+      "impact_score": 4.8,
+      "rationale": "Mencegah lawan melakukan stacking Physical Defense (Antique Cuirass & Blade Armor).",
+      "knowledge_source": "Tournament Meta Efficiency Principle"
+    },
+    {
+      "rule_id": "RBR-SPIKE-01",
+      "type": "POWER_SPIKE",
+      "antecedent": "Enemy Draft memiliki >= 2 Late Game Scalers (e.g. Karrie, Claude, Cecilion)",
+      "consequent": "Draft Early-to-Mid Tempo Rushers (e.g. Terizla, Fanny, Suyou, Baxia)",
+      "confidence": "94.0%",
+      "impact_score": 4.7,
+      "rationale": "Selesaikan permainan sebelum menit 14:00 sebelum power spike musuh tercapai.",
+      "knowledge_source": "Tournament Duration Correlation Analysis"
+    }
+  ],
+  "power_spikes": {
+    "Alice": {
+      "hero": "Alice",
+      "empirical_spike": "Late Game Scaler",
+      "description": "Sangat dominan di late game (77.8% WR pada match >17m)",
+      "early_wr": 60.0,
+      "mid_wr": 33.3,
+      "late_wr": 77.8,
+      "total_samples": 20
+    },
+    "Hirara": {
+      "hero": "Hirara",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (42.9% WR pada match 13-17m)",
+      "early_wr": 50.0,
+      "mid_wr": 42.9,
+      "late_wr": 40.0,
+      "total_samples": 14
+    },
+    "Yve": {
+      "hero": "Yve",
+      "empirical_spike": "Early Game",
+      "description": "Sangat dominan di early tempo (80.0% WR pada match <13m)",
+      "early_wr": 80.0,
+      "mid_wr": 87.5,
+      "late_wr": 70.0,
+      "total_samples": 23
+    },
+    "Karrie": {
+      "hero": "Karrie",
+      "empirical_spike": "Early Game",
+      "description": "Sangat dominan di early tempo (71.4% WR pada match <13m)",
+      "early_wr": 71.4,
+      "mid_wr": 68.8,
+      "late_wr": 54.5,
+      "total_samples": 34
+    },
+    "Gatot Kaca": {
+      "hero": "Gatot Kaca",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (50.0% WR pada match 13-17m)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 25.0,
+      "total_samples": 10
+    },
+    "Fredrinn": {
+      "hero": "Fredrinn",
+      "empirical_spike": "Mid Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Mid Game)",
+      "early_wr": 50.0,
+      "mid_wr": 0.0,
+      "late_wr": 50.0,
+      "total_samples": 1
+    },
+    "Gloo": {
+      "hero": "Gloo",
+      "empirical_spike": "Late Game Scaler",
+      "description": "Sangat dominan di late game (83.3% WR pada match >17m)",
+      "early_wr": 50.0,
+      "mid_wr": 20.0,
+      "late_wr": 83.3,
+      "total_samples": 11
+    },
+    "Atlas": {
+      "hero": "Atlas",
+      "empirical_spike": "Early Game",
+      "description": "Sangat dominan di early tempo (75.0% WR pada match <13m)",
+      "early_wr": 75.0,
+      "mid_wr": 33.3,
+      "late_wr": 44.4,
+      "total_samples": 19
+    },
+    "Harith": {
+      "hero": "Harith",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (50.0% WR pada match 13-17m)",
+      "early_wr": 0.0,
+      "mid_wr": 50.0,
+      "late_wr": 50.0,
+      "total_samples": 9
+    },
+    "Mathilda": {
+      "hero": "Mathilda",
+      "empirical_spike": "Late Game Scaler",
+      "description": "Sangat dominan di late game (66.7% WR pada match >17m)",
+      "early_wr": 0.0,
+      "mid_wr": 100.0,
+      "late_wr": 66.7,
+      "total_samples": 5
+    },
+    "Phoveus": {
+      "hero": "Phoveus",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (0.0% WR pada match 13-17m)",
+      "early_wr": 0.0,
+      "mid_wr": 0.0,
+      "late_wr": 50.0,
+      "total_samples": 8
+    },
+    "Suyou": {
+      "hero": "Suyou",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (20.0% WR pada match 13-17m)",
+      "early_wr": 0.0,
+      "mid_wr": 20.0,
+      "late_wr": 50.0,
+      "total_samples": 11
+    },
+    "Gord": {
+      "hero": "Gord",
+      "empirical_spike": "Early Game",
+      "description": "Sangat dominan di early tempo (100.0% WR pada match <13m)",
+      "early_wr": 100.0,
+      "mid_wr": 55.6,
+      "late_wr": 33.3,
+      "total_samples": 17
+    },
+    "Moskov": {
+      "hero": "Moskov",
+      "empirical_spike": "Late Game Scaler",
+      "description": "Sangat dominan di late game (62.5% WR pada match >17m)",
+      "early_wr": 50.0,
+      "mid_wr": 12.5,
+      "late_wr": 62.5,
+      "total_samples": 18
+    },
+    "Belerick": {
+      "hero": "Belerick",
+      "empirical_spike": "Late Game Scaler",
+      "description": "Sangat dominan di late game (66.7% WR pada match >17m)",
+      "early_wr": 33.3,
+      "mid_wr": 83.3,
+      "late_wr": 66.7,
+      "total_samples": 27
+    },
+    "Marcel": {
+      "hero": "Marcel",
+      "empirical_spike": "Late Game Scaler",
+      "description": "Sangat dominan di late game (66.7% WR pada match >17m)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 66.7,
+      "total_samples": 7
+    },
+    "Esmeralda": {
+      "hero": "Esmeralda",
+      "empirical_spike": "Early Game",
+      "description": "Sangat dominan di early tempo (60.0% WR pada match <13m)",
+      "early_wr": 60.0,
+      "mid_wr": 63.6,
+      "late_wr": 44.4,
+      "total_samples": 34
+    },
+    "Carmilla": {
+      "hero": "Carmilla",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (100.0% WR pada match 13-17m)",
+      "early_wr": 100.0,
+      "mid_wr": 100.0,
+      "late_wr": 100.0,
+      "total_samples": 5
+    },
+    "Minotaur": {
+      "hero": "Minotaur",
+      "empirical_spike": "Early Game",
+      "description": "Sangat dominan di early tempo (100.0% WR pada match <13m)",
+      "early_wr": 100.0,
+      "mid_wr": 50.0,
+      "late_wr": 0.0,
+      "total_samples": 6
+    },
+    "Baxia": {
+      "hero": "Baxia",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (75.0% WR pada match 13-17m)",
+      "early_wr": 0.0,
+      "mid_wr": 75.0,
+      "late_wr": 38.5,
+      "total_samples": 22
+    },
+    "Claude": {
+      "hero": "Claude",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (69.2% WR pada match 13-17m)",
+      "early_wr": 50.0,
+      "mid_wr": 69.2,
+      "late_wr": 57.1,
+      "total_samples": 40
+    },
+    "Tigreal": {
+      "hero": "Tigreal",
+      "empirical_spike": "Mid Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Mid Game)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 50.0,
+      "total_samples": 2
+    },
+    "X Borg": {
+      "hero": "X Borg",
+      "empirical_spike": "Mid Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Mid Game)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 100.0,
+      "total_samples": 2
+    },
+    "Akai": {
+      "hero": "Akai",
+      "empirical_spike": "Early Game",
+      "description": "Sangat dominan di early tempo (100.0% WR pada match <13m)",
+      "early_wr": 100.0,
+      "mid_wr": 42.9,
+      "late_wr": 44.4,
+      "total_samples": 17
+    },
+    "Paquito": {
+      "hero": "Paquito",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (66.7% WR pada match 13-17m)",
+      "early_wr": 50.0,
+      "mid_wr": 66.7,
+      "late_wr": 33.3,
+      "total_samples": 9
+    },
+    "Hanzo": {
+      "hero": "Hanzo",
+      "empirical_spike": "Mid Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Mid Game)",
+      "early_wr": 50.0,
+      "mid_wr": 0.0,
+      "late_wr": 0.0,
+      "total_samples": 2
+    },
+    "Zhuxin": {
+      "hero": "Zhuxin",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (20.0% WR pada match 13-17m)",
+      "early_wr": 0.0,
+      "mid_wr": 20.0,
+      "late_wr": 16.7,
+      "total_samples": 14
+    },
+    "Irithel": {
+      "hero": "Irithel",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (0.0% WR pada match 13-17m)",
+      "early_wr": 50.0,
+      "mid_wr": 0.0,
+      "late_wr": 0.0,
+      "total_samples": 3
+    },
+    "Hylos": {
+      "hero": "Hylos",
+      "empirical_spike": "Early Game",
+      "description": "Sangat dominan di early tempo (100.0% WR pada match <13m)",
+      "early_wr": 100.0,
+      "mid_wr": 0.0,
+      "late_wr": 0.0,
+      "total_samples": 14
+    },
+    "Lancelot": {
+      "hero": "Lancelot",
+      "empirical_spike": "Mid Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Mid Game)",
+      "early_wr": 50.0,
+      "mid_wr": 100.0,
+      "late_wr": 100.0,
+      "total_samples": 2
+    },
+    "Lylia": {
+      "hero": "Lylia",
+      "empirical_spike": "Late Game Scaler",
+      "description": "Sangat dominan di late game (66.7% WR pada match >17m)",
+      "early_wr": 50.0,
+      "mid_wr": 11.1,
+      "late_wr": 66.7,
+      "total_samples": 28
+    },
+    "Hanabi": {
+      "hero": "Hanabi",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (50.0% WR pada match 13-17m)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 50.0,
+      "total_samples": 8
+    },
+    "Uranus": {
+      "hero": "Uranus",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (0.0% WR pada match 13-17m)",
+      "early_wr": 50.0,
+      "mid_wr": 0.0,
+      "late_wr": 0.0,
+      "total_samples": 5
+    },
+    "Freya": {
+      "hero": "Freya",
+      "empirical_spike": "Late Game Scaler",
+      "description": "Sangat dominan di late game (60.0% WR pada match >17m)",
+      "early_wr": 0.0,
+      "mid_wr": 25.0,
+      "late_wr": 60.0,
+      "total_samples": 10
+    },
+    "Sora": {
+      "hero": "Sora",
+      "empirical_spike": "Early Game",
+      "description": "Sangat dominan di early tempo (100.0% WR pada match <13m)",
+      "early_wr": 100.0,
+      "mid_wr": 71.4,
+      "late_wr": 50.0,
+      "total_samples": 16
+    },
+    "Lunox": {
+      "hero": "Lunox",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (50.0% WR pada match 13-17m)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 0.0,
+      "total_samples": 3
+    },
+    "Guinevere": {
+      "hero": "Guinevere",
+      "empirical_spike": "Early Game",
+      "description": "Sangat dominan di early tempo (100.0% WR pada match <13m)",
+      "early_wr": 100.0,
+      "mid_wr": 20.0,
+      "late_wr": 0.0,
+      "total_samples": 9
+    },
+    "Obsidia": {
+      "hero": "Obsidia",
+      "empirical_spike": "Late Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Late Game)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 50.0,
+      "total_samples": 0
+    },
+    "Badang": {
+      "hero": "Badang",
+      "empirical_spike": "Early Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Early Game)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 100.0,
+      "total_samples": 1
+    },
+    "Arlott": {
+      "hero": "Arlott",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (75.0% WR pada match 13-17m)",
+      "early_wr": 50.0,
+      "mid_wr": 75.0,
+      "late_wr": 0.0,
+      "total_samples": 7
+    },
+    "Clint": {
+      "hero": "Clint",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (50.0% WR pada match 13-17m)",
+      "early_wr": 0.0,
+      "mid_wr": 50.0,
+      "late_wr": 33.3,
+      "total_samples": 6
+    },
+    "Terizla": {
+      "hero": "Terizla",
+      "empirical_spike": "Late Game Scaler",
+      "description": "Sangat dominan di late game (100.0% WR pada match >17m)",
+      "early_wr": 0.0,
+      "mid_wr": 100.0,
+      "late_wr": 100.0,
+      "total_samples": 3
+    },
+    "Valir": {
+      "hero": "Valir",
+      "empirical_spike": "Late Game Scaler",
+      "description": "Sangat dominan di late game (100.0% WR pada match >17m)",
+      "early_wr": 50.0,
+      "mid_wr": 40.0,
+      "late_wr": 100.0,
+      "total_samples": 7
+    },
+    "Bruno": {
+      "hero": "Bruno",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (0.0% WR pada match 13-17m)",
+      "early_wr": 0.0,
+      "mid_wr": 0.0,
+      "late_wr": 40.0,
+      "total_samples": 8
+    },
+    "Valentina": {
+      "hero": "Valentina",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (57.1% WR pada match 13-17m)",
+      "early_wr": 25.0,
+      "mid_wr": 57.1,
+      "late_wr": 42.9,
+      "total_samples": 18
+    },
+    "Lesley": {
+      "hero": "Lesley",
+      "empirical_spike": "Late Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Late Game)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 0.0,
+      "total_samples": 1
+    },
+    "Khufra": {
+      "hero": "Khufra",
+      "empirical_spike": "Early Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Early Game)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 0.0,
+      "total_samples": 1
+    },
+    "Benedetta": {
+      "hero": "Benedetta",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (33.3% WR pada match 13-17m)",
+      "early_wr": 50.0,
+      "mid_wr": 33.3,
+      "late_wr": 50.0,
+      "total_samples": 7
+    },
+    "Nolan": {
+      "hero": "Nolan",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (50.0% WR pada match 13-17m)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 50.0,
+      "total_samples": 8
+    },
+    "Hayabusa": {
+      "hero": "Hayabusa",
+      "empirical_spike": "Late Game Scaler",
+      "description": "Sangat dominan di late game (100.0% WR pada match >17m)",
+      "early_wr": 0.0,
+      "mid_wr": 100.0,
+      "late_wr": 100.0,
+      "total_samples": 3
+    },
+    "Kimmy": {
+      "hero": "Kimmy",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (50.0% WR pada match 13-17m)",
+      "early_wr": 0.0,
+      "mid_wr": 50.0,
+      "late_wr": 40.0,
+      "total_samples": 8
+    },
+    "Faramis": {
+      "hero": "Faramis",
+      "empirical_spike": "Early Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Early Game)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 0.0,
+      "total_samples": 1
+    },
+    "Lapu lapu": {
+      "hero": "Lapu lapu",
+      "empirical_spike": "Early Game",
+      "description": "Sangat dominan di early tempo (100.0% WR pada match <13m)",
+      "early_wr": 100.0,
+      "mid_wr": 33.3,
+      "late_wr": 50.0,
+      "total_samples": 7
+    },
+    "Barats": {
+      "hero": "Barats",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (100.0% WR pada match 13-17m)",
+      "early_wr": 0.0,
+      "mid_wr": 100.0,
+      "late_wr": 50.0,
+      "total_samples": 4
+    },
+    "Kagura": {
+      "hero": "Kagura",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (100.0% WR pada match 13-17m)",
+      "early_wr": 50.0,
+      "mid_wr": 100.0,
+      "late_wr": 0.0,
+      "total_samples": 3
+    },
+    "Rafaela": {
+      "hero": "Rafaela",
+      "empirical_spike": "Mid Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Mid Game)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 0.0,
+      "total_samples": 1
+    },
+    "Khaleed": {
+      "hero": "Khaleed",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (0.0% WR pada match 13-17m)",
+      "early_wr": 0.0,
+      "mid_wr": 0.0,
+      "late_wr": 0.0,
+      "total_samples": 3
+    },
+    "Granger": {
+      "hero": "Granger",
+      "empirical_spike": "Early Game",
+      "description": "Sangat dominan di early tempo (100.0% WR pada match <13m)",
+      "early_wr": 100.0,
+      "mid_wr": 33.3,
+      "late_wr": 0.0,
+      "total_samples": 5
+    },
+    "Wanwan": {
+      "hero": "Wanwan",
+      "empirical_spike": "Late Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Late Game)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 100.0,
+      "total_samples": 1
+    },
+    "Kalea": {
+      "hero": "Kalea",
+      "empirical_spike": "Mid Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Mid Game)",
+      "early_wr": 0.0,
+      "mid_wr": 50.0,
+      "late_wr": 50.0,
+      "total_samples": 1
+    },
+    "Kaja": {
+      "hero": "Kaja",
+      "empirical_spike": "Early Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Early Game)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 100.0,
+      "total_samples": 2
+    },
+    "Yi Sunshin": {
+      "hero": "Yi Sunshin",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (33.3% WR pada match 13-17m)",
+      "early_wr": 50.0,
+      "mid_wr": 33.3,
+      "late_wr": 0.0,
+      "total_samples": 6
+    },
+    "Hilda": {
+      "hero": "Hilda",
+      "empirical_spike": "Late Game Scaler",
+      "description": "Sangat dominan di late game (66.7% WR pada match >17m)",
+      "early_wr": 50.0,
+      "mid_wr": 66.7,
+      "late_wr": 66.7,
+      "total_samples": 6
+    },
+    "Aulus": {
+      "hero": "Aulus",
+      "empirical_spike": "Late Game Scaler",
+      "description": "Sangat dominan di late game (100.0% WR pada match >17m)",
+      "early_wr": 50.0,
+      "mid_wr": 66.7,
+      "late_wr": 100.0,
+      "total_samples": 4
+    },
+    "Yu Zhong": {
+      "hero": "Yu Zhong",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (100.0% WR pada match 13-17m)",
+      "early_wr": 0.0,
+      "mid_wr": 100.0,
+      "late_wr": 50.0,
+      "total_samples": 6
+    },
+    "Harley": {
+      "hero": "Harley",
+      "empirical_spike": "Late Game Scaler",
+      "description": "Sangat dominan di late game (100.0% WR pada match >17m)",
+      "early_wr": 50.0,
+      "mid_wr": 66.7,
+      "late_wr": 100.0,
+      "total_samples": 7
+    },
+    "Luo Yi": {
+      "hero": "Luo Yi",
+      "empirical_spike": "Mid Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Mid Game)",
+      "early_wr": 50.0,
+      "mid_wr": 100.0,
+      "late_wr": 50.0,
+      "total_samples": 1
+    },
+    "Joy": {
+      "hero": "Joy",
+      "empirical_spike": "Mid Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Mid Game)",
+      "early_wr": 50.0,
+      "mid_wr": 0.0,
+      "late_wr": 0.0,
+      "total_samples": 2
+    },
+    "Ling": {
+      "hero": "Ling",
+      "empirical_spike": "Early Game",
+      "description": "Sangat dominan di early tempo (100.0% WR pada match <13m)",
+      "early_wr": 100.0,
+      "mid_wr": 75.0,
+      "late_wr": 40.0,
+      "total_samples": 11
+    },
+    "Zetian": {
+      "hero": "Zetian",
+      "empirical_spike": "Mid Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Mid Game)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 100.0,
+      "total_samples": 1
+    },
+    "Grock": {
+      "hero": "Grock",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (0.0% WR pada match 13-17m)",
+      "early_wr": 0.0,
+      "mid_wr": 0.0,
+      "late_wr": 33.3,
+      "total_samples": 5
+    },
+    "Fanny": {
+      "hero": "Fanny",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (0.0% WR pada match 13-17m)",
+      "early_wr": 50.0,
+      "mid_wr": 0.0,
+      "late_wr": 50.0,
+      "total_samples": 3
+    },
+    "Cecilion": {
+      "hero": "Cecilion",
+      "empirical_spike": "Late Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Late Game)",
+      "early_wr": 50.0,
+      "mid_wr": 0.0,
+      "late_wr": 100.0,
+      "total_samples": 2
+    },
+    "Chou": {
+      "hero": "Chou",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (100.0% WR pada match 13-17m)",
+      "early_wr": 0.0,
+      "mid_wr": 100.0,
+      "late_wr": 50.0,
+      "total_samples": 8
+    },
+    "Selena": {
+      "hero": "Selena",
+      "empirical_spike": "Early Game",
+      "description": "Sangat dominan di early tempo (100.0% WR pada match <13m)",
+      "early_wr": 100.0,
+      "mid_wr": 33.3,
+      "late_wr": 60.0,
+      "total_samples": 9
+    },
+    "Pharsa": {
+      "hero": "Pharsa",
+      "empirical_spike": "Mid Game",
+      "description": "Stabil di pertengahan laga (100.0% WR pada match 13-17m)",
+      "early_wr": 50.0,
+      "mid_wr": 100.0,
+      "late_wr": 0.0,
+      "total_samples": 4
+    },
+    "Cici": {
+      "hero": "Cici",
+      "empirical_spike": "Late Game Scaler",
+      "description": "Sangat dominan di late game (100.0% WR pada match >17m)",
+      "early_wr": 0.0,
+      "mid_wr": 100.0,
+      "late_wr": 100.0,
+      "total_samples": 8
+    },
+    "Kadita": {
+      "hero": "Kadita",
+      "empirical_spike": "Early Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Early Game)",
+      "early_wr": 50.0,
+      "mid_wr": 0.0,
+      "late_wr": 50.0,
+      "total_samples": 1
+    },
+    "Masha": {
+      "hero": "Masha",
+      "empirical_spike": "Mid Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Mid Game)",
+      "early_wr": 50.0,
+      "mid_wr": 0.0,
+      "late_wr": 50.0,
+      "total_samples": 1
+    },
+    "Chip": {
+      "hero": "Chip",
+      "empirical_spike": "Late Game Scaler",
+      "description": "Sangat dominan di late game (100.0% WR pada match >17m)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 100.0,
+      "total_samples": 3
+    },
+    "Miya": {
+      "hero": "Miya",
+      "empirical_spike": "Late Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Late Game)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 50.0,
+      "total_samples": 0
+    },
+    "Balmond": {
+      "hero": "Balmond",
+      "empirical_spike": "Late Game Scaler",
+      "description": "Sangat dominan di late game (80.0% WR pada match >17m)",
+      "early_wr": 0.0,
+      "mid_wr": 50.0,
+      "late_wr": 80.0,
+      "total_samples": 7
+    },
+    "Helcurt": {
+      "hero": "Helcurt",
+      "empirical_spike": "Mid Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Mid Game)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 0.0,
+      "total_samples": 1
+    },
+    "Vexana": {
+      "hero": "Vexana",
+      "empirical_spike": "Mid Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Mid Game)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 0.0,
+      "total_samples": 1
+    },
+    "Ruby": {
+      "hero": "Ruby",
+      "empirical_spike": "Mid Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Mid Game)",
+      "early_wr": 50.0,
+      "mid_wr": 50.0,
+      "late_wr": 50.0,
+      "total_samples": 0
+    },
+    "Franco": {
+      "hero": "Franco",
+      "empirical_spike": "Early Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Early Game)",
+      "early_wr": 50.0,
+      "mid_wr": 100.0,
+      "late_wr": 50.0,
+      "total_samples": 1
+    },
+    "Leomord": {
+      "hero": "Leomord",
+      "empirical_spike": "Mid Game",
+      "description": "Berdasarkan karakteristik kit keahlian (Mid Game)",
+      "early_wr": 100.0,
+      "mid_wr": 50.0,
+      "late_wr": 50.0,
+      "total_samples": 1
+    }
+  },
+  "tournament_summary": {
+    "avg_duration": "14:32",
+    "fastest_duration": "09:18",
+    "longest_duration": "24:45"
+  }
+}

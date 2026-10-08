@@ -6,31 +6,47 @@
         <span class="font-black text-sm tracking-widest text-[#18181B] uppercase">METASCOUT</span>
     </a>
 
-    <!-- Navigation Links -->
+    <!-- Navigation Links: Tepat 5 Halaman Publik Sesuai Permintaan -->
     <nav class="flex items-center gap-1.5 sm:gap-2 flex-wrap text-xs font-bold uppercase tracking-wider">
         <a href="{{ route('home') }}" 
            class="{{ request()->routeIs('home') ? 'bg-[#700B1A] text-white shadow-sm' : 'text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE]' }} px-4 py-1.5 rounded-full transition">
             HOMEPAGE
         </a>
-        <a href="{{ route('draft.analyzer') }}" 
-           class="{{ request()->routeIs('draft.analyzer') ? 'bg-[#700B1A] text-white shadow-sm' : 'text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE]' }} px-3.5 py-1.5 rounded-full transition">
-            REKOMENDASI DRAFT
+        <a href="{{ route('draft.recommendation') }}" 
+           class="{{ (request()->routeIs('draft.recommendation') || request()->routeIs('draft.analyzer')) ? 'bg-[#700B1A] text-white shadow-sm' : 'text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE]' }} px-3.5 py-1.5 rounded-full transition">
+            REKOM DRAFT
+        </a>
+        <a href="{{ route('counter.picks') }}" 
+           class="{{ request()->routeIs('counter.picks') ? 'bg-[#700B1A] text-white shadow-sm' : 'text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE]' }} px-3.5 py-1.5 rounded-full transition">
+            COUNTER PICK
+        </a>
+        <a href="{{ route('heroes') }}" 
+           class="{{ request()->routeIs('heroes') ? 'bg-[#700B1A] text-white shadow-sm' : 'text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE]' }} px-3.5 py-1.5 rounded-full transition">
+            LIST HERO
         </a>
         <a href="{{ route('hero.statistics') }}" 
-           class="{{ (request()->routeIs('hero.statistics') || request()->routeIs('heroes')) ? 'bg-[#700B1A] text-white shadow-sm' : 'text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE]' }} px-3.5 py-1.5 rounded-full transition">
+           class="{{ request()->routeIs('hero.statistics') ? 'bg-[#700B1A] text-white shadow-sm' : 'text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE]' }} px-3.5 py-1.5 rounded-full transition">
             STATISTIK HERO
-        </a>
-        <a href="{{ route('matches') }}" 
-           class="{{ request()->routeIs('matches') ? 'bg-[#700B1A] text-white shadow-sm' : 'text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE]' }} px-3.5 py-1.5 rounded-full transition">
-            RIWAYAT SERI
         </a>
     </nav>
 
-    <!-- Admin Login Button -->
+    <!-- Admin Login / Console Action -->
     <div>
-        <a href="{{ route('matches') }}" class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-gray-800 hover:text-[#700B1A] border border-[#E5E7EB] text-[11px] font-extrabold uppercase tracking-wider px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition">
-            <span class="w-1.5 h-1.5 bg-gray-600 rounded-sm"></span>
-            <span>LOGIN ADMIN</span>
-        </a>
+        @if(session('admin_logged_in'))
+            <div class="flex items-center gap-2">
+                <a href="{{ route('admin.dashboard') }}" class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD] text-[11px] font-extrabold uppercase tracking-wider px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition">
+                    <span class="w-1.5 h-1.5 bg-[#700B1A] rounded-full"></span>
+                    <span>ADMIN CONSOLE</span>
+                </a>
+                <a href="{{ route('admin.logout') }}" class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-gray-700 hover:text-[#700B1A] border border-[#E5E7EB] text-[11px] font-extrabold uppercase tracking-wider px-3 py-1.5 rounded-full transition">
+                    LOGOUT
+                </a>
+            </div>
+        @else
+            <a href="{{ route('login') }}" class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-gray-800 hover:text-[#700B1A] border border-[#E5E7EB] text-[11px] font-extrabold uppercase tracking-wider px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition">
+                <span class="w-1.5 h-1.5 bg-gray-600 rounded-sm"></span>
+                <span>LOGIN ADMIN</span>
+            </a>
+        @endif
     </div>
 </header>
