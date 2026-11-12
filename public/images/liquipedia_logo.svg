@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="lq-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b3875"/>
+      <stop offset="100%" stop-color="#061c3d"/>
+    </linearGradient>
+    <linearGradient id="lq-wing" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00C0F3"/>
+      <stop offset="100%" stop-color="#0072CE"/>
+    </linearGradient>
+  </defs>
+  <!-- Shield Background -->
+  <path d="M 60 8 C 88 8 106 18 106 42 C 106 74 78 98 60 112 C 42 98 14 74 14 42 C 14 18 32 8 60 8 Z" fill="url(#lq-grad)" stroke="#0072CE" stroke-width="2"/>
+  <!-- Wing / Crest Stylized L -->
+  <path d="M 38 32 L 52 32 C 55 32 58 35 58 38 L 58 64 L 78 64 C 82 64 85 67 85 71 L 85 75 C 85 79 82 82 78 82 L 44 82 C 40 82 38 80 38 76 L 38 32 Z" fill="#FFFFFF"/>
+  <path d="M 58 36 L 76 36 C 84 36 90 42 90 50 L 90 54 L 72 54 L 72 46 L 58 46 Z" fill="url(#lq-wing)"/>
+  <!-- Accent dots / star -->
+  <circle cx="60" cy="22" r="3.5" fill="#00C0F3"/>
+</svg>
+

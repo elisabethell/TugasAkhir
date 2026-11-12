@@ -9,11 +9,22 @@
 
     <!-- 1. ADMIN TOP NAVIGATION BAR -->
     <header class="bg-white border border-[#F3E8E8] rounded-full px-5 py-2.5 flex items-center justify-between shadow-sm flex-wrap gap-3">
-        <!-- Brand Logo -->
-        <a href="{{ route('home') }}" class="flex items-center gap-2.5">
-            <span class="w-3 h-3 rounded-full bg-[#700B1A] inline-block shadow-[0_0_8px_rgba(112,11,26,0.5)]"></span>
-            <span class="font-black text-sm tracking-widest text-[#18181B] uppercase">METASCOUT</span>
-        </a>
+        <!-- Brand Logo & Liquipedia Badge -->
+        <div class="flex items-center gap-3">
+            <a href="{{ route('home') }}" class="flex items-center gap-2.5">
+                <span class="w-3 h-3 rounded-full bg-[#700B1A] inline-block shadow-[0_0_8px_rgba(112,11,26,0.5)]"></span>
+                <span class="font-black text-sm tracking-widest text-[#18181B] uppercase">METASCOUT</span>
+            </a>
+
+            <span class="text-gray-300 font-light select-none">|</span>
+
+            <a href="https://liquipedia.net/mobilelegends" target="_blank" rel="noopener noreferrer" 
+               class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#F5F8FC] hover:bg-[#EBF2FA] border border-[#D0E1F5] transition group shadow-2xs"
+               title="Data Pertandingan Resmi Bersumber dari Liquipedia API">
+                <img src="/images/liquipedia_logo.svg" alt="Liquipedia Logo" class="w-4 h-4 object-contain">
+                <span class="font-black text-[11px] text-[#0A285F] group-hover:text-[#0072CE] tracking-wider uppercase">LIQUIPEDIA</span>
+            </a>
+        </div>
 
         <!-- Admin Links -->
         <nav class="flex items-center gap-1.5 sm:gap-2 flex-wrap text-xs font-bold uppercase tracking-wider">
@@ -88,14 +99,11 @@
             <div class="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
                 <span>ADMIN PANEL</span>
                 <span>/</span>
-                <span class="text-[#700B1A] font-extrabold">LOCAL ON-DEMAND STORE</span>
+                <span class="text-[#700B1A] font-extrabold">DATASET PERTANDINGAN</span>
             </div>
             <h1 class="text-2xl sm:text-3xl font-black text-[#18181B] tracking-tight uppercase">
                 DATASET MATCH & MULTI-GAME SERIES
             </h1>
-            <p class="text-xs text-gray-500 font-medium mt-1">
-                Data turnamen tersimpan secara lokal di MySQL. Klik tombol <strong>Details</strong> pada setiap baris untuk membuka popup card detail game, durasi, jenis map, hero picks & bans.
-            </p>
         </div>
 
         <div class="flex items-center gap-2.5 flex-wrap">
@@ -157,9 +165,6 @@
                     <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                     <span>100% On-Demand Local Sync</span>
                 </div>
-                <p class="text-[10px] text-gray-400 mt-1 font-medium">
-                    Tidak ada HTTP request saat dashboard / frontend dimuat.
-                </p>
             </div>
             <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-base flex-shrink-0">
                 🛡
@@ -169,7 +174,7 @@
 
     <!-- 5. MAIN TABLE: TABEL LIST DATASET MATCH (DENGAN PAGINATION LIMIT) -->
     <div class="card-custom p-4 sm:p-5 space-y-4">
-        <!-- Table Header & Search -->
+        <!-- Table Header & Filter Babak -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#F3E8E8]">
             <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-[#700B1A]"></span>
@@ -178,18 +183,32 @@
                 </h3>
             </div>
 
-            <!-- Search Filter -->
-            <div class="relative w-full sm:w-72">
-                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                </span>
-                <input type="text" 
-                       id="datasetSearchInput" 
-                       oninput="filterDatasetTable()" 
-                       placeholder="Cari match, tim, babak..." 
-                       class="w-full bg-[#FAF8F8] border border-[#F3E8E8] rounded-full py-1.5 pl-8 pr-3 text-xs font-medium text-[#18181B] focus:outline-none focus:border-[#700B1A] transition">
+            <!-- Filter Babak (Playoffs, Regular Season Week 1, dst) -->
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-black text-gray-500 uppercase tracking-wider">BABAK:</span>
+                <select id="datasetStageFilter" 
+                        onchange="filterDatasetByStage(this.value)" 
+                        class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl px-3 py-1.5 text-xs font-extrabold text-[#18181B] focus:outline-none focus:border-[#700B1A] transition cursor-pointer shadow-2xs">
+                    <option value="all" selected>Semua Babak (All)</option>
+                    <optgroup label="Playoffs">
+                        <option value="playoffs">Playoffs (Semua)</option>
+                        <option value="grand-final">Grand Final Playoffs</option>
+                        <option value="lower-bracket-final">Lower Bracket Final</option>
+                        <option value="upper-bracket-final">Upper Bracket Final</option>
+                    </optgroup>
+                    <optgroup label="Regular Season">
+                        <option value="regular-season">Regular Season (Semua)</option>
+                        <option value="week-1">Week 1 Regular Season</option>
+                        <option value="week-2">Week 2 Regular Season</option>
+                        <option value="week-3">Week 3 Regular Season</option>
+                        <option value="week-4">Week 4 Regular Season</option>
+                        <option value="week-5">Week 5 Regular Season</option>
+                        <option value="week-6">Week 6 Regular Season</option>
+                        <option value="week-7">Week 7 Regular Season</option>
+                        <option value="week-8">Week 8 Regular Season</option>
+                        <option value="week-9">Week 9 Regular Season</option>
+                    </optgroup>
+                </select>
             </div>
         </div>
 
@@ -208,6 +227,7 @@
                 <tbody class="divide-y divide-gray-100 text-xs">
                     @forelse($seriesMatches as $match)
                         <tr class="match-row hover:bg-[#FAF8F8]/80 transition group"
+                            data-stage="{{ strtolower($match->formatted_stage_name) }}"
                             data-search="{{ strtolower($match->match_id . ' ' . $match->team_1_name . ' ' . $match->team_2_name . ' ' . $match->formatted_stage_name) }}">
                             
                             <!-- 1. Match ID -->
@@ -428,14 +448,34 @@
     let currentDatasetPage = 1;
     let datasetPerPage = 7;
 
-    function filterDatasetTable() {
-        const query = (document.getElementById('datasetSearchInput').value || '').toLowerCase().trim();
+    function filterDatasetByStage(stageVal) {
         const rows = document.querySelectorAll('.match-row');
+        const filter = (stageVal || 'all').toLowerCase().trim();
 
         rows.forEach(row => {
-            const text = row.getAttribute('data-search') || '';
-            const isMatched = (!query || text.includes(query));
-            row.dataset.matched = isMatched ? 'true' : 'false';
+            const stage = (row.getAttribute('data-stage') || row.innerText).toLowerCase();
+            let matched = false;
+
+            if (filter === 'all') {
+                matched = true;
+            } else if (filter === 'playoffs') {
+                matched = stage.includes('playoff') || stage.includes('final') || stage.includes('bracket');
+            } else if (filter === 'grand-final') {
+                matched = stage.includes('grand final');
+            } else if (filter === 'lower-bracket-final') {
+                matched = stage.includes('lower bracket');
+            } else if (filter === 'upper-bracket-final') {
+                matched = stage.includes('upper bracket');
+            } else if (filter === 'regular-season') {
+                matched = stage.includes('regular') || stage.includes('week');
+            } else if (filter.startsWith('week-')) {
+                const wNum = filter.replace('week-', '');
+                matched = stage.includes(`week ${wNum}`) || stage.includes(`w${wNum}`);
+            } else {
+                matched = stage.includes(filter);
+            }
+
+            row.dataset.matched = matched ? 'true' : 'false';
         });
 
         currentDatasetPage = 1;
@@ -883,7 +923,8 @@
 
     // Inisialisasi Pagination saat halaman pertama kali dibuka
     document.addEventListener('DOMContentLoaded', function() {
-        filterDatasetTable();
+        const filterElem = document.getElementById('datasetStageFilter');
+        filterDatasetByStage(filterElem ? filterElem.value : 'all');
     });
 </script>
 @endpush

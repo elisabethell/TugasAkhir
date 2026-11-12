@@ -9,11 +9,22 @@
 
     <!-- 1. ADMIN TOP NAVIGATION BAR -->
     <header class="bg-white border border-[#F3E8E8] rounded-full px-5 py-2.5 flex items-center justify-between shadow-sm flex-wrap gap-3">
-        <!-- Brand Logo -->
-        <a href="{{ route('home') }}" class="flex items-center gap-2.5">
-            <span class="w-3 h-3 rounded-full bg-[#700B1A] inline-block shadow-[0_0_8px_rgba(112,11,26,0.5)]"></span>
-            <span class="font-black text-sm tracking-widest text-[#18181B] uppercase">METASCOUT</span>
-        </a>
+        <!-- Brand Logo & Liquipedia Badge -->
+        <div class="flex items-center gap-3">
+            <a href="{{ route('home') }}" class="flex items-center gap-2.5">
+                <span class="w-3 h-3 rounded-full bg-[#700B1A] inline-block shadow-[0_0_8px_rgba(112,11,26,0.5)]"></span>
+                <span class="font-black text-sm tracking-widest text-[#18181B] uppercase">METASCOUT</span>
+            </a>
+
+            <span class="text-gray-300 font-light select-none">|</span>
+
+            <a href="https://liquipedia.net/mobilelegends" target="_blank" rel="noopener noreferrer" 
+               class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#F5F8FC] hover:bg-[#EBF2FA] border border-[#D0E1F5] transition group shadow-2xs"
+               title="Data Pertandingan Resmi Bersumber dari Liquipedia API">
+                <img src="/images/liquipedia_logo.svg" alt="Liquipedia Logo" class="w-4 h-4 object-contain">
+                <span class="font-black text-[11px] text-[#0A285F] group-hover:text-[#0072CE] tracking-wider uppercase">LIQUIPEDIA</span>
+            </a>
+        </div>
 
         <!-- Admin Links -->
         <nav class="flex items-center gap-1.5 sm:gap-2 flex-wrap text-xs font-bold uppercase tracking-wider">
@@ -118,7 +129,7 @@
 
     <!-- 5. RIWAYAT ENTRI DATASET TERAKHIR (IDENTIK DENGAN TABEL LIST DATASET MATCH) -->
     <div class="card-custom p-4 sm:p-6 space-y-4">
-        <!-- Table Header & Search -->
+        <!-- Table Header & Action Controls -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#F3E8E8]">
             <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-[#700B1A]"></span>
@@ -127,18 +138,42 @@
                 </h3>
             </div>
 
-            <!-- Search Filter -->
-            <div class="relative w-full sm:w-72">
-                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                </span>
-                <input type="text" 
-                       id="adminSearchInput" 
-                       oninput="filterAdminMatches()" 
-                       placeholder="Cari match, tim, babak..." 
-                       class="w-full bg-[#FAF8F8] border border-[#F3E8E8] rounded-full py-1.5 pl-8 pr-3 text-xs font-medium text-[#18181B] focus:outline-none focus:border-[#700B1A] transition">
+            <!-- Controls: Filter Babak & Tombol Lihat Lebih Lengkap -->
+            <div class="flex items-center gap-2.5 flex-wrap">
+                <!-- Filter Babak (Playoffs, Regular Season Week 1, dst) -->
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-black text-gray-500 uppercase tracking-wider">BABAK:</span>
+                    <select id="adminStageFilter" 
+                            onchange="filterAdminByStage(this.value)" 
+                            class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl px-3 py-1.5 text-xs font-extrabold text-[#18181B] focus:outline-none focus:border-[#700B1A] transition cursor-pointer shadow-2xs">
+                        <option value="all" selected>Semua Babak (All)</option>
+                        <optgroup label="Playoffs">
+                            <option value="playoffs">Playoffs (Semua)</option>
+                            <option value="grand-final">Grand Final Playoffs</option>
+                            <option value="lower-bracket-final">Lower Bracket Final</option>
+                            <option value="upper-bracket-final">Upper Bracket Final</option>
+                        </optgroup>
+                        <optgroup label="Regular Season">
+                            <option value="regular-season">Regular Season (Semua)</option>
+                            <option value="week-1">Week 1 Regular Season</option>
+                            <option value="week-2">Week 2 Regular Season</option>
+                            <option value="week-3">Week 3 Regular Season</option>
+                            <option value="week-4">Week 4 Regular Season</option>
+                            <option value="week-5">Week 5 Regular Season</option>
+                            <option value="week-6">Week 6 Regular Season</option>
+                            <option value="week-7">Week 7 Regular Season</option>
+                            <option value="week-8">Week 8 Regular Season</option>
+                            <option value="week-9">Week 9 Regular Season</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <!-- Tombol Lihat Lebih Lengkap di Page Dataset Pertandingan -->
+                <a href="{{ route('matches') }}" 
+                   class="bg-[#700B1A] hover:bg-[#550713] text-white text-xs font-bold px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition shadow-2xs">
+                    <span>Lihat Lebih Lengkap di Page Dataset Pertandingan</span>
+                    <span>&rarr;</span>
+                </a>
             </div>
         </div>
 
@@ -157,6 +192,7 @@
                 <tbody class="divide-y divide-gray-100 text-xs" id="adminMatchesBody">
                     @forelse($seriesMatches as $match)
                         <tr class="admin-match-row hover:bg-[#FAF8F8]/80 transition group"
+                            data-stage="{{ strtolower($match->formatted_stage_name) }}"
                             data-search="{{ strtolower($match->match_id . ' ' . $match->team_1_name . ' ' . $match->team_2_name . ' ' . $match->formatted_stage_name) }}">
                             
                             <!-- 1. Match ID -->
@@ -279,6 +315,15 @@
                 <!-- Dynamically generated via JS -->
             </div>
         </div>
+
+        <!-- Link Footer Menuju Halaman Dataset Pertandingan Lengkap -->
+        <div class="pt-3 border-t border-[#F3E8E8] flex items-center justify-between flex-wrap gap-2 text-xs">
+            <span class="text-gray-400 font-medium">Ingin mengelola data pertandingan atau sinkronisasi API Liquipedia secara mendalam?</span>
+            <a href="{{ route('matches') }}" class="font-extrabold text-[#700B1A] hover:underline flex items-center gap-1">
+                <span>Buka Halaman Dataset Pertandingan Lengkap</span>
+                <span>&rarr;</span>
+            </a>
+        </div>
     </div>
 
     <!-- 6. FOOTER -->
@@ -320,22 +365,40 @@
     let currentAdminMatchPage = 1;
     let adminMatchPerPage = 7;
 
-    function filterAdminMatches() {
-        const query = (document.getElementById('adminSearchInput').value || '').toLowerCase().trim();
-        const rows = document.querySelectorAll('.admin-match-row');
-        
-        rows.forEach(r => {
-            const text = (r.getAttribute('data-search') || r.innerText).toLowerCase();
-            r.dataset.matched = (!query || text.includes(query)) ? 'true' : 'false';
+    function filterAdminByStage(stageVal) {
+        const tbody = document.getElementById('adminMatchesBody');
+        if (!tbody) return;
+        const rows = tbody.querySelectorAll('.admin-match-row');
+        const filter = (stageVal || 'all').toLowerCase().trim();
+
+        rows.forEach(row => {
+            const stage = (row.getAttribute('data-stage') || row.innerText).toLowerCase();
+            let matched = false;
+
+            if (filter === 'all') {
+                matched = true;
+            } else if (filter === 'playoffs') {
+                matched = stage.includes('playoff') || stage.includes('final') || stage.includes('bracket');
+            } else if (filter === 'grand-final') {
+                matched = stage.includes('grand final');
+            } else if (filter === 'lower-bracket-final') {
+                matched = stage.includes('lower bracket');
+            } else if (filter === 'upper-bracket-final') {
+                matched = stage.includes('upper bracket');
+            } else if (filter === 'regular-season') {
+                matched = stage.includes('regular') || stage.includes('week');
+            } else if (filter.startsWith('week-')) {
+                const wNum = filter.replace('week-', '');
+                matched = stage.includes(`week ${wNum}`) || stage.includes(`w${wNum}`);
+            } else {
+                matched = stage.includes(filter);
+            }
+
+            row.dataset.matched = matched ? 'true' : 'false';
         });
 
         currentAdminMatchPage = 1;
         updateAdminMatchPagination();
-    }
-
-    function resetAdminFilter() {
-        document.getElementById('adminSearchInput').value = '';
-        filterAdminMatches();
     }
 
     function changeAdminMatchPerPage(val) {
@@ -719,7 +782,8 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        filterAdminMatches();
+        const filterElem = document.getElementById('adminStageFilter');
+        filterAdminByStage(filterElem ? filterElem.value : 'all');
     });
 </script>
 @endsection
