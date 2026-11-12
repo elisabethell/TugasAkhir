@@ -20,6 +20,14 @@ class MatchDataset extends Model
         'team_2_score' => 'integer',
     ];
 
+    protected $appends = [
+        'formatted_date_time',
+        'simple_date',
+        'simple_time',
+        'formatted_stage_name',
+        'winner',
+    ];
+
     /**
      * Relasi ke game-game individual di dalam seri pertandingan (Bo3 / Bo5 / Bo7)
      */
@@ -38,16 +46,148 @@ class MatchDataset extends Model
 
     /**
      * Format tanggal dan jam WIB sesuai standar tampilan Liquipedia:
-     * Contoh: "November 4, 2026 - 14:30 WIB"
+     * Contoh: "8 Nov 2026 - 17:30 WIB"
      */
     public function getFormattedDateTimeAttribute(): string
     {
-        if (!$this->match_date) {
+        if (empty($this->match_date)) {
             return 'Date TBA';
         }
 
-        $dt = Carbon::parse($this->match_date)->setTimezone('Asia/Jakarta');
-        return $dt->translatedFormat('F j, Y - H:i') . ' WIB';
+        try {
+            $dt = $this->match_date instanceof Carbon
+                ? $this->match_date->copy()->setTimezone('Asia/Jakarta')
+                : Carbon::parse($this->match_date)->setTimezone('Asia/Jakarta');
+            return $dt->translatedFormat('d M Y - H:i') . ' WIB';
+        } catch (\Throwable $e) {
+            return 'Date TBA';
+        }
+    }
+
+    /**
+     * Format tanggal ringkas (Contoh: "08 Nov 2026")
+     */
+    public function getSimpleDateAttribute(): string
+    {
+        if (empty($this->match_date)) {
+            return 'Date TBA';
+        }
+
+        try {
+            $dt = $this->match_date instanceof Carbon
+                ? $this->match_date->copy()->setTimezone('Asia/Jakarta')
+                : Carbon::parse($this->match_date)->setTimezone('Asia/Jakarta');
+            return $dt->translatedFormat('d M Y');
+        } catch (\Throwable $e) {
+            return 'Date TBA';
+        }
+    }
+
+    /**
+     * Format jam ringkas WIB (Contoh: "17:30 WIB")
+     */
+    public function getSimpleTimeAttribute(): string
+    {
+        if (empty($this->match_date)) {
+            return '-';
+        }
+
+        try {
+            $dt = $this->match_date instanceof Carbon
+                ? $this->match_date->copy()->setTimezone('Asia/Jakarta')
+                : Carbon::parse($this->match_date)->setTimezone('Asia/Jakarta');
+            return $dt->format('H:i') . ' WIB';
+        } catch (\Throwable $e) {
+            return '-';
+        }
+    }
+
+    /**
+     * Resolusi Nama Babak Pertandingan (Grand Final vs Lower Bracket Final vs Babak lainnya)
+     */
+    public function getFormattedStageNameAttribute(): string
+    {
+        $raw = trim($this->stage_name ?? '');
+        $mid = strtoupper($this->match_id ?? '');
+
+        // 1. Cek jika sudah eksplisit tercantum di stage_name
+        if (str_contains(strtolower($raw), 'grand final')) {
+            return 'Grand Final Playoffs';
+        }
+        if (str_contains(strtolower($raw), 'lower bracket final')) {
+            return 'Lower Bracket Final';
+        }
+        if (str_contains(strtolower($raw), 'upper bracket final')) {
+            return 'Upper Bracket Final';
+        }
+
+        // 2. Pola match2id resmi Liquipedia Bracket:
+        // R04-M001 = Round 4 Match 1 = Grand Final
+        if (str_contains($mid, 'R04') || str_contains($mid, 'GF')) {
+            return 'Grand Final Playoffs';
+        }
+        // R03-M002 = Round 3 Match 2 = Lower Bracket Final
+        if (str_contains($mid, 'R03-M002') || str_contains($mid, 'R03_M002') || str_contains($mid, 'LBF')) {
+            return 'Lower Bracket Final';
+        }
+        // R03-M001 = Round 3 Match 1 = Upper Bracket Final
+        if (str_contains($mid, 'R03-M001') || str_contains($mid, 'R03_M001') || str_contains($mid, 'UBF')) {
+            return 'Upper Bracket Final';
+        }
+        if (str_contains($mid, 'R02-M002')) {
+            return 'Lower Bracket Semifinal';
+        }
+        if (str_contains($mid, 'R02-M001')) {
+            return 'Upper Bracket Semifinal';
+        }
+        if (str_contains($mid, 'R01')) {
+            return 'Playoffs Round 1';
+        }
+
+        // 3. Pola Regular Season dengan Nomor Week (Contoh: "Week 1 Regular Season", "Week 3 Regular Season")
+        // Pola dari stage_name / raw text (misal: "Week 2", "Regular Season Week 3")
+        if (preg_match('/Week\s*(\d+)/i', $raw, $matches)) {
+            $weekNum = (int) $matches[1];
+            return "Week {$weekNum} Regular Season";
+        }
+        // Pola dari match_id: W01, W02, W1, W8, RS_W02, dll.
+        if (preg_match('/(?:^|[^A-Z0-9])(?:W|WEEK)[-_ ]?0?([1-9]\d?)(?:[^A-Z0-9]|$)/i', $mid, $matches)) {
+            $weekNum = (int) $matches[1];
+            return "Week {$weekNum} Regular Season";
+        }
+        // Pola dari tournament_name
+        $tourney = $this->tournament_name ?? '';
+        if (preg_match('/Week\s*(\d+)/i', $tourney, $matches)) {
+            $weekNum = (int) $matches[1];
+            return "Week {$weekNum} Regular Season";
+        }
+        if (str_contains(strtolower($raw), 'regular') || str_contains(strtolower($mid), 'rs')) {
+            return 'Week 1 Regular Season';
+        }
+
+        return !empty($raw) ? $raw : 'Playoffs';
+    }
+
+    /**
+     * Resolusi Logo Tim 1 (Memastikan logo resmi SVG lokal / Liquipedia termuat tanpa 403)
+     */
+    public function getTeam1LogoAttribute($value): string
+    {
+        if (!empty($this->team_1_name)) {
+            return app(\App\Services\LiquipediaApiService::class)->resolveTeamLogo($this->team_1_name, $value);
+        }
+        return $value ?? '';
+    }
+
+    /**
+     * Resolusi Logo Tim 2 (Memastikan logo resmi SVG lokal / Liquipedia termuat tanpa 403)
+     */
+    public function getTeam2LogoAttribute($value): string
+    {
+        if (!empty($this->team_2_name)) {
+            return app(\App\Services\LiquipediaApiService::class)->resolveTeamLogo($this->team_2_name, $value);
+        }
+        return $value ?? '';
     }
 
     /**

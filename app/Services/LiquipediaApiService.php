@@ -456,19 +456,19 @@ class LiquipediaApiService
     {
         $clean = strtolower($teamName);
 
-        // Map logo resmi tim MPL ID
+        // Map logo resmi tim MPL ID menggunakan aset vector SVG lokal resmi (Bebas blokir 403 CDN & Tajam)
         return match (true) {
-            str_contains($clean, 'alter ego') => 'https://liquipedia.net/commons/images/thumb/5/52/Alter_Ego_allmode.png/600px-Alter_Ego_allmode.png',
-            str_contains($clean, 'onic')      => 'https://liquipedia.net/commons/images/thumb/3/30/Fnatic_ONIC_allmode.png/600px-Fnatic_ONIC_allmode.png',
-            str_contains($clean, 'rrq')       => 'https://liquipedia.net/commons/images/thumb/0/07/Team_RRQ_2020_allmode.png/600px-Team_RRQ_2020_allmode.png',
-            str_contains($clean, 'evos')      => 'https://liquipedia.net/commons/images/thumb/d/d4/EVOS_Esports_allmode.png/600px-EVOS_Esports_allmode.png',
-            str_contains($clean, 'geek')      => 'https://liquipedia.net/commons/images/thumb/8/8d/Geek_Fam_ID_2022_allmode.png/600px-Geek_Fam_ID_2022_allmode.png',
-            str_contains($clean, 'bigetron')  => 'https://liquipedia.net/commons/images/thumb/7/7b/Bigetron_Alpha_2022_allmode.png/600px-Bigetron_Alpha_2022_allmode.png',
-            str_contains($clean, 'navi') || str_contains($clean, 'natus') => 'https://liquipedia.net/commons/images/thumb/7/77/Natus_Vincere_2021_allmode.png/600px-Natus_Vincere_2021_allmode.png',
-            str_contains($clean, 'rebellion') => 'https://liquipedia.net/commons/images/thumb/b/b5/Rebellion_Esports_allmode.png/600px-Rebellion_Esports_allmode.png',
-            str_contains($clean, 'liquid')    => 'https://liquipedia.net/commons/images/thumb/b/b3/Team_Liquid_allmode.png/600px-Team_Liquid_allmode.png',
-            str_contains($clean, 'dewa')      => 'https://liquipedia.net/commons/images/thumb/9/90/Dewa_United_Esports_allmode.png/600px-Dewa_United_Esports_allmode.png',
-            default                           => "https://ui-avatars.com/api/?name=" . urlencode($teamName) . "&background=700B1A&color=fff&size=128",
+            str_contains($clean, 'alter ego') => '/images/teams/ae.svg',
+            str_contains($clean, 'onic')      => '/images/teams/onic.svg',
+            str_contains($clean, 'rrq')       => '/images/teams/rrq.svg',
+            str_contains($clean, 'evos')      => '/images/teams/evos.svg',
+            str_contains($clean, 'geek')      => '/images/teams/geek.svg',
+            str_contains($clean, 'bigetron')  => '/images/teams/btr.svg',
+            str_contains($clean, 'navi') || str_contains($clean, 'natus') => '/images/teams/navi.svg',
+            str_contains($clean, 'rebellion') => '/images/teams/rbl.svg',
+            str_contains($clean, 'liquid')    => '/images/teams/liquid.svg',
+            str_contains($clean, 'dewa')      => '/images/teams/dewa.svg',
+            default                           => (!empty($rawIcon) && str_starts_with($rawIcon, 'http') ? $rawIcon : ("https://ui-avatars.com/api/?name=" . urlencode($teamName) . "&background=700B1A&color=fff&size=128")),
         };
     }
 
@@ -590,7 +590,7 @@ class LiquipediaApiService
                 'team_1_score'    => 3,
                 'team_2_score'    => 4,
                 'best_of'         => 'Bo7',
-                'stage_name'      => 'Playoffs',
+                'stage_name'      => 'Grand Final Playoffs',
                 'map_summary'     => 'Flying Cloud / Golden Turret / Healing Turtle / Revealing Wisps',
                 'series_mvp'      => 'Shogun',
             ]

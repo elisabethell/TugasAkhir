@@ -23,9 +23,6 @@
             <a href="{{ route('matches') }}" class="text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
                 DATASET PERTANDINGAN
             </a>
-            <a href="{{ route('admin.heroes') }}" class="text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
-                MANAJEMEN HERO
-            </a>
         </nav>
 
         <!-- Superadmin Info & Logout -->
@@ -70,11 +67,8 @@
         </div>
 
         <div class="flex items-center gap-2.5 flex-wrap">
-            <a href="{{ route('admin.heroes') }}" class="bg-white hover:bg-[#FAF8F8] text-[#18181B] border border-[#F3E8E8] text-xs font-extrabold uppercase tracking-wider px-4 py-2.5 rounded-full shadow-sm flex items-center gap-1.5 transition">
-                <span>+ TAMBAH HERO BARU</span>
-            </a>
             <a href="{{ route('matches') }}" class="bg-[#700B1A] hover:bg-[#550713] text-white text-xs font-extrabold uppercase tracking-wider px-4 py-2.5 rounded-full shadow-sm flex items-center gap-1.5 transition">
-                <span>+ TAMBAH DATASET PERTANDINGAN</span>
+                <span>+ KELOLA DATASET PERTANDINGAN</span>
             </a>
         </div>
     </div>
@@ -104,7 +98,7 @@
         <!-- Card 2: HERO TERDAFTAR -->
         <div class="card-custom p-6 space-y-3">
             <div class="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider">
-                HERO TERDAFTAR
+                HERO DATABASE (API LIQUIPEDIA)
             </div>
             <div class="flex items-baseline gap-2">
                 <span class="text-4xl font-black text-[#18181B]">{{ $totalHeroes }}</span>
@@ -112,7 +106,7 @@
             </div>
             <div class="pt-2">
                 <div class="flex items-center justify-between text-[11px] font-bold text-gray-500 mb-1.5">
-                    <span>Database Synchronized</span>
+                    <span>Sinkronisasi Otomatis</span>
                     <span class="text-emerald-600 font-extrabold">Active 100%</span>
                 </div>
                 <div class="w-full bg-emerald-100 h-2 rounded-full overflow-hidden">
@@ -122,10 +116,10 @@
         </div>
     </div>
 
-    <!-- 5. RIWAYAT ENTRI DATASET TERAKHIR (TABLE SECTION) -->
-    <div class="card-custom p-6 space-y-4">
+    <!-- 5. RIWAYAT ENTRI DATASET TERAKHIR (IDENTIK DENGAN TABEL LIST DATASET MATCH) -->
+    <div class="card-custom p-4 sm:p-6 space-y-4">
         <!-- Table Header & Search -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#F3E8E8]">
             <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-[#700B1A]"></span>
                 <h3 class="text-sm font-black uppercase tracking-wider text-[#18181B]">
@@ -133,106 +127,150 @@
                 </h3>
             </div>
 
-            <div class="flex items-center gap-2">
-                <div class="relative w-64">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                    </span>
-                    <input type="text" 
-                           id="adminSearchInput" 
-                           oninput="filterAdminMatches()" 
-                           placeholder="Cari match ID, tim, atau turnamen..." 
-                           class="w-full bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl py-1.5 pl-8 pr-3 text-xs font-medium text-[#18181B] placeholder-gray-400 focus:outline-none focus:border-[#700B1A] transition">
-                </div>
-                <button type="button" 
-                        onclick="resetAdminFilter()" 
-                        class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-gray-600 hover:text-[#700B1A] border border-[#F3E8E8] text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1 transition">
+            <!-- Search Filter -->
+            <div class="relative w-full sm:w-72">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
-                    <span>Reset</span>
-                </button>
+                </span>
+                <input type="text" 
+                       id="adminSearchInput" 
+                       oninput="filterAdminMatches()" 
+                       placeholder="Cari match, tim, babak..." 
+                       class="w-full bg-[#FAF8F8] border border-[#F3E8E8] rounded-full py-1.5 pl-8 pr-3 text-xs font-medium text-[#18181B] focus:outline-none focus:border-[#700B1A] transition">
             </div>
         </div>
 
-        <!-- Table -->
-        <div class="overflow-x-auto rounded-xl border border-[#F3E8E8]">
-            <table class="w-full text-left text-xs border-collapse">
-                <thead>
-                    <tr class="bg-[#FAF8F8] border-b border-[#F3E8E8] text-gray-500 font-extrabold uppercase text-[10px] tracking-wider">
-                        <th class="py-3 px-3 w-10 text-center">#</th>
-                        <th class="py-3 px-3">MATCH ID</th>
-                        <th class="py-3 px-3">TURNAMEN / FASE</th>
-                        <th class="py-3 px-3">TEAMS (BLUE VS RED)</th>
-                        <th class="py-3 px-3">DURASI</th>
-                        <th class="py-3 px-3">WINNER</th>
-                        <th class="py-3 px-3">PICK & BAN SHEET</th>
-                        <th class="py-3 px-3 text-center">INPUT BY</th>
+        <!-- Table Container with Internal Scroll (Limit 6-7 rows visible + scroll) -->
+        <div class="overflow-x-auto overflow-y-auto max-h-[460px] rounded-xl border border-[#F3E8E8] shadow-2xs">
+            <table class="w-full text-left border-collapse min-w-[760px]" id="adminDatasetTable">
+                <thead class="sticky top-0 bg-[#FAF8F8] z-10 shadow-2xs">
+                    <tr class="border-b border-[#F3E8E8] text-[10px] font-black uppercase tracking-wider text-gray-400 select-none">
+                        <th class="py-3 px-3 w-40">MATCH ID</th>
+                        <th class="py-3 px-3 w-32">DATE & TIME</th>
+                        <th class="py-3 px-4 min-w-[320px] text-center">MATCHUP & SKOR</th>
+                        <th class="py-3 px-4 w-40">FORMAT / BABAK</th>
+                        <th class="py-3 px-3 w-16 text-center">DETAILS</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-[#F3E8E8] font-medium" id="adminMatchesBody">
-                    @foreach($matches as $index => $m)
-                        <tr class="hover:bg-[#FAF8F8]/80 transition admin-match-row"
-                            data-search="{{ strtolower(($m->match_id ?? '') . ' ' . ($m->tournament ?? '') . ' ' . ($m->team_blue ?? '') . ' ' . ($m->team_red ?? '') . ' ' . ($m->winner_team ?? '')) }}">
-                            <td class="py-2 px-3 text-center text-gray-400 font-bold admin-match-idx align-middle">{{ $index + 1 }}</td>
-                            <td class="py-2 px-3 font-extrabold text-[#700B1A] font-mono whitespace-nowrap align-middle">
-                                {{ $m->match_id ?? 'MPL18-G' . str_pad($index + 1, 3, '0', STR_PAD_LEFT) }}
+                <tbody class="divide-y divide-gray-100 text-xs" id="adminMatchesBody">
+                    @forelse($seriesMatches as $match)
+                        <tr class="admin-match-row hover:bg-[#FAF8F8]/80 transition group"
+                            data-search="{{ strtolower($match->match_id . ' ' . $match->team_1_name . ' ' . $match->team_2_name . ' ' . $match->formatted_stage_name) }}">
+                            
+                            <!-- 1. Match ID -->
+                            <td class="py-3.5 px-3 font-mono font-bold text-gray-500 text-[11px] whitespace-nowrap">
+                                {{ $match->match_id }}
                             </td>
-                            <td class="py-2 px-3 align-middle">
-                                <div class="font-bold text-[#18181B] leading-tight">{{ $m->tournament ?? 'MPL Indonesia Season 18' }}</div>
-                                <div class="text-[10px] text-gray-400 leading-tight">{{ $m->phase ?? ('Game ' . ($index + 1)) }}</div>
-                            </td>
-                            <td class="py-2 px-3 whitespace-nowrap align-middle">
-                                <span class="font-bold text-[#18181B]">{{ $m->team_blue ?? 'Team Blue' }}</span>
-                                <span class="bg-blue-100 text-blue-700 text-[9px] font-black px-1.5 py-0.5 rounded mx-1">BLUE</span>
-                                <span class="text-gray-400 text-[10px] font-bold">vs</span>
-                                <span class="bg-red-100 text-red-700 text-[9px] font-black px-1.5 py-0.5 rounded mx-1">RED</span>
-                                <span class="font-bold text-[#18181B]">{{ $m->team_red ?? 'Team Red' }}</span>
-                            </td>
-                            <td class="py-2 px-3 font-mono font-bold text-gray-700 align-middle">
-                                {{ $m->duration ?? '14:32' }}
-                            </td>
-                            <td class="py-2 px-3 align-middle">
-                                <span class="font-bold text-emerald-700">
-                                    {{ $m->winner_team ?? 'Winner' }}
-                                </span>
-                            </td>
-                            <td class="py-2 px-3 text-[11px] max-w-[280px] align-middle">
-                                <div class="truncate leading-tight">
-                                    <strong class="text-gray-700">Pick:</strong> 
-                                    <span class="text-gray-600">{{ $m->blue_picks_str ?? '-' }}</span>
+
+                            <!-- 2. Date & Time (Simple: 2 lines) -->
+                            <td class="py-3.5 px-3 whitespace-nowrap">
+                                <div class="font-extrabold text-gray-800 text-xs tracking-tight">
+                                    {{ $match->simple_date }}
                                 </div>
-                                <div class="truncate text-[10px] text-gray-400 leading-tight">
-                                    <strong class="text-red-700">Ban:</strong> 
-                                    <span>{{ $m->blue_bans_str ?? '-' }}</span>
+                                <div class="text-[11px] font-mono font-medium text-gray-400">
+                                    {{ $match->simple_time }}
                                 </div>
                             </td>
-                            <td class="py-2 px-3 text-center align-middle">
-                                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#18181B] text-white text-[9px] font-black">
-                                    {{ $index % 2 === 0 ? 'SA' : 'EK' }}
-                                </span>
+
+                            <!-- 3. Matchup & Skor (Balanced Layout) -->
+                            <td class="py-3.5 px-4">
+                                <div class="flex items-center justify-center gap-2 sm:gap-2.5">
+                                    <!-- Team 1 (Right aligned) -->
+                                    <div class="flex items-center gap-1.5 flex-1 justify-end min-w-0">
+                                        <span class="font-black text-xs sm:text-sm text-right whitespace-nowrap {{ $match->team_1_score > $match->team_2_score ? 'text-[#18181B]' : 'text-gray-500' }}"
+                                              title="{{ $match->team_1_name }}">
+                                            {{ $match->team_1_name }}
+                                        </span>
+                                        @if(!empty($match->team_1_logo))
+                                            <img src="{{ $match->team_1_logo }}" 
+                                                 alt="{{ $match->team_1_name }}" 
+                                                 referrerpolicy="no-referrer"
+                                                 loading="lazy"
+                                                 class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0"
+                                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($match->team_1_name) }}&background=700B1A&color=fff&size=64';">
+                                        @endif
+                                    </div>
+
+                                    <!-- Score Badge (Pill, never wraps) -->
+                                    <div class="flex-shrink-0">
+                                        <span class="inline-flex items-center justify-center bg-[#FAF8F8] border border-[#F3E8E8] text-[#18181B] font-mono font-black px-2.5 py-0.5 rounded-md text-xs shadow-2xs whitespace-nowrap tracking-wider">
+                                            {{ $match->team_1_score }} - {{ $match->team_2_score }}
+                                        </span>
+                                    </div>
+
+                                    <!-- Team 2 (Left aligned) -->
+                                    <div class="flex items-center gap-1.5 flex-1 justify-start min-w-0">
+                                        @if(!empty($match->team_2_logo))
+                                            <img src="{{ $match->team_2_logo }}" 
+                                                 alt="{{ $match->team_2_name }}" 
+                                                 referrerpolicy="no-referrer"
+                                                 loading="lazy"
+                                                 class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0"
+                                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($match->team_2_name) }}&background=700B1A&color=fff&size=64';">
+                                        @endif
+                                        <span class="font-black text-xs sm:text-sm text-left whitespace-nowrap {{ $match->team_2_score > $match->team_1_score ? 'text-[#18181B]' : 'text-gray-500' }}"
+                                              title="{{ $match->team_2_name }}">
+                                            {{ $match->team_2_name }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- 4. FORMAT / BABAK (Top: BO7, Bottom: Stage Name - Grand Final vs Lower Bracket Final) -->
+                            <td class="py-3.5 px-4 whitespace-nowrap">
+                                <div class="leading-tight">
+                                    <span class="font-black text-[#18181B] text-xs uppercase tracking-wider block">
+                                        {{ strtoupper($match->best_of ?: 'BO7') }}
+                                    </span>
+                                    <span class="text-[11px] font-semibold text-gray-500 block mt-0.5">
+                                        {{ $match->formatted_stage_name }}
+                                    </span>
+                                </div>
+                            </td>
+
+                            <!-- 5. DETAILS Button (Titik Tiga Horizontal) -->
+                            <td class="py-3.5 px-3 text-center whitespace-nowrap">
+                                <button type="button" 
+                                        onclick="showMatchModal({{ $match->id }})" 
+                                        class="w-8 h-8 rounded-full bg-[#FAF8F8] hover:bg-[#700B1A] text-gray-500 hover:text-white border border-[#E5E7EB] hover:border-[#700B1A] inline-flex items-center justify-center transition shadow-2xs cursor-pointer"
+                                        title="Lihat Detail Pertandingan">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <circle cx="5" cy="12" r="2" />
+                                        <circle cx="12" cy="12" r="2" />
+                                        <circle cx="19" cy="12" r="2" />
+                                    </svg>
+                                </button>
+                            </td>
+
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="py-8 text-center text-gray-400">
+                                <p class="text-sm font-bold">Belum ada seri pertandingan di database lokal.</p>
+                                <p class="text-xs mt-1">Buka <a href="{{ route('matches') }}" class="text-[#700B1A] font-extrabold hover:underline">Kelola Dataset Pertandingan</a> untuk melakukan sinkronisasi data.</p>
                             </td>
                         </tr>
-                    @endforeach
+                    @endforelse
                 </tbody>
             </table>
         </div>
 
-        <!-- Pagination (Limit 10 per page, Next / Prev) -->
+        <!-- Pagination (Default Limit 7 per page, Next / Prev) -->
         <div class="flex items-center justify-between pt-4 border-t border-[#F3E8E8] flex-wrap gap-3 text-xs">
             <div class="flex items-center gap-2">
                 <span class="text-gray-500 font-medium">Tampilkan:</span>
                 <select id="adminMatchPerPageSelect" onchange="changeAdminMatchPerPage(this.value)" class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-lg px-2.5 py-1 text-xs font-bold text-[#18181B] focus:outline-none focus:border-[#700B1A] cursor-pointer">
-                    <option value="10" selected>10</option>
+                    <option value="7" selected>7</option>
+                    <option value="10">10</option>
                     <option value="25">25</option>
                     <option value="50">50</option>
                     <option value="all">Semua</option>
                 </select>
                 <span class="text-gray-300">|</span>
                 <div class="text-gray-600 font-semibold" id="adminMatchPaginationInfo">
-                    Menampilkan <span class="font-extrabold text-[#700B1A]" id="adminMatchPageStart">1</span> - <span class="font-extrabold text-[#700B1A]" id="adminMatchPageEnd">10</span> dari <span class="font-extrabold text-[#18181B]" id="adminMatchTotalRows">{{ $totalGames }}</span> game turnamen resmi
+                    Menampilkan <span class="font-extrabold text-[#700B1A]" id="adminMatchPageStart">1</span> - <span class="font-extrabold text-[#700B1A]" id="adminMatchPageEnd">7</span> dari <span class="font-extrabold text-[#18181B]" id="adminMatchTotalRows">{{ $seriesMatches->count() }}</span> data seri match
                 </div>
             </div>
 
@@ -251,9 +289,36 @@
 
 </div>
 
+<!-- ========================================================================= -->
+<!-- 7. MODAL POPUP LIQUIPEDIA MATCH DETAIL (IDENTIK DENGAN DATASET LIST)       -->
+<!-- ========================================================================= -->
+<div id="liquipediaMatchModal" 
+     class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs hidden transition-opacity"
+     onclick="closeMatchModalOnBackdrop(event)">
+    
+    <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto border border-[#E5E7EB] relative animate-in fade-in zoom-in-95 duration-150">
+        
+        <!-- Close Button Top Right -->
+        <button type="button" 
+                onclick="closeMatchModal()" 
+                class="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 flex items-center justify-center font-black text-sm z-20 transition cursor-pointer">
+            ✕
+        </button>
+
+        <!-- Modal Dynamic Container -->
+        <div id="modalContentInner" class="p-5 sm:p-6 space-y-4">
+            <!-- Diisi secara dinamis via JS persis seperti Gambar 2 & 3 -->
+        </div>
+
+    </div>
+</div>
+
 <script>
+    const seriesMatchesData = @json($seriesMatches);
+    const heroPortraitsMap = @json($heroPortraitsMap ?? []);
+
     let currentAdminMatchPage = 1;
-    let adminMatchPerPage = 10;
+    let adminMatchPerPage = 7;
 
     function filterAdminMatches() {
         const query = (document.getElementById('adminSearchInput').value || '').toLowerCase().trim();
@@ -282,10 +347,15 @@
     function goToAdminMatchPage(page) {
         currentAdminMatchPage = page;
         updateAdminMatchPagination();
+        const table = document.getElementById('adminDatasetTable');
+        if (table) {
+            table.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
     }
 
     function updateAdminMatchPagination() {
         const tbody = document.getElementById('adminMatchesBody');
+        if (!tbody) return;
         const allRows = Array.from(tbody.querySelectorAll('.admin-match-row'));
         const matchedRows = allRows.filter(r => r.dataset.matched !== 'false');
         const totalMatched = matchedRows.length;
@@ -361,6 +431,291 @@
         nextBtn.innerHTML = 'Next &rarr;';
         nextBtn.onclick = () => goToAdminMatchPage(currentAdminMatchPage + 1);
         container.appendChild(nextBtn);
+    }
+
+    // Modal Helpers
+    function closeMatchModalOnBackdrop(e) {
+        if (e.target.id === 'liquipediaMatchModal') {
+            closeMatchModal();
+        }
+    }
+
+    function closeMatchModal() {
+        document.getElementById('liquipediaMatchModal').classList.add('hidden');
+    }
+
+    let isBansVisible = true;
+    function toggleBansVisibility() {
+        isBansVisible = !isBansVisible;
+        const container = document.getElementById('modalBansContainer');
+        const btnText = document.getElementById('btnToggleBansText');
+        const btnIcon = document.getElementById('btnToggleBansIcon');
+        
+        if (container) {
+            container.style.display = isBansVisible ? 'block' : 'none';
+        }
+        if (btnText) {
+            btnText.textContent = isBansVisible ? 'Hide' : 'Show';
+        }
+        if (btnIcon) {
+            btnIcon.textContent = isBansVisible ? '🙈' : '👁️';
+        }
+    }
+
+    function resolveHeroImg(heroName, existingUrl) {
+        if (existingUrl && existingUrl.startsWith('http') && !existingUrl.includes('ui-avatars.com') && !existingUrl.includes('deviantart') && !existingUrl.includes('placeholder')) {
+            return existingUrl;
+        }
+        const clean = (heroName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (heroPortraitsMap[clean]) {
+            return heroPortraitsMap[clean];
+        }
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(heroName || 'Hero')}&background=700B1A&color=fff`;
+    }
+
+    function resolveMapImg(mapName, mapIcon = null) {
+        if (mapIcon && typeof mapIcon === 'string' && mapIcon.startsWith('http')) {
+            return mapIcon;
+        }
+        const lower = (mapName || '').toLowerCase();
+        if (lower.includes('turret') || lower.includes('golden')) {
+            return '/images/maps/golden_turret.webp';
+        } else if (lower.includes('turtle') || lower.includes('healing')) {
+            return '/images/maps/healing_turtle.webp';
+        } else if (lower.includes('wisp') || lower.includes('revealing')) {
+            return '/images/maps/revealing_wisps.webp';
+        } else if (lower.includes('cloud')) {
+            return '/images/maps/flying_cloud.webp';
+        } else if (lower.includes('wall')) {
+            return '/images/maps/broken_wall.webp';
+        } else if (lower.includes('grass')) {
+            return '/images/maps/dangerous_grass.webp';
+        } else if (lower.includes('river')) {
+            return '/images/maps/expanding_river.webp';
+        }
+        return '/images/maps/flying_cloud.webp';
+    }
+
+    function renderMapBadge(mapName, mapIcon = null) {
+        const raw = (mapName || 'Flying Cloud').trim();
+        const imgUrl = resolveMapImg(raw, mapIcon);
+
+        return `
+            <div class="flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-bold text-[#0260a8] hover:underline cursor-pointer mt-0.5">
+                <img src="${imgUrl}" 
+                     alt="${raw}" 
+                     class="w-4 h-4 object-contain inline-block flex-shrink-0 rounded-xs" 
+                     onerror="this.style.display='none';">
+                <span>${raw}</span>
+            </div>
+        `;
+    }
+
+    function showMatchModal(matchId) {
+        const match = seriesMatchesData.find(m => m.id === matchId);
+        if (!match) return;
+
+        const container = document.getElementById('modalContentInner');
+        const team1IsWinner = match.team_1_score > match.team_2_score;
+
+        const dateHeader = (match.simple_date && match.simple_time) 
+            ? `${match.simple_date} • ${match.simple_time}` 
+            : (match.formatted_date_time || '08 Nov 2026 • 17:30 WIB');
+
+        let html = `
+            <div class="flex flex-col items-center justify-center space-y-3">
+                <div class="bg-[#f1f3f5] text-gray-800 text-[11px] font-extrabold px-3 py-1 rounded shadow-2xs inline-block tracking-wide">
+                    ${dateHeader}
+                </div>
+
+                <div class="w-full flex items-center justify-between px-2 sm:px-4">
+                    <div class="flex items-center gap-2.5 flex-1 justify-start">
+                        <span class="font-black text-base sm:text-lg text-[#0260a8] tracking-tight truncate max-w-[130px] sm:max-w-[180px]">
+                            ${match.team_1_name}
+                        </span>
+                        ${match.team_1_logo ? `<img src="${match.team_1_logo}" alt="${match.team_1_name}" referrerpolicy="no-referrer" loading="lazy" class="w-8 h-8 sm:w-9 sm:h-9 object-contain flex-shrink-0" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(match.team_1_name)}&background=700B1A&color=fff&size=64';">` : ''}
+                    </div>
+
+                    <div class="text-center px-3 flex-shrink-0">
+                        <div class="flex items-center justify-center gap-1.5 text-xl sm:text-2xl font-black text-[#18181B] tracking-tight">
+                            ${team1IsWinner ? '<span class="text-xs text-gray-700">◀</span>' : ''}
+                            <span>${match.team_1_score}</span>
+                            <span class="text-gray-400 font-light">:</span>
+                            <span>${match.team_2_score}</span>
+                            ${!team1IsWinner ? '<span class="text-xs text-gray-700">▶</span>' : ''}
+                        </div>
+                        <div class="text-[11px] font-bold text-gray-500 mt-0.5">
+                            (${match.best_of || 'Bo7'})
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2.5 flex-1 justify-end">
+                        ${match.team_2_logo ? `<img src="${match.team_2_logo}" alt="${match.team_2_name}" referrerpolicy="no-referrer" loading="lazy" class="w-8 h-8 sm:w-9 sm:h-9 object-contain flex-shrink-0" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(match.team_2_name)}&background=700B1A&color=fff&size=64';">` : ''}
+                        <span class="font-black text-base sm:text-lg text-[#0260a8] tracking-tight truncate max-w-[130px] sm:max-w-[180px]">
+                            ${match.team_2_name}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-100 my-1"></div>
+        `;
+
+        html += `<div class="space-y-3.5">`;
+
+        const rawGames = match.games || [];
+        const games = [...rawGames].sort((a, b) => (parseInt(a.game_number) || 0) - (parseInt(b.game_number) || 0));
+        const seenPickGameNums = new Set();
+
+        games.forEach((game, gIdx) => {
+            const team1Details = (game.details || []).filter(d => d.team_position === 1 && d.type === 'pick');
+            const team2Details = (game.details || []).filter(d => d.team_position === 2 && d.type === 'pick');
+
+            if (team1Details.length === 0 && team2Details.length === 0) return;
+
+            const gNum = game.game_number || (gIdx + 1);
+            if (seenPickGameNums.has(gNum)) return;
+            seenPickGameNums.add(gNum);
+
+            const team1Won = (game.team_1_status === 'W');
+            const team2Won = (game.team_2_status === 'W');
+
+            const t1Badge = team1Won 
+                ? `<span class="w-6 h-6 rounded bg-[#dcfce7] text-[#16a34a] border border-[#bbf7d0] font-black text-xs flex items-center justify-center flex-shrink-0 shadow-2xs">W</span>`
+                : `<span class="w-6 h-6 rounded bg-[#fee2e2] text-[#dc2626] border border-[#fecaca] font-black text-xs flex items-center justify-center flex-shrink-0 shadow-2xs">L</span>`;
+
+            const t2Badge = team2Won 
+                ? `<span class="w-6 h-6 rounded bg-[#dcfce7] text-[#16a34a] border border-[#bbf7d0] font-black text-xs flex items-center justify-center flex-shrink-0 shadow-2xs">W</span>`
+                : `<span class="w-6 h-6 rounded bg-[#fee2e2] text-[#dc2626] border border-[#fecaca] font-black text-xs flex items-center justify-center flex-shrink-0 shadow-2xs">L</span>`;
+
+            const renderHeroPicks = (details, sideColor) => {
+                let hHtml = `<div class="flex items-center gap-1">`;
+                details.forEach(d => {
+                    const portrait = resolveHeroImg(d.hero_name, d.hero_portrait);
+                    const borderColor = sideColor === 'Red' ? 'border-[#ef4444]' : 'border-[#3b82f6]';
+
+                    hHtml += `
+                        <div class="relative group/h flex-shrink-0">
+                            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-md border-2 ${borderColor} overflow-hidden bg-gray-100 shadow-2xs">
+                                <img src="${portrait}" 
+                                     alt="${d.hero_name}" 
+                                     class="w-full h-full object-cover"
+                                     onerror="this.onerror=null; const cl = '${d.hero_name.toLowerCase().replace(/[^a-z0-9]/g, '')}'; if (heroPortraitsMap[cl]) { this.src = heroPortraitsMap[cl]; } else { this.src = 'https://ui-avatars.com/api/?name=${encodeURIComponent(d.hero_name)}&background=700B1A&color=fff'; }">
+                            </div>
+                            <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1.5 hidden group-hover/h:block bg-gray-900 text-white text-[10px] font-extrabold px-2 py-0.5 rounded shadow-lg whitespace-nowrap z-40 pointer-events-none">
+                                ${d.hero_name}
+                            </div>
+                        </div>
+                    `;
+                });
+                hHtml += `</div>`;
+                return hHtml;
+            };
+
+            const t1PicksHtml = renderHeroPicks(team1Details, game.team_1_side || 'Red');
+            const t2PicksHtml = renderHeroPicks(team2Details, game.team_2_side || 'Blue');
+
+            html += `
+                <div class="flex items-center justify-between gap-2 py-1.5 border-b border-gray-100 last:border-b-0">
+                    <div class="flex items-center gap-2">
+                        ${t1Badge}
+                        ${t1PicksHtml}
+                    </div>
+
+                    <div class="text-center px-1 flex-shrink-0">
+                        <div class="font-mono font-black text-xs sm:text-sm text-gray-900">
+                            ${game.duration || '14:40'}
+                        </div>
+                        ${renderMapBadge(game.map_type, game.map_icon)}
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        ${t2PicksHtml}
+                        ${t2Badge}
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `</div>`;
+
+        const mvpName = match.series_mvp || 'Shogun';
+        html += `
+            <div class="bg-[#fef9c3] border border-[#fef08a] rounded-lg py-2 px-4 text-center shadow-2xs mt-3">
+                <span class="font-black text-gray-900 text-xs sm:text-sm">MVP:</span>
+                <span class="font-black text-[#0260a8] text-xs sm:text-sm ml-1 hover:underline cursor-pointer">${mvpName}</span>
+            </div>
+        `;
+
+        html += `
+            <div class="bg-[#fafafa] border border-gray-200 rounded-xl p-3 sm:p-4 mt-3">
+                <div class="flex items-center justify-between pb-2 mb-2 border-b border-gray-200">
+                    <span class="w-14"></span>
+                    <span class="font-black text-xs uppercase tracking-wider text-gray-800">Bans</span>
+                    <button type="button" 
+                            onclick="toggleBansVisibility()" 
+                            class="bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 text-[10px] font-bold px-2.5 py-1 rounded-md flex items-center gap-1 transition shadow-2xs cursor-pointer">
+                        <span id="btnToggleBansIcon">🙈</span>
+                        <span id="btnToggleBansText">Hide</span>
+                    </button>
+                </div>
+
+                <div id="modalBansContainer" class="space-y-3">
+        `;
+
+        const seenBanGameNumbers = new Set();
+
+        games.forEach((game, gIdx) => {
+            const team1Bans = (game.details || []).filter(d => d.team_position === 1 && d.type === 'ban');
+            const team2Bans = (game.details || []).filter(d => d.team_position === 2 && d.type === 'ban');
+
+            if (team1Bans.length === 0 && team2Bans.length === 0) return;
+
+            const gNum = game.game_number || (gIdx + 1);
+            if (seenBanGameNumbers.has(gNum)) return;
+            seenBanGameNumbers.add(gNum);
+
+            const renderHeroBans = (details, alignEnd = false) => {
+                let bHtml = `<div class="flex items-center gap-1 ${alignEnd ? 'justify-end' : 'justify-start'} min-w-[125px] sm:min-w-[155px]">`;
+                details.forEach(d => {
+                    const portrait = resolveHeroImg(d.hero_name, d.hero_portrait);
+                    bHtml += `
+                        <div class="relative group/b flex-shrink-0">
+                            <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-md border border-gray-300 overflow-hidden bg-gray-100 shadow-2xs">
+                                <img src="${portrait}" 
+                                     alt="${d.hero_name}" 
+                                     class="w-full h-full object-cover"
+                                     onerror="this.onerror=null; const cl = '${d.hero_name.toLowerCase().replace(/[^a-z0-9]/g, '')}'; if (heroPortraitsMap[cl]) { this.src = heroPortraitsMap[cl]; } else { this.src = 'https://ui-avatars.com/api/?name=${encodeURIComponent(d.hero_name)}&background=700B1A&color=fff'; }">
+                            </div>
+                            <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1.5 hidden group-hover/b:block bg-gray-900/90 text-white text-[10px] font-extrabold px-2 py-0.5 rounded shadow-lg whitespace-nowrap z-50 pointer-events-none">
+                                ${d.hero_name}
+                            </div>
+                        </div>
+                    `;
+                });
+                bHtml += `</div>`;
+                return bHtml;
+            };
+
+            html += `
+                <div class="flex items-center justify-between gap-2">
+                    ${renderHeroBans(team1Bans, false)}
+                    <span class="text-[11px] font-semibold text-gray-600 px-2 flex-shrink-0 text-center min-w-[50px]">
+                        Game ${gNum}
+                    </span>
+                    ${renderHeroBans(team2Bans, true)}
+                </div>
+            `;
+        });
+
+        html += `
+                </div>
+            </div>
+        `;
+
+        container.innerHTML = html;
+        isBansVisible = true;
+        document.getElementById('liquipediaMatchModal').classList.remove('hidden');
     }
 
     document.addEventListener('DOMContentLoaded', function() {

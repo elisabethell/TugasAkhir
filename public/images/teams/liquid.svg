@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <rect width="100" height="100" rx="20" fill="#0E223D"/>
+  <!-- Horse silhouette -->
+  <path d="M50 20 C42 20 35 25 32 32 C30 36 29 42 31 46 C32 49 35 52 38 54 L34 68 L42 68 L45 58 C47 59 49 60 52 60 C58 60 64 56 67 50 C70 44 71 36 67 28 C64 23 57 20 50 20 Z M46 32 C48 32 50 34 50 36 C50 38 48 40 46 40 C44 40 42 38 42 36 C42 34 44 32 46 32 Z" fill="#FFFFFF"/>
+  <path d="M50 22 C55 26 58 32 57 38 L65 30 C63 26 58 23 50 22 Z M53 43 C56 46 62 48 64 45 L68 39 C66 43 60 45 53 43 Z" fill="#00A3E0"/>
+  <text x="50" y="86" fill="#FFFFFF" font-family="'Plus Jakarta Sans', sans-serif" font-size="9" font-weight="900" text-anchor="middle" letter-spacing="1">LIQUID</text>
+</svg>
+

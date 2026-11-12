@@ -30,22 +30,41 @@ class DatasetController extends Controller
         }
 
         $seriesMatches = collect();
-        $hasDatabaseTable = Schema::hasTable('match_datasets') && Schema::hasTable('match_games');
+        $dbConnected = false;
+        $dbErrorMessage = null;
 
-        if ($hasDatabaseTable) {
-            // Ambil dari database lokal relasional (On-Demand Local Store)
-            $seriesMatches = MatchDataset::with(['games.details'])->orderBy('match_date', 'desc')->get();
+        try {
+            $hasDatabaseTable = Schema::hasTable('match_datasets') && Schema::hasTable('match_games');
 
-            // Jika tabel masih kosong, seed sample matchup Alter Ego vs ONIC (sesuai referensi mockup user)
-            if ($seriesMatches->isEmpty()) {
-                $this->liquipediaService->seedMockupSampleMatch();
+            if ($hasDatabaseTable) {
+                $dbConnected = true;
+
+                // Pastikan pembeda babak Grand Final vs Lower Bracket Final tersimpan akurat
+                MatchDataset::where('match_id', 'like', '%R03-M002%')->where('stage_name', 'Playoffs')->update(['stage_name' => 'Lower Bracket Final']);
+                MatchDataset::where('match_id', 'like', '%R04-M001%')->where('stage_name', 'Playoffs')->update(['stage_name' => 'Grand Final Playoffs']);
+
+                // Ambil dari database lokal relasional (On-Demand Local Store)
                 $seriesMatches = MatchDataset::with(['games.details'])->orderBy('match_date', 'desc')->get();
+
+                // Jika tabel masih kosong, seed sample matchup Alter Ego vs ONIC (sesuai referensi mockup user)
+                if ($seriesMatches->isEmpty()) {
+                    try {
+                        $this->liquipediaService->seedMockupSampleMatch();
+                        $seriesMatches = MatchDataset::with(['games.details'])->orderBy('match_date', 'desc')->get();
+                    } catch (\Throwable $seedEx) {
+                        \Illuminate\Support\Facades\Log::warning('Gagal auto-seed mockup match: ' . $seedEx->getMessage());
+                    }
+                }
             }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('DatasetController index DB error: ' . $e->getMessage());
+            $dbConnected = false;
+            $dbErrorMessage = $e->getMessage();
         }
 
         // Summary metrics
         $totalSeries = $seriesMatches->count();
-        $totalGames = $seriesMatches->sum(fn($m) => $m->games->count());
+        $totalGames = $seriesMatches->sum(fn($m) => $m->games ? $m->games->count() : 0);
 
         // Fallback CSV data untuk perbandingan historis
         $csvSummary = $this->csvService->getTournamentSummary();
@@ -56,7 +75,8 @@ class DatasetController extends Controller
             'totalSeries',
             'totalGames',
             'csvSummary',
-            'hasDatabaseTable',
+            'dbConnected',
+            'dbErrorMessage',
             'heroPortraitsMap'
         ));
     }

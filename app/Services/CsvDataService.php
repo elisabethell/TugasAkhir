@@ -225,11 +225,14 @@ class CsvDataService
     {
         $clean = strtolower(trim($mapName));
         $file = match (true) {
-            str_contains($clean, 'wall')  => 'broken_wall.webp',
-            str_contains($clean, 'grass') => 'dangerous_grass.webp',
-            str_contains($clean, 'river') => 'expanding_river.webp',
-            str_contains($clean, 'cloud') => 'flying_cloud.webp',
-            default                       => 'dangerous_grass.webp',
+            str_contains($clean, 'golden') || str_contains($clean, 'turret') => 'golden_turret.webp',
+            str_contains($clean, 'healing') || str_contains($clean, 'turtle') => 'healing_turtle.webp',
+            str_contains($clean, 'revealing') || str_contains($clean, 'wisp')  => 'revealing_wisps.webp',
+            str_contains($clean, 'wall')                                      => 'broken_wall.webp',
+            str_contains($clean, 'grass')                                     => 'dangerous_grass.webp',
+            str_contains($clean, 'river')                                     => 'expanding_river.webp',
+            str_contains($clean, 'cloud')                                     => 'flying_cloud.webp',
+            default                                                           => 'flying_cloud.webp',
         };
 
         return asset('images/maps/' . $file);

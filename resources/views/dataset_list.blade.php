@@ -17,33 +17,51 @@
 
         <!-- Admin Links -->
         <nav class="flex items-center gap-1.5 sm:gap-2 flex-wrap text-xs font-bold uppercase tracking-wider">
-            <a href="{{ route('home') }}" class="text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
-                HOMEPAGE
-            </a>
-            <a href="{{ route('counter.picks') }}" class="text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
-                COUNTER PICKS
-            </a>
-            <a href="{{ route('draft.analyzer') }}" class="text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
-                REKOMENDASI DRAFT
+            <a href="{{ route('admin.dashboard') }}" class="text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
+                DASHBOARD
             </a>
             <a href="{{ route('matches') }}" class="bg-[#700B1A] text-white px-4 py-1.5 rounded-full transition shadow-sm">
-                DATASET ADMIN
+                DATASET PERTANDINGAN
             </a>
         </nav>
 
         <!-- Superadmin Info & Logout -->
         <div class="flex items-center gap-3">
             <div class="flex items-center gap-1.5 text-[11px] font-extrabold text-[#700B1A] uppercase tracking-wider">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>ADMIN CONSOLE</span>
+                <span class="w-2 h-2 rounded-full bg-[#700B1A]"></span>
+                <span>SUPERADMIN</span>
             </div>
             <a href="{{ route('admin.logout') }}" class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-gray-800 hover:text-[#700B1A] border border-[#E5E7EB] text-[11px] font-extrabold uppercase px-3.5 py-1.5 rounded-full transition">
                 LOGOUT
             </a>
+            <div class="w-7 h-7 rounded-full bg-[#700B1A] text-white flex items-center justify-center font-black text-xs shadow-sm">
+                A
+            </div>
         </div>
     </header>
 
     <!-- 2. FLASH NOTIFICATIONS -->
+    @if(session('info'))
+        <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-2xl flex items-center justify-between text-xs font-bold shadow-sm">
+            <div class="flex items-center gap-2">
+                <span class="text-blue-600 text-base">ℹ</span>
+                <span>{{ session('info') }}</span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-blue-600 hover:text-blue-900 font-bold">&times;</button>
+        </div>
+    @endif
+
+    @if(!$dbConnected && !empty($dbErrorMessage))
+        <div class="bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 rounded-2xl flex items-center justify-between text-xs font-medium shadow-sm">
+            <div class="flex items-center gap-2">
+                <span class="text-amber-600 text-base font-bold">⚠</span>
+                <span>
+                    <strong>Koneksi Database Belum Terbuka:</strong> Pastikan MySQL di server lokal Anda aktif agar data tersimpan di tabel lokal.
+                </span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-amber-600 hover:text-amber-900 font-bold">&times;</button>
+        </div>
+    @endif
     @if(session('success'))
         <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-2xl flex items-center justify-between text-xs font-bold shadow-sm">
             <div class="flex items-center gap-2">
@@ -90,57 +108,47 @@
                 </svg>
                 <span>Sinkronisasi Data Liquipedia</span>
             </button>
-
-            <!-- Tombol Seed Sample Mockup -->
-            <form action="{{ route('admin.datasets.seed') }}" method="POST" class="inline">
-                @csrf
-                <button type="submit" 
-                        class="bg-white hover:bg-[#FAF8F8] text-gray-700 hover:text-[#700B1A] border border-[#F3E8E8] text-xs font-bold uppercase tracking-wider px-3.5 py-2.5 rounded-full shadow-sm flex items-center gap-1.5 transition cursor-pointer"
-                        title="Seed sample data Bo7 Natus Vincere vs Bigetron & Bo5 Alter Ego vs ONIC">
-                    <span>⚡ Reset Sample Mockup</span>
-                </button>
-            </form>
         </div>
     </div>
 
     <!-- 4. SUMMARY METRIC BOXES -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         <!-- Total Seri Match -->
-        <div class="card-custom p-5 flex items-center justify-between">
+        <div class="card-custom p-4 sm:p-5 flex items-center justify-between">
             <div>
                 <div class="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">
                     TOTAL SERI PERTANDINGAN
                 </div>
-                <div class="text-3xl font-black text-[#18181B] tracking-tight">
+                <div class="text-2xl sm:text-3xl font-black text-[#18181B] tracking-tight">
                     {{ $totalSeries }} <span class="text-xs font-bold text-gray-400">Match Series</span>
                 </div>
             </div>
-            <div class="w-12 h-12 rounded-full bg-[#FCECEE] flex items-center justify-center text-[#700B1A]">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FCECEE] flex items-center justify-center text-[#700B1A] flex-shrink-0">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                 </svg>
             </div>
         </div>
 
         <!-- Total Game Individual -->
-        <div class="card-custom p-5 flex items-center justify-between">
+        <div class="card-custom p-4 sm:p-5 flex items-center justify-between">
             <div>
                 <div class="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">
                     TOTAL GAME INDIVIDUAL (CHILD)
                 </div>
-                <div class="text-3xl font-black text-[#18181B] tracking-tight">
+                <div class="text-2xl sm:text-3xl font-black text-[#18181B] tracking-tight">
                     {{ $totalGames }} <span class="text-xs font-bold text-gray-400">Games</span>
                 </div>
             </div>
-            <div class="w-12 h-12 rounded-full bg-[#FCECEE] flex items-center justify-center text-[#700B1A]">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FCECEE] flex items-center justify-center text-[#700B1A] flex-shrink-0">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                 </svg>
             </div>
         </div>
 
         <!-- Status Sinkronisasi Lokal -->
-        <div class="card-custom p-5 flex items-center justify-between">
+        <div class="card-custom p-4 sm:p-5 flex items-center justify-between sm:col-span-2 lg:col-span-1">
             <div>
                 <div class="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">
                     PENGAMAN RATE LIMIT
@@ -153,16 +161,16 @@
                     Tidak ada HTTP request saat dashboard / frontend dimuat.
                 </p>
             </div>
-            <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-base">
+            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-base flex-shrink-0">
                 🛡
             </div>
         </div>
     </div>
 
     <!-- 5. MAIN TABLE: TABEL LIST DATASET MATCH (DENGAN PAGINATION LIMIT) -->
-    <div class="card-custom p-5 space-y-4">
+    <div class="card-custom p-4 sm:p-5 space-y-4">
         <!-- Table Header & Search -->
-        <div class="flex items-center justify-between flex-wrap gap-3 pb-2 border-b border-[#F3E8E8]">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#F3E8E8]">
             <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-[#700B1A]"></span>
                 <h3 class="text-sm font-black uppercase tracking-wider text-[#18181B]">
@@ -180,88 +188,110 @@
                 <input type="text" 
                        id="datasetSearchInput" 
                        oninput="filterDatasetTable()" 
-                       placeholder="Cari match, tim..." 
+                       placeholder="Cari match, tim, babak..." 
                        class="w-full bg-[#FAF8F8] border border-[#F3E8E8] rounded-full py-1.5 pl-8 pr-3 text-xs font-medium text-[#18181B] focus:outline-none focus:border-[#700B1A] transition">
             </div>
         </div>
 
-        <!-- Table Container -->
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse" id="datasetTable">
-                <thead>
-                    <tr class="border-b border-[#F3E8E8] text-[10px] font-black uppercase tracking-wider text-gray-400">
-                        <th class="py-3 px-3">MATCH ID</th>
-                        <th class="py-3 px-3">DATE & TIME</th>
-                        <th class="py-3 px-4">MATCHUP & SKOR</th>
-                        <th class="py-3 px-4">FORMAT / BABAK</th>
-                        <th class="py-3 px-3 text-right">DETAILS</th>
+        <!-- Table Container with Internal Scroll (Limit 6-7 rows visible + scroll) -->
+        <div class="overflow-x-auto overflow-y-auto max-h-[460px] rounded-xl border border-[#F3E8E8] shadow-2xs">
+            <table class="w-full text-left border-collapse min-w-[760px]" id="datasetTable">
+                <thead class="sticky top-0 bg-[#FAF8F8] z-10 shadow-2xs">
+                    <tr class="border-b border-[#F3E8E8] text-[10px] font-black uppercase tracking-wider text-gray-400 select-none">
+                        <th class="py-3 px-3 w-40">MATCH ID</th>
+                        <th class="py-3 px-3 w-32">DATE & TIME</th>
+                        <th class="py-3 px-4 min-w-[320px] text-center">MATCHUP & SKOR</th>
+                        <th class="py-3 px-4 w-40">FORMAT / BABAK</th>
+                        <th class="py-3 px-3 w-16 text-center">DETAILS</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-50 text-xs">
+                <tbody class="divide-y divide-gray-100 text-xs">
                     @forelse($seriesMatches as $match)
                         <tr class="match-row hover:bg-[#FAF8F8]/80 transition group"
-                            data-search="{{ strtolower($match->match_id . ' ' . $match->team_1_name . ' ' . $match->team_2_name . ' ' . $match->stage_name) }}">
+                            data-search="{{ strtolower($match->match_id . ' ' . $match->team_1_name . ' ' . $match->team_2_name . ' ' . $match->formatted_stage_name) }}">
                             
                             <!-- 1. Match ID -->
-                            <td class="py-4 px-3 font-mono font-bold text-gray-500 text-[11px] whitespace-nowrap">
+                            <td class="py-3.5 px-3 font-mono font-bold text-gray-500 text-[11px] whitespace-nowrap">
                                 {{ $match->match_id }}
                             </td>
 
-                            <!-- 2. Date & Time (WIB) -->
-                            <td class="py-4 px-3 font-semibold text-gray-700 whitespace-nowrap">
-                                {{ $match->formatted_date_time }}
+                            <!-- 2. Date & Time (Simple: 2 lines) -->
+                            <td class="py-3.5 px-3 whitespace-nowrap">
+                                <div class="font-extrabold text-gray-800 text-xs tracking-tight">
+                                    {{ $match->simple_date }}
+                                </div>
+                                <div class="text-[11px] font-mono font-medium text-gray-400">
+                                    {{ $match->simple_time }}
+                                </div>
                             </td>
 
-                            <!-- 3. Matchup & Skor (Natus Vincere 3 - 4 Bigetron By Vitality) -->
-                            <td class="py-4 px-4">
-                                <div class="flex items-center gap-2.5">
-                                    <!-- Team 1 -->
-                                    <div class="flex items-center gap-2">
+                            <!-- 3. Matchup & Skor (Balanced Layout) -->
+                            <td class="py-3.5 px-4">
+                                <div class="flex items-center justify-center gap-2 sm:gap-2.5">
+                                    <!-- Team 1 (Right aligned) -->
+                                    <div class="flex items-center gap-1.5 flex-1 justify-end min-w-0">
+                                        <span class="font-black text-xs sm:text-sm text-right whitespace-nowrap {{ $match->team_1_score > $match->team_2_score ? 'text-[#18181B]' : 'text-gray-500' }}"
+                                              title="{{ $match->team_1_name }}">
+                                            {{ $match->team_1_name }}
+                                        </span>
                                         @if(!empty($match->team_1_logo))
                                             <img src="{{ $match->team_1_logo }}" 
                                                  alt="{{ $match->team_1_name }}" 
-                                                 class="w-6 h-6 object-contain flex-shrink-0"
-                                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($match->team_1_name) }}&background=700B1A&color=fff';">
+                                                 referrerpolicy="no-referrer"
+                                                 loading="lazy"
+                                                 class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0"
+                                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($match->team_1_name) }}&background=700B1A&color=fff&size=64';">
                                         @endif
-                                        <span class="font-extrabold {{ $match->team_1_score > $match->team_2_score ? 'text-[#18181B]' : 'text-gray-500' }}">
-                                            {{ $match->team_1_name }}
+                                    </div>
+
+                                    <!-- Score Badge (Pill, never wraps) -->
+                                    <div class="flex-shrink-0">
+                                        <span class="inline-flex items-center justify-center bg-[#FAF8F8] border border-[#F3E8E8] text-[#18181B] font-mono font-black px-2.5 py-0.5 rounded-md text-xs shadow-2xs whitespace-nowrap tracking-wider">
+                                            {{ $match->team_1_score }} - {{ $match->team_2_score }}
                                         </span>
                                     </div>
 
-                                    <!-- Score Badge -->
-                                    <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-[#18181B] font-mono font-black px-2 py-0.5 rounded text-xs shadow-2xs">
-                                        {{ $match->team_1_score }} - {{ $match->team_2_score }}
-                                    </span>
-
-                                    <!-- Team 2 -->
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-extrabold {{ $match->team_2_score > $match->team_1_score ? 'text-[#18181B]' : 'text-gray-500' }}">
-                                            {{ $match->team_2_name }}
-                                        </span>
+                                    <!-- Team 2 (Left aligned) -->
+                                    <div class="flex items-center gap-1.5 flex-1 justify-start min-w-0">
                                         @if(!empty($match->team_2_logo))
                                             <img src="{{ $match->team_2_logo }}" 
                                                  alt="{{ $match->team_2_name }}" 
-                                                 class="w-6 h-6 object-contain flex-shrink-0"
-                                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($match->team_2_name) }}&background=700B1A&color=fff';">
+                                                 referrerpolicy="no-referrer"
+                                                 loading="lazy"
+                                                 class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0"
+                                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($match->team_2_name) }}&background=700B1A&color=fff&size=64';">
                                         @endif
+                                        <span class="font-black text-xs sm:text-sm text-left whitespace-nowrap {{ $match->team_2_score > $match->team_1_score ? 'text-[#18181B]' : 'text-gray-500' }}"
+                                              title="{{ $match->team_2_name }}">
+                                            {{ $match->team_2_name }}
+                                        </span>
                                     </div>
                                 </div>
                             </td>
 
-                            <!-- 4. FORMAT / BABAK (Murni format dan babak, tanpa jenis map) -->
-                            <td class="py-4 px-4 whitespace-nowrap">
-                                <span class="font-extrabold text-[#18181B] text-xs">
-                                    {{ $match->best_of }} • {{ $match->stage_name ?: 'Playoffs' }}
-                                </span>
+                            <!-- 4. FORMAT / BABAK (Top: BO7, Bottom: Stage Name - Grand Final vs Lower Bracket Final) -->
+                            <td class="py-3.5 px-4 whitespace-nowrap">
+                                <div class="leading-tight">
+                                    <span class="font-black text-[#18181B] text-xs uppercase tracking-wider block">
+                                        {{ strtoupper($match->best_of ?: 'BO7') }}
+                                    </span>
+                                    <span class="text-[11px] font-semibold text-gray-500 block mt-0.5">
+                                        {{ $match->formatted_stage_name }}
+                                    </span>
+                                </div>
                             </td>
 
-                            <!-- 5. DETAILS Button -->
-                            <td class="py-4 px-3 text-right">
+                            <!-- 5. DETAILS Button (Titik Tiga Horizontal) -->
+                            <td class="py-3.5 px-3 text-center whitespace-nowrap">
                                 <button type="button" 
                                         onclick="showMatchModal({{ $match->id }})" 
-                                        class="bg-[#FAF8F8] hover:bg-[#700B1A] text-gray-800 hover:text-white border border-[#E5E7EB] hover:border-[#700B1A] px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider transition shadow-2xs inline-flex items-center gap-1.5 cursor-pointer">
-                                    <span>DETAILS</span>
-                                    <span class="text-[10px]">&rarr;</span>
+                                        class="w-8 h-8 rounded-full bg-[#FAF8F8] hover:bg-[#700B1A] text-gray-500 hover:text-white border border-[#E5E7EB] hover:border-[#700B1A] inline-flex items-center justify-center transition shadow-2xs cursor-pointer"
+                                        title="Lihat Detail Pertandingan">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <circle cx="5" cy="12" r="2" />
+                                        <circle cx="12" cy="12" r="2" />
+                                        <circle cx="19" cy="12" r="2" />
+                                    </svg>
                                 </button>
                             </td>
 
@@ -278,19 +308,20 @@
             </table>
         </div>
 
-        <!-- 6. PAGINATION FOOTER BAR (Limit 20 per page, Next / Prev) -->
+        <!-- 6. PAGINATION FOOTER BAR (Limit 7 per page, Next / Prev) -->
         <div class="flex items-center justify-between flex-wrap gap-3 pt-4 border-t border-[#F3E8E8] text-xs">
             <div class="flex items-center gap-2">
                 <span class="text-gray-500 font-medium">Tampilkan:</span>
                 <select id="datasetPerPageSelect" onchange="changeDatasetPerPage(this.value)" class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-lg px-2.5 py-1 text-xs font-bold text-[#18181B] focus:outline-none focus:border-[#700B1A] cursor-pointer">
+                    <option value="7" selected>7</option>
                     <option value="10">10</option>
-                    <option value="20" selected>20</option>
+                    <option value="20">20</option>
                     <option value="50">50</option>
                     <option value="all">Semua</option>
                 </select>
                 <span class="text-gray-300">|</span>
                 <div class="text-gray-600 font-semibold" id="datasetPaginationInfo">
-                    Menampilkan <span class="font-extrabold text-[#700B1A]" id="dsPageStart">1</span> - <span class="font-extrabold text-[#700B1A]" id="dsPageEnd">20</span> dari <span class="font-extrabold text-[#18181B]" id="dsTotalRows">0</span> data seri match
+                    Menampilkan <span class="font-extrabold text-[#700B1A]" id="dsPageStart">1</span> - <span class="font-extrabold text-[#700B1A]" id="dsPageEnd">7</span> dari <span class="font-extrabold text-[#18181B]" id="dsTotalRows">0</span> data seri match
                 </div>
             </div>
 
@@ -393,9 +424,9 @@
     const seriesMatchesData = @json($seriesMatches);
     const heroPortraitsMap = @json($heroPortraitsMap ?? []);
 
-    // State Pagination Tabel Match Dataset
+    // State Pagination Tabel Match Dataset (Default 7 baris dengan inner scroll)
     let currentDatasetPage = 1;
-    let datasetPerPage = 20;
+    let datasetPerPage = 7;
 
     function filterDatasetTable() {
         const query = (document.getElementById('datasetSearchInput').value || '').toLowerCase().trim();
@@ -563,32 +594,44 @@
     }
 
     /**
-     * Helper icon dan nama jenis map persis sesuai Gambar 2 & 3
+     * Resolusi URL gambar map dari public/images/maps/ atau icon Liquipedia
      */
-    function renderMapBadge(mapName) {
-        const raw = (mapName || 'Healing Turtle').trim();
-        const lower = raw.toLowerCase();
-        let iconSvg = '';
-
-        if (lower.includes('cloud')) {
-            // Icon Black Cloud (Flying Cloud)
-            iconSvg = `<svg class="w-4 h-4 text-black inline-block flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>`;
-        } else if (lower.includes('turret')) {
-            // Icon Golden Turret
-            iconSvg = `<svg class="w-4 h-4 text-gray-800 inline-block flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L8 6v2H6v4h2v2H6v6h12v-6h-2v-2h2v-4h-2V8h-2V6l-4-4zm-1 8h2v2h-2v-2zm0 4h2v2h-2v-2z"/></svg>`;
-        } else if (lower.includes('turtle')) {
-            // Icon Healing Turtle
-            iconSvg = `<svg class="w-4 h-4 text-black inline-block flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 2c3.5 0 6.47 2.27 7.52 5.43L15 11l-3-3-3 3-4.52-1.57C5.53 6.27 8.5 4 12 4zm-7.93 7.85l4.31 1.5-1.5 4.31C5.1 16.32 4.14 14.3 4.07 11.85zm3.76 6.88l1.5-4.31L12 15l2.67 1.42 1.5 4.31c-1.3.62-2.73.97-4.17.97s-2.87-.35-4.17-.97zm9.35-.97l-1.5-4.31 4.31-1.5c-.07 2.45-1.03 4.47-2.81 5.81zM19.93 11.85c-.07-.75-.24-1.46-.5-2.12l-4.26 1.48 1.48 4.26c1.82-1.01 3.09-2.77 3.28-4.62z"/></svg>`;
-        } else if (lower.includes('wisp')) {
-            // Icon Revealing Wisps
-            iconSvg = `<svg class="w-4 h-4 text-black inline-block flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l1.8 5.4 5.4 1.8-5.4 1.8-1.8 5.4-1.8-5.4-5.4-1.8 5.4-1.8zM4.5 16.5l.9 2.7 2.7.9-2.7.9-.9 2.7-.9-2.7-2.7-.9 2.7-.9zM18.5 15.5l.9 2.7 2.7.9-2.7.9-.9 2.7-.9-2.7-2.7-.9 2.7-.9z"/></svg>`;
-        } else {
-            iconSvg = `<span class="text-sm">🌐</span>`;
+    function resolveMapImg(mapName, mapIcon = null) {
+        if (mapIcon && typeof mapIcon === 'string' && mapIcon.startsWith('http')) {
+            return mapIcon;
         }
+        const lower = (mapName || '').toLowerCase();
+        if (lower.includes('turret') || lower.includes('golden')) {
+            return '/images/maps/golden_turret.webp';
+        } else if (lower.includes('turtle') || lower.includes('healing')) {
+            return '/images/maps/healing_turtle.webp';
+        } else if (lower.includes('wisp') || lower.includes('revealing')) {
+            return '/images/maps/revealing_wisps.webp';
+        } else if (lower.includes('cloud')) {
+            return '/images/maps/flying_cloud.webp';
+        } else if (lower.includes('wall')) {
+            return '/images/maps/broken_wall.webp';
+        } else if (lower.includes('grass')) {
+            return '/images/maps/dangerous_grass.webp';
+        } else if (lower.includes('river')) {
+            return '/images/maps/expanding_river.webp';
+        }
+        return '/images/maps/flying_cloud.webp';
+    }
+
+    /**
+     * Helper icon dan nama jenis map menggunakan gambar dari public/images/maps/
+     */
+    function renderMapBadge(mapName, mapIcon = null) {
+        const raw = (mapName || 'Flying Cloud').trim();
+        const imgUrl = resolveMapImg(raw, mapIcon);
 
         return `
             <div class="flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-bold text-[#0260a8] hover:underline cursor-pointer mt-0.5">
-                ${iconSvg}
+                <img src="${imgUrl}" 
+                     alt="${raw}" 
+                     class="w-4 h-4 object-contain inline-block flex-shrink-0 rounded-xs" 
+                     onerror="this.style.display='none';">
                 <span>${raw}</span>
             </div>
         `;
@@ -607,11 +650,15 @@
         // Pemenang seri
         const team1IsWinner = match.team_1_score > match.team_2_score;
 
-        // 1. Header Waktu (November 8, 2026 - 17:30 WIB)
+        // 1. Header Waktu Ringkas (Contoh: 08 Nov 2026 • 17:30 WIB)
+        const dateHeader = (match.simple_date && match.simple_time) 
+            ? `${match.simple_date} • ${match.simple_time}` 
+            : (match.formatted_date_time || '08 Nov 2026 • 17:30 WIB');
+
         let html = `
             <div class="flex flex-col items-center justify-center space-y-3">
                 <div class="bg-[#f1f3f5] text-gray-800 text-[11px] font-extrabold px-3 py-1 rounded shadow-2xs inline-block tracking-wide">
-                    ${match.formatted_date_time || 'November 8, 2026 - 17:30 WIB'}
+                    ${dateHeader}
                 </div>
 
                 <!-- 2. Header Skor Seri (Natus Vincere 3 : 4 Bigetron By Vitality) -->
@@ -621,7 +668,7 @@
                         <span class="font-black text-base sm:text-lg text-[#0260a8] tracking-tight truncate max-w-[130px] sm:max-w-[180px]">
                             ${match.team_1_name}
                         </span>
-                        ${match.team_1_logo ? `<img src="${match.team_1_logo}" alt="${match.team_1_name}" class="w-8 h-8 sm:w-9 sm:h-9 object-contain flex-shrink-0">` : ''}
+                        ${match.team_1_logo ? `<img src="${match.team_1_logo}" alt="${match.team_1_name}" referrerpolicy="no-referrer" loading="lazy" class="w-8 h-8 sm:w-9 sm:h-9 object-contain flex-shrink-0" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(match.team_1_name)}&background=700B1A&color=fff&size=64';">` : ''}
                     </div>
 
                     <!-- Center Score -->
@@ -640,7 +687,7 @@
 
                     <!-- Tim Kanan -->
                     <div class="flex items-center gap-2.5 flex-1 justify-end">
-                        ${match.team_2_logo ? `<img src="${match.team_2_logo}" alt="${match.team_2_name}" class="w-8 h-8 sm:w-9 sm:h-9 object-contain flex-shrink-0">` : ''}
+                        ${match.team_2_logo ? `<img src="${match.team_2_logo}" alt="${match.team_2_name}" referrerpolicy="no-referrer" loading="lazy" class="w-8 h-8 sm:w-9 sm:h-9 object-contain flex-shrink-0" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(match.team_2_name)}&background=700B1A&color=fff&size=64';">` : ''}
                         <span class="font-black text-base sm:text-lg text-[#0260a8] tracking-tight truncate max-w-[130px] sm:max-w-[180px]">
                             ${match.team_2_name}
                         </span>
