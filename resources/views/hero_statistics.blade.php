@@ -59,18 +59,6 @@
                 <option value="Roam">Roam</option>
             </select>
 
-            <!-- Speciality Dropdown -->
-            <select id="specSelect" onchange="filterStatsTable()" class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-700 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-[#700B1A] cursor-pointer">
-                <option value="">SPECIALITY (ALL)</option>
-                <option value="Damage">Damage</option>
-                <option value="Crowd Control">Crowd Control</option>
-                <option value="Charge">Charge</option>
-                <option value="Burst">Burst</option>
-                <option value="Initiator">Initiator</option>
-                <option value="Regen">Regen</option>
-                <option value="Guard">Guard</option>
-            </select>
-
             <!-- Reset Button -->
             <button type="button" onclick="resetStatsFilters()" class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-gray-600 hover:text-[#700B1A] border border-[#F3E8E8] rounded-xl px-3 py-2 text-xs font-bold flex items-center gap-1.5 transition">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -246,24 +234,28 @@
             </table>
         </div>
 
-        <!-- 3.5. PAGINATION FOOTER BAR (Limit default 10 per page, Next / Prev) -->
-        <div class="flex items-center justify-between flex-wrap gap-3 pt-3.5 border-t border-[#F3E8E8] text-xs">
-            <div class="flex items-center gap-2">
-                <span class="text-gray-500 font-medium">Tampilkan:</span>
-                <select id="statsPerPageSelect" onchange="changeStatsPerPage(this.value)" class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-lg px-2.5 py-1 text-xs font-bold text-[#18181B] focus:outline-none focus:border-[#700B1A] cursor-pointer">
-                    <option value="10" selected>10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                    <option value="all">Semua</option>
-                </select>
-                <span class="text-gray-300">|</span>
-                <div class="text-gray-600 font-semibold" id="statsPaginationInfo">
+        <!-- 3.5. PAGINATION FOOTER BAR (Rapi & Presisi, Bebas Wrapping Rusak) -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-3.5 border-t border-[#F3E8E8] bg-white text-xs">
+            <div class="flex items-center gap-2.5 flex-wrap">
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <span class="text-gray-500 font-bold text-xs whitespace-nowrap">Tampilkan:</span>
+                    <select id="statsPerPageSelect" 
+                            onchange="changeStatsPerPage(this.value)" 
+                            class="bg-[#FAF8F8] border border-[#E5E7EB] rounded-lg px-2.5 py-1 text-xs font-extrabold text-[#18181B] focus:outline-none focus:border-[#700B1A] transition cursor-pointer shadow-2xs">
+                        <option value="10" selected>10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="all">Semua</option>
+                    </select>
+                </div>
+                <span class="text-gray-300 font-light select-none hidden sm:inline">|</span>
+                <div class="text-gray-600 font-medium text-xs whitespace-nowrap" id="statsPaginationInfo">
                     Menampilkan <span class="font-extrabold text-[#700B1A]" id="statsPageStart">1</span> - <span class="font-extrabold text-[#700B1A]" id="statsPageEnd">10</span> dari <span class="font-extrabold text-[#18181B]" id="statsTotalRows">0</span> hero
                 </div>
             </div>
 
             <!-- Page Buttons (Prev, 1, 2, 3..., Next) -->
-            <div class="flex items-center gap-1.5" id="statsPaginationButtons">
+            <div class="flex items-center gap-1.5 flex-wrap" id="statsPaginationButtons">
                 <!-- Dynamically generated via JS -->
             </div>
         </div>
@@ -342,21 +334,18 @@
         const query = (document.getElementById('statSearchInput').value || '').toLowerCase().trim();
         const role = (document.getElementById('roleSelect').value || '').toLowerCase().trim();
         const lane = (document.getElementById('laneSelect').value || '').toLowerCase().trim();
-        const spec = (document.getElementById('specSelect').value || '').toLowerCase().trim();
 
         const rows = document.querySelectorAll('.stat-table-row');
         rows.forEach(row => {
             const nameText = row.dataset.name || '';
             const roleText = row.dataset.role || '';
             const laneText = row.dataset.lane || '';
-            const specText = row.dataset.spec || '';
 
             const matchQuery = !query || nameText.includes(query);
             const matchRole = !role || roleText.includes(role);
             const matchLane = !lane || laneText.includes(lane);
-            const matchSpec = !spec || specText.includes(spec);
 
-            row.dataset.matched = (matchQuery && matchRole && matchLane && matchSpec) ? 'true' : 'false';
+            row.dataset.matched = (matchQuery && matchRole && matchLane) ? 'true' : 'false';
         });
 
         currentStatsPage = 1;
@@ -461,7 +450,6 @@
         document.getElementById('statSearchInput').value = '';
         document.getElementById('roleSelect').value = '';
         document.getElementById('laneSelect').value = '';
-        document.getElementById('specSelect').value = '';
         filterStatsTable();
     }
 

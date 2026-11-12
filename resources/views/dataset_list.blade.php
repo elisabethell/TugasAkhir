@@ -329,24 +329,26 @@
         </div>
 
         <!-- 6. PAGINATION FOOTER BAR (Limit 7 per page, Next / Prev) -->
-        <div class="flex items-center justify-between flex-wrap gap-3 pt-4 border-t border-[#F3E8E8] text-xs">
-            <div class="flex items-center gap-2">
-                <span class="text-gray-500 font-medium">Tampilkan:</span>
-                <select id="datasetPerPageSelect" onchange="changeDatasetPerPage(this.value)" class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-lg px-2.5 py-1 text-xs font-bold text-[#18181B] focus:outline-none focus:border-[#700B1A] cursor-pointer">
-                    <option value="7" selected>7</option>
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                    <option value="50">50</option>
-                    <option value="all">Semua</option>
-                </select>
-                <span class="text-gray-300">|</span>
-                <div class="text-gray-600 font-semibold" id="datasetPaginationInfo">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-[#F3E8E8] text-xs">
+            <div class="flex items-center gap-2.5 flex-wrap">
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <span class="text-gray-500 font-bold text-xs whitespace-nowrap">Tampilkan:</span>
+                    <select id="datasetPerPageSelect" onchange="changeDatasetPerPage(this.value)" class="bg-[#FAF8F8] border border-[#E5E7EB] rounded-lg px-2.5 py-1 text-xs font-extrabold text-[#18181B] focus:outline-none focus:border-[#700B1A] transition cursor-pointer shadow-2xs">
+                        <option value="7" selected>7</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="all">Semua</option>
+                    </select>
+                </div>
+                <span class="text-gray-300 font-light select-none hidden sm:inline">|</span>
+                <div class="text-gray-600 font-medium text-xs whitespace-nowrap" id="datasetPaginationInfo">
                     Menampilkan <span class="font-extrabold text-[#700B1A]" id="dsPageStart">1</span> - <span class="font-extrabold text-[#700B1A]" id="dsPageEnd">7</span> dari <span class="font-extrabold text-[#18181B]" id="dsTotalRows">0</span> data seri match
                 </div>
             </div>
 
             <!-- Page Buttons (Prev, 1, 2, 3..., Next) -->
-            <div class="flex items-center gap-1.5" id="datasetPaginationButtons">
+            <div class="flex items-center gap-1.5 flex-wrap" id="datasetPaginationButtons">
                 <!-- Dynamically generated via JS -->
             </div>
         </div>
