@@ -236,12 +236,131 @@ class CsvDataService
     }
 
     /**
-     * Mengambil seluruh 69 pertandingan turnamen dari database/data/MWI_X_EWC_2026.csv
+     * Mengambil seluruh pertandingan turnamen MPL Indonesia Season 18 dari database MySQL lokal
+     * (dengan fallback ke CSV jika belum ada sinkronisasi).
      */
     public function getMatches(): Collection
     {
         if (self::$matchesCache !== null) {
             return self::$matchesCache;
+        }
+
+        // 1. Prioritaskan data game dari database lokal MySQL (MPL ID Season 18)
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('match_games')) {
+                $dbGames = \App\Models\MatchGame::with(['dataset', 'details'])->orderBy('id', 'desc')->get();
+                if ($dbGames->isNotEmpty()) {
+                    $matches = collect();
+                    $matchIndex = 1;
+
+                    foreach ($dbGames as $game) {
+                        $dataset = $game->dataset;
+                        $team1Name = $dataset->team_1_name ?? 'Team 1';
+                        $team2Name = $dataset->team_2_name ?? 'Team 2';
+
+                        $isTeam1Win = ($game->team_1_status === 'W');
+                        $isTeam2Win = ($game->team_2_status === 'W');
+                        $winnerTeam = $game->winner_team ?: ($isTeam1Win ? $team1Name : ($isTeam2Win ? $team2Name : $team1Name));
+                        $winnerSide = $isTeam1Win ? ($game->team_1_side ?: 'Blue') : ($game->team_2_side ?: 'Red');
+
+                        $team1Picks = $game->team1Picks();
+                        $team2Picks = $game->team2Picks();
+                        $team1Bans = $game->team1Bans();
+                        $team2Bans = $game->team2Bans();
+
+                        if ($game->team_1_side === 'Blue') {
+                            $teamBlue = $team1Name;
+                            $teamRed = $team2Name;
+                            $bluePicksColl = $team1Picks;
+                            $redPicksColl = $team2Picks;
+                            $blueBansColl = $team1Bans;
+                            $redBansColl = $team2Bans;
+                        } else {
+                            $teamBlue = $team2Name;
+                            $teamRed = $team1Name;
+                            $bluePicksColl = $team2Picks;
+                            $redPicksColl = $team1Picks;
+                            $blueBansColl = $team2Bans;
+                            $redBansColl = $team1Bans;
+                        }
+
+                        $bluePicks = [];
+                        foreach ($bluePicksColl as $p) {
+                            $bluePicks[] = [
+                                'hero'        => $p->hero_name,
+                                'player'      => '',
+                                'lane'        => '',
+                                'spell'       => '',
+                                'spell_image' => '',
+                                'portrait'    => $p->hero_portrait,
+                                'kda'         => '-',
+                            ];
+                        }
+
+                        $redPicks = [];
+                        foreach ($redPicksColl as $p) {
+                            $redPicks[] = [
+                                'hero'        => $p->hero_name,
+                                'player'      => '',
+                                'lane'        => '',
+                                'spell'       => '',
+                                'spell_image' => '',
+                                'portrait'    => $p->hero_portrait,
+                                'kda'         => '-',
+                            ];
+                        }
+
+                        $blueBans = $blueBansColl->pluck('hero_name')->filter()->values()->all();
+                        $redBans = $redBansColl->pluck('hero_name')->filter()->values()->all();
+
+                        $matchId = $dataset ? ($dataset->match_id . '-G' . $game->game_number) : ('MPL18-G' . str_pad($game->id, 3, '0', STR_PAD_LEFT));
+                        $tournament = $dataset->tournament_name ?? 'MPL Indonesia Season 18';
+                        $bracket = $dataset->stage_name ?? 'Playoffs';
+                        $phase = "{$bracket} (Game {$game->game_number})";
+                        $formattedDate = $dataset ? ($dataset->formatted_date_time ?? '2026') : '2026';
+                        $duration = $game->duration ?: '15:00';
+                        $mapName = $game->map_type ?: ($dataset->map_summary ?? 'Healing Turtle');
+
+                        $matches->push((object) [
+                            'index'          => $matchIndex,
+                            'match_id'       => $matchId,
+                            'tournament'     => $tournament,
+                            'phase'          => $phase,
+                            'bracket'        => $bracket,
+                            'date'           => $formattedDate,
+                            'duration'       => $duration,
+                            'map'            => $mapName,
+                            'map_image'      => $this->getMapImage($mapName),
+                            'team_blue'      => $teamBlue,
+                            'team_red'       => $teamRed,
+                            'winner'         => "{$winnerTeam} ({$winnerSide})",
+                            'winner_side'    => $winnerSide,
+                            'winner_team'    => $winnerTeam,
+                            'blue_picks'     => $bluePicks,
+                            'red_picks'      => $redPicks,
+                            'blue_picks_str' => !empty($bluePicks) ? implode(', ', array_column($bluePicks, 'hero')) : 'Standard Meta Picks',
+                            'red_picks_str'  => !empty($redPicks) ? implode(', ', array_column($redPicks, 'hero')) : 'Standard Meta Picks',
+                            'blue_bans'      => array_unique($blueBans),
+                            'red_bans'       => array_unique($redBans),
+                            'blue_bans_str'  => !empty($blueBans) ? implode(', ', array_unique($blueBans)) : 'Standard Meta Bans',
+                            'red_bans_str'   => !empty($redBans) ? implode(', ', array_unique($redBans)) : 'Standard Meta Bans',
+                            'blue_kills'     => 0,
+                            'objectives_lord' => 'Lord ' . ($winnerSide === 'Blue' ? '2–0' : '0–2'),
+                            'objectives_turtle' => 'Turtle ' . ($winnerSide === 'Blue' ? '3–1' : '1–3'),
+                            'team_1_name'    => $team1Name,
+                            'team_2_name'    => $team2Name,
+                            'game_number'    => $game->game_number,
+                            'map_type'       => $mapName,
+                        ]);
+                        $matchIndex++;
+                    }
+
+                    self::$matchesCache = $matches;
+                    return $matches;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Lanjutkan jika ada kendala database
         }
 
         $path = database_path('data/MWI_X_EWC_2026.csv');
@@ -393,7 +512,21 @@ class CsvDataService
 
         $heroes = $this->getHeroes();
         $matches = $this->getMatches();
-        $totalGames = count($matches) ?: 69;
+        $totalGames = count($matches) ?: 90;
+
+        // Cek jika database MySQL lokal memiliki data dari sinkronisasi Liquipedia (match_games & match_details)
+        $hasDbGames = false;
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('match_games') && \Illuminate\Support\Facades\Schema::hasTable('match_details')) {
+                $dbGames = \App\Models\MatchGame::with('details')->get();
+                if ($dbGames->isNotEmpty()) {
+                    $hasDbGames = true;
+                    $totalGames = $dbGames->count();
+                }
+            }
+        } catch (\Throwable $e) {
+            $hasDbGames = false;
+        }
 
         $stats = [];
         foreach ($heroes as $h) {
@@ -423,46 +556,80 @@ class CsvDataService
             ];
         }
 
-        // Akumulasi dari setiap pertandingan
-        foreach ($matches as $m) {
-            $isBlueWin = $m->winner_side === 'Blue';
+        if ($hasDbGames && isset($dbGames)) {
+            // Akumulasi langsung dari tabel MySQL lokal (multi-game Bo3/Bo5/Bo7)
+            foreach ($dbGames as $game) {
+                foreach ($game->details as $d) {
+                    $hKey = preg_replace('/[^a-z0-9]/', '', strtolower($d->hero_name));
+                    if (!isset($stats[$hKey])) {
+                        $stats[$hKey] = $this->createEmptyStatItem($d->hero_name);
+                    }
 
-            foreach ($m->blue_picks as $bp) {
-                $hKey = preg_replace('/[^a-z0-9]/', '', strtolower($bp['hero']));
-                if (!isset($stats[$hKey])) {
-                    $stats[$hKey] = $this->createEmptyStatItem($bp['hero']);
-                }
-                $stats[$hKey]['picks']++;
-                $stats[$hKey]['blue_picks']++;
-                if ($isBlueWin) {
-                    $stats[$hKey]['wins']++;
-                    $stats[$hKey]['blue_wins']++;
-                } else {
-                    $stats[$hKey]['losses']++;
+                    if ($d->type === 'pick') {
+                        $stats[$hKey]['picks']++;
+                        $isTeam1 = ($d->team_position === 1);
+                        $isWon = $isTeam1 ? ($game->team_1_status === 'W') : ($game->team_2_status === 'W');
+
+                        if ($d->team_side === 'Blue') {
+                            $stats[$hKey]['blue_picks']++;
+                            if ($isWon) $stats[$hKey]['blue_wins']++;
+                        } else {
+                            $stats[$hKey]['red_picks']++;
+                            if ($isWon) $stats[$hKey]['red_wins']++;
+                        }
+
+                        if ($isWon) {
+                            $stats[$hKey]['wins']++;
+                        } else {
+                            $stats[$hKey]['losses']++;
+                        }
+                    } elseif ($d->type === 'ban') {
+                        $stats[$hKey]['bans']++;
+                    }
                 }
             }
+        } else {
+            // Akumulasi dari CSV pertandingan turnamen
+            foreach ($matches as $m) {
+                $isBlueWin = $m->winner_side === 'Blue';
 
-            foreach ($m->red_picks as $rp) {
-                $hKey = preg_replace('/[^a-z0-9]/', '', strtolower($rp['hero']));
-                if (!isset($stats[$hKey])) {
-                    $stats[$hKey] = $this->createEmptyStatItem($rp['hero']);
+                foreach ($m->blue_picks as $bp) {
+                    $hKey = preg_replace('/[^a-z0-9]/', '', strtolower($bp['hero']));
+                    if (!isset($stats[$hKey])) {
+                        $stats[$hKey] = $this->createEmptyStatItem($bp['hero']);
+                    }
+                    $stats[$hKey]['picks']++;
+                    $stats[$hKey]['blue_picks']++;
+                    if ($isBlueWin) {
+                        $stats[$hKey]['wins']++;
+                        $stats[$hKey]['blue_wins']++;
+                    } else {
+                        $stats[$hKey]['losses']++;
+                    }
                 }
-                $stats[$hKey]['picks']++;
-                $stats[$hKey]['red_picks']++;
-                if (!$isBlueWin) {
-                    $stats[$hKey]['wins']++;
-                    $stats[$hKey]['red_wins']++;
-                } else {
-                    $stats[$hKey]['losses']++;
-                }
-            }
 
-            foreach (array_merge($m->blue_bans, $m->red_bans) as $banName) {
-                $bKey = preg_replace('/[^a-z0-9]/', '', strtolower($banName));
-                if (!isset($stats[$bKey])) {
-                    $stats[$bKey] = $this->createEmptyStatItem($banName);
+                foreach ($m->red_picks as $rp) {
+                    $hKey = preg_replace('/[^a-z0-9]/', '', strtolower($rp['hero']));
+                    if (!isset($stats[$hKey])) {
+                        $stats[$hKey] = $this->createEmptyStatItem($rp['hero']);
+                    }
+                    $stats[$hKey]['picks']++;
+                    $stats[$hKey]['red_picks']++;
+                    if (!$isBlueWin) {
+                        $stats[$hKey]['wins']++;
+                        $stats[$hKey]['red_wins']++;
+                    } else {
+                        $stats[$hKey]['losses']++;
+                    }
                 }
-                $stats[$bKey]['bans']++;
+
+                foreach (array_merge($m->blue_bans, $m->red_bans) as $banName) {
+                    $bKey = preg_replace('/[^a-z0-9]/', '', strtolower($banName));
+                    if (!isset($stats[$bKey])) {
+                        $stats[$bKey] = $this->createEmptyStatItem($banName);
+                    }
+                    $stats[$bKey]['bans']++;
+                }
             }
         }
 
@@ -544,7 +711,7 @@ class CsvDataService
     public function getTournamentSummary(): array
     {
         $matches = $this->getMatches();
-        $totalGames = count($matches) ?: 69;
+        $totalGames = count($matches) ?: 90;
 
         $durationsSec = [];
         $blueWins = 0;

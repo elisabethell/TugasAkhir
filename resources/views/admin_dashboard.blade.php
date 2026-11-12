@@ -26,9 +26,6 @@
             <a href="{{ route('admin.heroes') }}" class="text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
                 MANAJEMEN HERO
             </a>
-            <a href="{{ route('home') }}" class="text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
-                KEMBALI KE PORTAL PUBLIK
-            </a>
         </nav>
 
         <!-- Superadmin Info & Logout -->
@@ -55,7 +52,7 @@
             <span>•</span>
             <span class="flex items-center gap-1.5 text-gray-500">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
-                <span>TERAKHIR DIPERBARUI: UTC+7: 18 Juli 2026 23:40</span>
+                <span>DATABASE STATUS: MPL ID SEASON 18 (PATCH 1.9.14)</span>
             </span>
         </div>
 
@@ -176,42 +173,43 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#F3E8E8] font-medium" id="adminMatchesBody">
-                    @foreach($matches->take(10) as $index => $m)
-                        <tr class="hover:bg-[#FAF8F8]/80 transition admin-match-row">
-                            <td class="py-3 px-3 text-center text-gray-400 font-bold">{{ $index + 1 }}</td>
-                            <td class="py-3 px-3 font-extrabold text-[#700B1A] font-mono whitespace-nowrap">
-                                {{ $m->match_id ?? 'MWI-G0' . ($totalGames - $index) }}
+                    @foreach($matches as $index => $m)
+                        <tr class="hover:bg-[#FAF8F8]/80 transition admin-match-row"
+                            data-search="{{ strtolower(($m->match_id ?? '') . ' ' . ($m->tournament ?? '') . ' ' . ($m->team_blue ?? '') . ' ' . ($m->team_red ?? '') . ' ' . ($m->winner_team ?? '')) }}">
+                            <td class="py-2 px-3 text-center text-gray-400 font-bold admin-match-idx align-middle">{{ $index + 1 }}</td>
+                            <td class="py-2 px-3 font-extrabold text-[#700B1A] font-mono whitespace-nowrap align-middle">
+                                {{ $m->match_id ?? 'MPL18-G' . str_pad($index + 1, 3, '0', STR_PAD_LEFT) }}
                             </td>
-                            <td class="py-3 px-3">
-                                <div class="font-bold text-[#18181B]">{{ $m->tournament ?? 'MWI x EWC 2026' }}</div>
-                                <div class="text-[10px] text-gray-400">{{ $m->phase ?? ('Game ' . ($index + 1)) }}</div>
+                            <td class="py-2 px-3 align-middle">
+                                <div class="font-bold text-[#18181B] leading-tight">{{ $m->tournament ?? 'MPL Indonesia Season 18' }}</div>
+                                <div class="text-[10px] text-gray-400 leading-tight">{{ $m->phase ?? ('Game ' . ($index + 1)) }}</div>
                             </td>
-                            <td class="py-3 px-3 whitespace-nowrap">
-                                <span class="font-bold text-[#18181B]">{{ $m->team_blue ?? 'Team Vitality' }}</span>
+                            <td class="py-2 px-3 whitespace-nowrap align-middle">
+                                <span class="font-bold text-[#18181B]">{{ $m->team_blue ?? 'Team Blue' }}</span>
                                 <span class="bg-blue-100 text-blue-700 text-[9px] font-black px-1.5 py-0.5 rounded mx-1">BLUE</span>
                                 <span class="text-gray-400 text-[10px] font-bold">vs</span>
                                 <span class="bg-red-100 text-red-700 text-[9px] font-black px-1.5 py-0.5 rounded mx-1">RED</span>
-                                <span class="font-bold text-[#18181B]">{{ $m->team_red ?? 'Falcons Vega' }}</span>
+                                <span class="font-bold text-[#18181B]">{{ $m->team_red ?? 'Team Red' }}</span>
                             </td>
-                            <td class="py-3 px-3 font-mono font-bold text-gray-700">
+                            <td class="py-2 px-3 font-mono font-bold text-gray-700 align-middle">
                                 {{ $m->duration ?? '14:32' }}
                             </td>
-                            <td class="py-3 px-3">
+                            <td class="py-2 px-3 align-middle">
                                 <span class="font-bold text-emerald-700">
-                                    {{ $m->winner_team ?? 'Vitality' }}
+                                    {{ $m->winner_team ?? 'Winner' }}
                                 </span>
                             </td>
-                            <td class="py-3 px-3 text-[11px] max-w-[280px]">
-                                <div class="truncate">
+                            <td class="py-2 px-3 text-[11px] max-w-[280px] align-middle">
+                                <div class="truncate leading-tight">
                                     <strong class="text-gray-700">Pick:</strong> 
-                                    <span class="text-gray-600">{{ $m->blue_picks_str ?? 'Harith, Terizla, Tigreal' }}</span>
+                                    <span class="text-gray-600">{{ $m->blue_picks_str ?? '-' }}</span>
                                 </div>
-                                <div class="truncate text-[10px] text-gray-400">
+                                <div class="truncate text-[10px] text-gray-400 leading-tight">
                                     <strong class="text-red-700">Ban:</strong> 
-                                    <span>{{ $m->blue_bans_str ?? 'Baxia, Karrie, Marcel' }}</span>
+                                    <span>{{ $m->blue_bans_str ?? '-' }}</span>
                                 </div>
                             </td>
-                            <td class="py-3 px-3 text-center">
+                            <td class="py-2 px-3 text-center align-middle">
                                 <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#18181B] text-white text-[9px] font-black">
                                     {{ $index % 2 === 0 ? 'SA' : 'EK' }}
                                 </span>
@@ -222,17 +220,25 @@
             </table>
         </div>
 
-        <!-- Pagination -->
-        <div class="flex items-center justify-between pt-2 flex-wrap gap-2 text-xs">
-            <span class="text-gray-400 text-[11px]">Menampilkan 10 dari {{ $totalGames }} game turnamen resmi</span>
-            <div class="flex items-center gap-1 font-bold">
-                <button class="px-3 py-1 rounded-lg border border-[#F3E8E8] text-gray-500 hover:bg-[#FAF8F8]">Sebelumnya</button>
-                <button class="px-2.5 py-1 rounded-lg bg-[#700B1A] text-white">1</button>
-                <button class="px-2.5 py-1 rounded-lg border border-[#F3E8E8] text-gray-600 hover:bg-[#FAF8F8]">2</button>
-                <button class="px-2.5 py-1 rounded-lg border border-[#F3E8E8] text-gray-600 hover:bg-[#FAF8F8]">3</button>
-                <span class="px-1 text-gray-400">...</span>
-                <button class="px-2.5 py-1 rounded-lg border border-[#F3E8E8] text-gray-600 hover:bg-[#FAF8F8]">14</button>
-                <button class="px-3 py-1 rounded-lg border border-[#F3E8E8] text-gray-500 hover:bg-[#FAF8F8]">Selanjutnya</button>
+        <!-- Pagination (Limit 10 per page, Next / Prev) -->
+        <div class="flex items-center justify-between pt-4 border-t border-[#F3E8E8] flex-wrap gap-3 text-xs">
+            <div class="flex items-center gap-2">
+                <span class="text-gray-500 font-medium">Tampilkan:</span>
+                <select id="adminMatchPerPageSelect" onchange="changeAdminMatchPerPage(this.value)" class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-lg px-2.5 py-1 text-xs font-bold text-[#18181B] focus:outline-none focus:border-[#700B1A] cursor-pointer">
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="all">Semua</option>
+                </select>
+                <span class="text-gray-300">|</span>
+                <div class="text-gray-600 font-semibold" id="adminMatchPaginationInfo">
+                    Menampilkan <span class="font-extrabold text-[#700B1A]" id="adminMatchPageStart">1</span> - <span class="font-extrabold text-[#700B1A]" id="adminMatchPageEnd">10</span> dari <span class="font-extrabold text-[#18181B]" id="adminMatchTotalRows">{{ $totalGames }}</span> game turnamen resmi
+                </div>
+            </div>
+
+            <!-- Page Buttons (Prev, 1, 2, 3..., Next) -->
+            <div class="flex items-center gap-1.5" id="adminMatchPaginationButtons">
+                <!-- Dynamically generated via JS -->
             </div>
         </div>
     </div>
@@ -246,18 +252,119 @@
 </div>
 
 <script>
+    let currentAdminMatchPage = 1;
+    let adminMatchPerPage = 10;
+
     function filterAdminMatches() {
         const query = (document.getElementById('adminSearchInput').value || '').toLowerCase().trim();
         const rows = document.querySelectorAll('.admin-match-row');
+        
         rows.forEach(r => {
-            const text = r.innerText.toLowerCase();
-            r.style.display = (!query || text.includes(query)) ? '' : 'none';
+            const text = (r.getAttribute('data-search') || r.innerText).toLowerCase();
+            r.dataset.matched = (!query || text.includes(query)) ? 'true' : 'false';
         });
+
+        currentAdminMatchPage = 1;
+        updateAdminMatchPagination();
     }
 
     function resetAdminFilter() {
         document.getElementById('adminSearchInput').value = '';
         filterAdminMatches();
     }
+
+    function changeAdminMatchPerPage(val) {
+        adminMatchPerPage = val === 'all' ? 999999 : parseInt(val);
+        currentAdminMatchPage = 1;
+        updateAdminMatchPagination();
+    }
+
+    function goToAdminMatchPage(page) {
+        currentAdminMatchPage = page;
+        updateAdminMatchPagination();
+    }
+
+    function updateAdminMatchPagination() {
+        const tbody = document.getElementById('adminMatchesBody');
+        const allRows = Array.from(tbody.querySelectorAll('.admin-match-row'));
+        const matchedRows = allRows.filter(r => r.dataset.matched !== 'false');
+        const totalMatched = matchedRows.length;
+        const totalPages = Math.ceil(totalMatched / adminMatchPerPage) || 1;
+
+        if (currentAdminMatchPage > totalPages) currentAdminMatchPage = totalPages;
+        if (currentAdminMatchPage < 1) currentAdminMatchPage = 1;
+
+        const startIdx = (currentAdminMatchPage - 1) * adminMatchPerPage;
+        const endIdx = startIdx + adminMatchPerPage;
+
+        allRows.forEach(r => r.style.display = 'none');
+        matchedRows.slice(startIdx, endIdx).forEach(r => r.style.display = '');
+
+        // Update info text
+        const startElem = document.getElementById('adminMatchPageStart');
+        const endElem = document.getElementById('adminMatchPageEnd');
+        const totalElem = document.getElementById('adminMatchTotalRows');
+        if (startElem) startElem.textContent = totalMatched > 0 ? (startIdx + 1) : 0;
+        if (endElem) endElem.textContent = Math.min(endIdx, totalMatched);
+        if (totalElem) totalElem.textContent = totalMatched;
+
+        // Render buttons
+        const container = document.getElementById('adminMatchPaginationButtons');
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (totalPages <= 1) return;
+
+        // Prev
+        const prevBtn = document.createElement('button');
+        prevBtn.type = 'button';
+        prevBtn.disabled = currentAdminMatchPage === 1;
+        prevBtn.className = `px-3 py-1 rounded-full text-xs font-bold border transition ${
+            currentAdminMatchPage === 1 
+                ? 'bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed' 
+                : 'bg-white hover:bg-[#FAF8F8] text-gray-700 border-[#F3E8E8] hover:text-[#700B1A] cursor-pointer shadow-2xs'
+        }`;
+        prevBtn.innerHTML = '&larr; Prev';
+        prevBtn.onclick = () => goToAdminMatchPage(currentAdminMatchPage - 1);
+        container.appendChild(prevBtn);
+
+        // Page pills
+        for (let p = 1; p <= totalPages; p++) {
+            if (p === 1 || p === totalPages || (p >= currentAdminMatchPage - 1 && p <= currentAdminMatchPage + 1)) {
+                const pageBtn = document.createElement('button');
+                pageBtn.type = 'button';
+                pageBtn.className = `w-7 h-7 rounded-full text-xs font-extrabold flex items-center justify-center transition ${
+                    p === currentAdminMatchPage 
+                        ? 'bg-[#700B1A] text-white shadow-sm' 
+                        : 'bg-white hover:bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:text-[#700B1A] cursor-pointer'
+                }`;
+                pageBtn.textContent = p;
+                pageBtn.onclick = () => goToAdminMatchPage(p);
+                container.appendChild(pageBtn);
+            } else if (p === currentAdminMatchPage - 2 || p === currentAdminMatchPage + 2) {
+                const dots = document.createElement('span');
+                dots.className = 'text-gray-400 px-1 font-bold text-xs';
+                dots.textContent = '...';
+                container.appendChild(dots);
+            }
+        }
+
+        // Next
+        const nextBtn = document.createElement('button');
+        nextBtn.type = 'button';
+        nextBtn.disabled = currentAdminMatchPage === totalPages;
+        nextBtn.className = `px-3 py-1 rounded-full text-xs font-bold border transition ${
+            currentAdminMatchPage === totalPages 
+                ? 'bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed' 
+                : 'bg-white hover:bg-[#FAF8F8] text-gray-700 border-[#F3E8E8] hover:text-[#700B1A] cursor-pointer shadow-2xs'
+        }`;
+        nextBtn.innerHTML = 'Next &rarr;';
+        nextBtn.onclick = () => goToAdminMatchPage(currentAdminMatchPage + 1);
+        container.appendChild(nextBtn);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        filterAdminMatches();
+    });
 </script>
 @endsection

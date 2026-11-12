@@ -27,10 +27,10 @@ class AdminController extends Controller
         $matches = $this->csvService->getMatches();
         $heroes = $this->csvService->getHeroes();
 
-        $totalGames = $summary['totalGames'] ?: 69;
-        $fastestDuration = $summary['fastestFormatted'] ?: '09:18';
-        $longestDuration = $summary['longestFormatted'] ?: '24:45';
-        $totalHeroes = 124; // Sesuai data konsol turnamen MWI 2026
+        $totalGames = $summary['totalGames'] ?: ($matches->count() ?: 90);
+        $fastestDuration = $summary['fastestFormatted'] ?: '11:40';
+        $longestDuration = $summary['longestFormatted'] ?: '29:28';
+        $totalHeroes = $heroes->count() ?: 133;
 
         return view('admin_dashboard', compact(
             'matches',

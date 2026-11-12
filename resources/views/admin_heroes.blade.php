@@ -26,9 +26,6 @@
             <a href="{{ route('admin.heroes') }}" class="bg-[#700B1A] text-white px-4 py-1.5 rounded-full transition shadow-sm">
                 MANAJEMEN HERO
             </a>
-            <a href="{{ route('home') }}" class="text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
-                KEMBALI KE PORTAL PUBLIK
-            </a>
         </nav>
 
         <!-- Superadmin Info & Logout -->
@@ -269,10 +266,10 @@
 
                 <div class="flex items-center gap-2">
                     <span class="text-[10px] font-extrabold uppercase text-gray-400">URUTKAN:</span>
-                    <select class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl py-1.5 px-3 text-xs font-bold text-[#18181B] focus:outline-none">
-                        <option>Berdasarkan Win Rate</option>
-                        <option>Berdasarkan Ban Rate</option>
-                        <option>Berdasarkan Nama</option>
+                    <select id="adminHeroSortSelect" onchange="sortAdminHeroTable(this.value)" class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl py-1.5 px-3 text-xs font-bold text-[#18181B] focus:outline-none cursor-pointer">
+                        <option value="wr">Berdasarkan Win Rate</option>
+                        <option value="br">Berdasarkan Ban Rate</option>
+                        <option value="name">Berdasarkan Nama</option>
                     </select>
                 </div>
             </div>
@@ -280,34 +277,34 @@
             <!-- Role Filters -->
             <div class="flex items-center gap-2 flex-wrap text-xs">
                 <span class="text-[10px] font-extrabold uppercase text-gray-400 w-12">ROLE:</span>
-                <div class="flex items-center gap-1 flex-wrap">
-                    <button class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#700B1A] text-white">SEMUA</button>
-                    <button class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8]">TANK</button>
-                    <button class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8]">FIGHTER</button>
-                    <button class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8]">ASSASSIN</button>
-                    <button class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8]">MAGE</button>
-                    <button class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8]">MARKSMAN</button>
-                    <button class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8]">SUPPORT</button>
+                <div class="flex items-center gap-1 flex-wrap" id="adminRoleFilterContainer">
+                    <button type="button" onclick="setAdminRoleFilter('all', this)" class="admin-role-btn px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#700B1A] text-white">SEMUA</button>
+                    <button type="button" onclick="setAdminRoleFilter('tank', this)" class="admin-role-btn px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] hover:text-[#700B1A]">TANK</button>
+                    <button type="button" onclick="setAdminRoleFilter('fighter', this)" class="admin-role-btn px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] hover:text-[#700B1A]">FIGHTER</button>
+                    <button type="button" onclick="setAdminRoleFilter('assassin', this)" class="admin-role-btn px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] hover:text-[#700B1A]">ASSASSIN</button>
+                    <button type="button" onclick="setAdminRoleFilter('mage', this)" class="admin-role-btn px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] hover:text-[#700B1A]">MAGE</button>
+                    <button type="button" onclick="setAdminRoleFilter('marksman', this)" class="admin-role-btn px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] hover:text-[#700B1A]">MARKSMAN</button>
+                    <button type="button" onclick="setAdminRoleFilter('support', this)" class="admin-role-btn px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] hover:text-[#700B1A]">SUPPORT</button>
                 </div>
             </div>
 
             <!-- Lane Filters -->
             <div class="flex items-center gap-2 flex-wrap text-xs">
                 <span class="text-[10px] font-extrabold uppercase text-gray-400 w-12">LANE:</span>
-                <div class="flex items-center gap-1 flex-wrap">
-                    <button class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#700B1A] text-white">SEMUA</button>
-                    <button class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8]">EXP LANE</button>
-                    <button class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8]">JUNGLE</button>
-                    <button class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8]">MID LANE</button>
-                    <button class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8]">GOLD LANE</button>
-                    <button class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8]">ROAM</button>
+                <div class="flex items-center gap-1 flex-wrap" id="adminLaneFilterContainer">
+                    <button type="button" onclick="setAdminLaneFilter('all', this)" class="admin-lane-btn px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#700B1A] text-white">SEMUA</button>
+                    <button type="button" onclick="setAdminLaneFilter('exp', this)" class="admin-lane-btn px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] hover:text-[#700B1A]">EXP LANE</button>
+                    <button type="button" onclick="setAdminLaneFilter('jungle', this)" class="admin-lane-btn px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] hover:text-[#700B1A]">JUNGLE</button>
+                    <button type="button" onclick="setAdminLaneFilter('mid', this)" class="admin-lane-btn px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] hover:text-[#700B1A]">MID LANE</button>
+                    <button type="button" onclick="setAdminLaneFilter('gold', this)" class="admin-lane-btn px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] hover:text-[#700B1A]">GOLD LANE</button>
+                    <button type="button" onclick="setAdminLaneFilter('roam', this)" class="admin-lane-btn px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] hover:text-[#700B1A]">ROAM</button>
                 </div>
             </div>
         </div>
 
         <!-- Table -->
         <div class="overflow-x-auto rounded-xl border border-[#F3E8E8]">
-            <table class="w-full text-left text-xs border-collapse">
+            <table class="w-full text-left text-xs border-collapse" id="adminHeroTable">
                 <thead>
                     <tr class="bg-[#FAF8F8] border-b border-[#F3E8E8] text-gray-500 font-extrabold uppercase text-[10px] tracking-wider">
                         <th class="py-3 px-3 w-8 text-center">#</th>
@@ -323,94 +320,109 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#F3E8E8] font-medium" id="heroTableBody">
-                    @php
-                        $presetHeroes = [
-                            ['name' => 'Harith', 'title' => 'Time Traveler', 'role' => 'Mage', 'lane' => 'Gold Lane, Mid', 'tier' => 'Tier S', 'wr' => '75.00%', 'br' => '91.30%', 'specialty' => 'Damage, Charge', 'rules' => '12 Aturan', 'counter_desc' => 'Counters: Granger, Moskov', 'patch' => 'Buffed (Patch 1.9.14)', 'patch_color' => 'bg-[#FCECEE] text-[#700B1A]'],
-                            ['name' => 'Karrie', 'title' => 'Lost Star', 'role' => 'Marksman', 'lane' => 'Gold Lane', 'tier' => 'Tier S', 'wr' => '71.40%', 'br' => '62.30%', 'specialty' => 'Damage, Burst', 'rules' => '15 Aturan', 'counter_desc' => 'Counters: Tank Meta, Baxia', 'patch' => 'Adjusted', 'patch_color' => 'bg-gray-100 text-gray-700'],
-                            ['name' => 'Baxia', 'title' => 'Mystic Tortoise', 'role' => 'Tank', 'lane' => 'Jungle, Roam', 'tier' => 'Tier S', 'wr' => '65.20%', 'br' => '44.90%', 'specialty' => 'Initiator, Crowd Control', 'rules' => '18 Aturan', 'counter_desc' => 'Counters: Regen heroes', 'patch' => 'Unchanged', 'patch_color' => 'bg-gray-100 text-gray-700'],
-                            ['name' => 'Terizla', 'title' => 'Executioner', 'role' => 'Fighter', 'lane' => 'Exp Lane', 'tier' => 'Tier A+', 'wr' => '60.90%', 'br' => '39.10%', 'specialty' => 'Damage, Crowd Control', 'rules' => '14 Aturan', 'counter_desc' => 'Counters: Paquito, Yu Zhong', 'patch' => 'Unchanged', 'patch_color' => 'bg-gray-100 text-gray-700'],
-                            ['name' => 'Yve', 'title' => 'Astrowarden', 'role' => 'Mage', 'lane' => 'Mid Lane', 'tier' => 'Tier A+', 'wr' => '61.10%', 'br' => '30.40%', 'specialty' => 'Crowd Control, Damage', 'rules' => '10 Aturan', 'counter_desc' => 'Counters: Pharsa, Xavier', 'patch' => 'Nerfed', 'patch_color' => 'bg-red-100 text-red-700'],
-                            ['name' => 'Aulus', 'title' => 'Warrior of Ferocity', 'role' => 'Fighter', 'lane' => 'Jungle, Exp', 'tier' => 'Tier A', 'wr' => '59.40%', 'br' => '15.79%', 'specialty' => 'Damage, Charge', 'rules' => '8 Aturan', 'counter_desc' => 'Late game carry', 'patch' => 'Buffed', 'patch_color' => 'bg-emerald-100 text-emerald-700'],
-                            ['name' => 'Suyou', 'title' => 'Mask of the Immortal', 'role' => 'Fighter / Assassin', 'lane' => 'Jungle', 'tier' => 'Tier S', 'wr' => '37.50%', 'br' => '29.00%', 'specialty' => 'Damage, Charge', 'rules' => '6 Aturan', 'counter_desc' => 'Counters: Squishy Mage', 'patch' => 'New Hero (1.9.14)', 'patch_color' => 'bg-[#FCECEE] text-[#700B1A]'],
-                            ['name' => 'Marcel', 'title' => 'Celestial Warden', 'role' => 'Support', 'lane' => 'Roam', 'tier' => 'Tier A+', 'wr' => '58.15%', 'br' => '33.30%', 'specialty' => 'Crowd Control, Support', 'rules' => '9 Aturan', 'counter_desc' => 'Counters: Dive assassins', 'patch' => 'Adjusted', 'patch_color' => 'bg-gray-100 text-gray-700'],
-                        ];
-                    @endphp
-
-                    @foreach($presetHeroes as $idx => $h)
-                        <tr class="hover:bg-[#FAF8F8]/80 transition hero-row">
-                            <td class="py-3 px-3 text-center text-gray-400 font-bold">{{ sprintf('%02d', $idx + 1) }}</td>
+                    @forelse($heroes as $idx => $h)
+                        @php
+                            $stat = $statsLookup[strtolower($h->hero_name)] ?? null;
+                            $wr = $stat['win_rate'] ?? '50.0%';
+                            $br = $stat['ban_rate'] ?? '5.0%';
+                            $wrNum = (float)str_replace(['%', ' '], '', $wr);
+                            $brNum = (float)str_replace(['%', ' '], '', $br);
+                            $tier = $stat['tier'] ?? ($wrNum >= 58 ? 'Tier S' : ($wrNum >= 52 ? 'Tier A+' : 'Tier A'));
+                            $specialtyStr = !empty($h->specialties) ? implode(', ', (array)$h->specialties) : 'Versatile';
+                            $laneStr = $h->laning ?: 'Flex';
+                        @endphp
+                        <tr class="hover:bg-[#FAF8F8]/80 transition hero-row"
+                            data-name="{{ strtolower($h->hero_name) }}"
+                            data-role="{{ strtolower($h->primary_class . ' ' . $h->class) }}"
+                            data-lane="{{ strtolower($laneStr) }}"
+                            data-wr="{{ $wrNum }}"
+                            data-br="{{ $brNum }}">
+                            <td class="py-3 px-3 text-center text-gray-400 font-bold row-num-cell">{{ sprintf('%02d', $idx + 1) }}</td>
                             <td class="py-3 px-3">
                                 <div class="flex items-center gap-2.5">
-                                    <div class="w-8 h-8 rounded-full bg-[#700B1A] text-white flex items-center justify-center font-black text-xs flex-shrink-0">
-                                        {{ substr($h['name'], 0, 1) }}
-                                    </div>
+                                    <img src="{{ $h->portrait }}" 
+                                         alt="{{ $h->hero_name }}" 
+                                         class="w-8 h-8 rounded-full object-cover bg-gray-100 border border-[#F3E8E8] shadow-2xs flex-shrink-0"
+                                         onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($h->hero_name) }}&background=700B1A&color=fff';">
                                     <div>
                                         <div class="font-extrabold text-[#18181B] flex items-center gap-1.5">
-                                            <span>{{ $h['name'] }}</span>
-                                            @if($h['name'] === 'Suyou')
+                                            <span>{{ $h->hero_name }}</span>
+                                            @if($h->hero_name === 'Suyou')
                                                 <span class="bg-[#700B1A] text-white text-[8px] font-black px-1 rounded">BARU</span>
                                             @endif
                                         </div>
-                                        <div class="text-[10px] text-gray-400">{{ $h['title'] }}</div>
+                                        <div class="text-[10px] text-gray-400">{{ $h->title ?: 'Land of Dawn Hero' }}</div>
                                     </div>
                                 </div>
                             </td>
                             <td class="py-3 px-3">
-                                <div class="font-bold text-[#18181B]">{{ $h['role'] }}</div>
-                                <div class="text-[10px] text-gray-400">{{ $h['lane'] }}</div>
+                                <div class="font-bold text-[#18181B]">{{ $h->primary_class }}</div>
+                                <div class="text-[10px] text-gray-400">{{ $laneStr }}</div>
                             </td>
                             <td class="py-3 px-3 text-center">
                                 <span class="bg-[#18181B] text-white font-black text-[9px] px-2 py-0.5 rounded">
-                                    {{ $h['tier'] }}
+                                    {{ $tier }}
                                 </span>
                             </td>
-                            <td class="py-3 px-3 text-center font-mono font-black text-emerald-700">
-                                {{ $h['wr'] }}
+                            <td class="py-3 px-3 text-center font-mono font-black {{ $wrNum >= 55 ? 'text-emerald-700' : 'text-gray-700' }}">
+                                {{ $wr }}
                             </td>
-                            <td class="py-3 px-3 text-center font-mono font-extrabold text-red-700">
-                                {{ $h['br'] }}
+                            <td class="py-3 px-3 text-center font-mono font-extrabold {{ $brNum >= 30 ? 'text-red-700' : 'text-gray-700' }}">
+                                {{ $br }}
                             </td>
                             <td class="py-3 px-3 text-[11px] text-gray-600">
                                 <span class="bg-[#FAF8F8] border border-[#F3E8E8] px-2 py-0.5 rounded text-[10px] font-bold">
-                                    {{ $h['specialty'] }}
+                                    {{ $specialtyStr }}
                                 </span>
                             </td>
                             <td class="py-3 px-3 text-[11px]">
-                                <div class="font-bold text-[#18181B]">{{ $h['rules'] }}</div>
-                                <div class="text-[10px] text-gray-400 truncate max-w-[140px]">{{ $h['counter_desc'] }}</div>
+                                <div class="font-bold text-[#18181B]">Aktif</div>
+                                <div class="text-[10px] text-gray-400 truncate max-w-[140px]">Rule-Based Reasoning</div>
                             </td>
                             <td class="py-3 px-3 text-center">
-                                <span class="{{ $h['patch_color'] }} text-[9px] font-black px-2 py-0.5 rounded uppercase">
-                                    {{ $h['patch'] }}
+                                <span class="bg-[#FCECEE] text-[#700B1A] text-[9px] font-black px-2 py-0.5 rounded uppercase">
+                                    Patch 1.9.14
                                 </span>
                             </td>
                             <td class="py-3 px-3 text-center">
                                 <button type="button" 
-                                        onclick="alert('Edit counter rules untuk {{ $h['name'] }}')" 
-                                        class="bg-[#700B1A] hover:bg-[#550713] text-white text-[10px] font-extrabold px-2.5 py-1.5 rounded-lg flex items-center gap-1 mx-auto transition">
+                                        onclick="alert('Edit counter rules untuk {{ $h->hero_name }}')" 
+                                        class="bg-[#700B1A] hover:bg-[#550713] text-white text-[10px] font-extrabold px-2.5 py-1.5 rounded-lg flex items-center gap-1 mx-auto transition cursor-pointer">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                                     </svg>
-                                    <span>Edit & Counter</span>
+                                    <span>Edit</span>
                                 </button>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="10" class="py-6 text-center text-gray-400 font-bold">Tidak ada data hero.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
 
-        <!-- Pagination -->
-        <div class="flex items-center justify-between pt-2 flex-wrap gap-2 text-xs">
-            <span class="text-gray-400 text-[11px]">Menampilkan 8 dari 124 hero terdaftar</span>
-            <div class="flex items-center gap-1 font-bold">
-                <button class="px-2 py-1 rounded-lg border border-[#F3E8E8] text-gray-400">&lt;</button>
-                <button class="px-2.5 py-1 rounded-lg bg-[#700B1A] text-white">1</button>
-                <button class="px-2.5 py-1 rounded-lg border border-[#F3E8E8] text-gray-600 hover:bg-[#FAF8F8]">2</button>
-                <button class="px-2.5 py-1 rounded-lg border border-[#F3E8E8] text-gray-600 hover:bg-[#FAF8F8]">3</button>
-                <span class="px-1 text-gray-400">...</span>
-                <button class="px-2.5 py-1 rounded-lg border border-[#F3E8E8] text-gray-600 hover:bg-[#FAF8F8]">16</button>
-                <button class="px-2 py-1 rounded-lg border border-[#F3E8E8] text-gray-600 hover:bg-[#FAF8F8]">&gt;</button>
+        <!-- Pagination (Limit 20 per page, Next / Prev) -->
+        <div class="flex items-center justify-between pt-4 border-t border-[#F3E8E8] flex-wrap gap-3 text-xs">
+            <div class="flex items-center gap-2">
+                <span class="text-gray-500 font-medium">Tampilkan:</span>
+                <select id="adminHeroPerPageSelect" onchange="changeAdminHeroPerPage(this.value)" class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-lg px-2.5 py-1 text-xs font-bold text-[#18181B] focus:outline-none focus:border-[#700B1A] cursor-pointer">
+                    <option value="10">10</option>
+                    <option value="20" selected>20</option>
+                    <option value="50">50</option>
+                    <option value="all">Semua</option>
+                </select>
+                <span class="text-gray-300">|</span>
+                <div class="text-gray-600 font-semibold" id="adminHeroPaginationInfo">
+                    Menampilkan <span class="font-extrabold text-[#700B1A]" id="adminHeroPageStart">1</span> - <span class="font-extrabold text-[#700B1A]" id="adminHeroPageEnd">20</span> dari <span class="font-extrabold text-[#18181B]" id="adminHeroTotalRows">0</span> hero terdaftar
+                </div>
+            </div>
+
+            <!-- Page Buttons (Prev, 1, 2, 3..., Next) -->
+            <div class="flex items-center gap-1.5" id="adminHeroPaginationButtons">
+                <!-- Dynamically generated via JS -->
             </div>
         </div>
     </div>
@@ -424,6 +436,11 @@
 </div>
 
 <script>
+    let currentAdminHeroPage = 1;
+    let adminHeroPerPage = 20;
+    let activeRoleFilter = 'all';
+    let activeLaneFilter = 'all';
+
     function toggleHeroForm() {
         const form = document.getElementById('heroFormCard');
         if (form.style.display === 'none') {
@@ -439,13 +456,158 @@
         alert('Data hero berhasil divalidasi dan disimpan ke knowledge base RBR!');
     }
 
+    function setAdminRoleFilter(role, btn) {
+        activeRoleFilter = role;
+        document.querySelectorAll('.admin-role-btn').forEach(b => {
+            b.className = 'admin-role-btn px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] hover:text-[#700B1A]';
+        });
+        btn.className = 'admin-role-btn px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#700B1A] text-white';
+        filterHeroTable();
+    }
+
+    function setAdminLaneFilter(lane, btn) {
+        activeLaneFilter = lane;
+        document.querySelectorAll('.admin-lane-btn').forEach(b => {
+            b.className = 'admin-lane-btn px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] hover:text-[#700B1A]';
+        });
+        btn.className = 'admin-lane-btn px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#700B1A] text-white';
+        filterHeroTable();
+    }
+
     function filterHeroTable() {
         const q = (document.getElementById('heroTableSearch').value || '').toLowerCase().trim();
         const rows = document.querySelectorAll('.hero-row');
+
         rows.forEach(r => {
-            const txt = r.innerText.toLowerCase();
-            r.style.display = (!q || txt.includes(q)) ? '' : 'none';
+            const name = r.dataset.name || '';
+            const role = r.dataset.role || '';
+            const lane = r.dataset.lane || '';
+
+            const matchQuery = !q || name.includes(q) || role.includes(q) || lane.includes(q);
+            const matchRole = activeRoleFilter === 'all' || role.includes(activeRoleFilter);
+            const matchLane = activeLaneFilter === 'all' || lane.includes(activeLaneFilter);
+
+            r.dataset.matched = (matchQuery && matchRole && matchLane) ? 'true' : 'false';
         });
+
+        currentAdminHeroPage = 1;
+        updateAdminHeroPagination();
     }
+
+    function changeAdminHeroPerPage(val) {
+        adminHeroPerPage = val === 'all' ? 999999 : parseInt(val);
+        currentAdminHeroPage = 1;
+        updateAdminHeroPagination();
+    }
+
+    function goToAdminHeroPage(page) {
+        currentAdminHeroPage = page;
+        updateAdminHeroPagination();
+        const table = document.getElementById('adminHeroTable');
+        if (table) {
+            table.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    function sortAdminHeroTable(sortBy) {
+        const tbody = document.getElementById('heroTableBody');
+        const rows = Array.from(tbody.querySelectorAll('.hero-row'));
+
+        rows.sort((a, b) => {
+            if (sortBy === 'wr') {
+                return (parseFloat(b.dataset.wr) || 0) - (parseFloat(a.dataset.wr) || 0);
+            } else if (sortBy === 'br') {
+                return (parseFloat(b.dataset.br) || 0) - (parseFloat(a.dataset.br) || 0);
+            } else {
+                return (a.dataset.name || '').localeCompare(b.dataset.name || '');
+            }
+        });
+
+        rows.forEach(r => tbody.appendChild(r));
+        updateAdminHeroPagination();
+    }
+
+    function updateAdminHeroPagination() {
+        const tbody = document.getElementById('heroTableBody');
+        const allRows = Array.from(tbody.querySelectorAll('.hero-row'));
+        const matchedRows = allRows.filter(r => r.dataset.matched !== 'false');
+        const totalMatched = matchedRows.length;
+        const totalPages = Math.ceil(totalMatched / adminHeroPerPage) || 1;
+
+        if (currentAdminHeroPage > totalPages) currentAdminHeroPage = totalPages;
+        if (currentAdminHeroPage < 1) currentAdminHeroPage = 1;
+
+        const startIdx = (currentAdminHeroPage - 1) * adminHeroPerPage;
+        const endIdx = startIdx + adminHeroPerPage;
+
+        allRows.forEach(r => r.style.display = 'none');
+        matchedRows.slice(startIdx, endIdx).forEach(r => r.style.display = '');
+
+        // Update info text
+        const startElem = document.getElementById('adminHeroPageStart');
+        const endElem = document.getElementById('adminHeroPageEnd');
+        const totalElem = document.getElementById('adminHeroTotalRows');
+        if (startElem) startElem.textContent = totalMatched > 0 ? (startIdx + 1) : 0;
+        if (endElem) endElem.textContent = Math.min(endIdx, totalMatched);
+        if (totalElem) totalElem.textContent = totalMatched;
+
+        // Render buttons
+        const container = document.getElementById('adminHeroPaginationButtons');
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (totalPages <= 1) return;
+
+        // Prev
+        const prevBtn = document.createElement('button');
+        prevBtn.type = 'button';
+        prevBtn.disabled = currentAdminHeroPage === 1;
+        prevBtn.className = `px-3 py-1 rounded-full text-xs font-bold border transition ${
+            currentAdminHeroPage === 1 
+                ? 'bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed' 
+                : 'bg-white hover:bg-[#FAF8F8] text-gray-700 border-[#F3E8E8] hover:text-[#700B1A] cursor-pointer shadow-2xs'
+        }`;
+        prevBtn.innerHTML = '&larr; Prev';
+        prevBtn.onclick = () => goToAdminHeroPage(currentAdminHeroPage - 1);
+        container.appendChild(prevBtn);
+
+        // Page pills
+        for (let p = 1; p <= totalPages; p++) {
+            if (p === 1 || p === totalPages || (p >= currentAdminHeroPage - 1 && p <= currentAdminHeroPage + 1)) {
+                const pageBtn = document.createElement('button');
+                pageBtn.type = 'button';
+                pageBtn.className = `w-7 h-7 rounded-full text-xs font-extrabold flex items-center justify-center transition ${
+                    p === currentAdminHeroPage 
+                        ? 'bg-[#700B1A] text-white shadow-sm' 
+                        : 'bg-white hover:bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:text-[#700B1A] cursor-pointer'
+                }`;
+                pageBtn.textContent = p;
+                pageBtn.onclick = () => goToAdminHeroPage(p);
+                container.appendChild(pageBtn);
+            } else if (p === currentAdminHeroPage - 2 || p === currentAdminHeroPage + 2) {
+                const dots = document.createElement('span');
+                dots.className = 'text-gray-400 px-1 font-bold text-xs';
+                dots.textContent = '...';
+                container.appendChild(dots);
+            }
+        }
+
+        // Next
+        const nextBtn = document.createElement('button');
+        nextBtn.type = 'button';
+        nextBtn.disabled = currentAdminHeroPage === totalPages;
+        nextBtn.className = `px-3 py-1 rounded-full text-xs font-bold border transition ${
+            currentAdminHeroPage === totalPages 
+                ? 'bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed' 
+                : 'bg-white hover:bg-[#FAF8F8] text-gray-700 border-[#F3E8E8] hover:text-[#700B1A] cursor-pointer shadow-2xs'
+        }`;
+        nextBtn.innerHTML = 'Next &rarr;';
+        nextBtn.onclick = () => goToAdminHeroPage(currentAdminHeroPage + 1);
+        container.appendChild(nextBtn);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        filterHeroTable();
+    });
 </script>
 @endsection

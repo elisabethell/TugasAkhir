@@ -58,6 +58,8 @@ Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.log
 Route::prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/datasets', [DatasetController::class, 'index'])->name('matches');
+    Route::post('/datasets/sync', [DatasetController::class, 'syncLiquipedia'])->name('admin.datasets.sync');
+    Route::post('/datasets/seed-mockup', [DatasetController::class, 'seedMockup'])->name('admin.datasets.seed');
     Route::get('/heroes', [AdminController::class, 'heroes'])->name('admin.heroes');
 });
 

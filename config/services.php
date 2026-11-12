@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'liquipedia' => [
+        'api_key'    => env('LIQUIPEDIA_API_KEY'),
+        'base_url'   => env('LIQUIPEDIA_BASE_URL', 'https://api.liquipedia.net/api/v3'),
+        'user_agent' => env('LIQUIPEDIA_USER_AGENT', 'MetaScout-Thesis (github.com/elisabethell/TugasAkhir; 2241720154@student.polinema.ac.id)'),
+    ],
+
 ];

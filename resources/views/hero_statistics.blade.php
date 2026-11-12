@@ -95,30 +95,30 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs border-collapse" id="statsTable">
                 <thead>
-                    <tr class="bg-[#FAF8F8] border-b border-[#F3E8E8] text-[11px] font-black uppercase text-gray-500 tracking-wider">
-                        <th class="py-3 px-4 w-12 text-center">#</th>
-                        <th class="py-3 px-4 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(1)">
+                    <tr class="bg-[#FAF8F8] border-b border-[#F3E8E8] text-[10px] font-black uppercase text-gray-500 tracking-wider">
+                        <th class="py-2.5 px-3 w-10 text-center">#</th>
+                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(1)">
                             HERO NAME <span class="text-gray-400">⇅</span>
                         </th>
-                        <th class="py-3 px-4 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(2, true)">
+                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(2, true)">
                             WIN RATE <span class="text-[#700B1A]">↓</span>
                         </th>
-                        <th class="py-3 px-4 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(3, true)">
+                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(3, true)">
                             PICK RATE <span class="text-gray-400">⇅</span>
                         </th>
-                        <th class="py-3 px-4 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(4, true)">
+                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(4, true)">
                             BAN RATE <span class="text-gray-400">⇅</span>
                         </th>
-                        <th class="py-3 px-4 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(5)">
+                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(5)">
                             ROLE <span class="text-gray-400">⇅</span>
                         </th>
-                        <th class="py-3 px-4">LANE</th>
-                        <th class="py-3 px-4">SPECIALITY</th>
+                        <th class="py-2.5 px-3.5">LANE</th>
+                        <th class="py-2.5 px-3.5">SPECIALITY</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#F3E8E8]" id="statsTbody">
                     @foreach($heroRows as $idx => $row)
-                        <tr class="hover:bg-[#FAF8F8] transition stat-table-row"
+                        <tr class="hover:bg-[#FAF8F8]/80 transition stat-table-row"
                             data-name="{{ strtolower($row['name']) }}"
                             data-role="{{ strtolower($row['role']) }}"
                             data-lane="{{ strtolower(implode(' ', (array)$row['lane'])) }}"
@@ -128,13 +128,13 @@
                             data-br="{{ $row['ban_rate'] }}">
                             
                             <!-- Index -->
-                            <td class="py-3.5 px-4 text-center font-bold text-gray-400 text-xs">
+                            <td class="py-2 px-3 text-center font-bold text-gray-400 text-xs align-middle">
                                 {{ $idx + 1 }}
                             </td>
 
                             <!-- Hero Name with Avatar Box -->
-                            <td class="py-3.5 px-4">
-                                <div class="flex items-center gap-3">
+                            <td class="py-2 px-3.5 align-middle">
+                                <div class="flex items-center gap-2.5">
                                     @if(!empty($row['portrait']))
                                         <img src="{{ $row['portrait'] }}" 
                                              alt="{{ $row['name'] }}" 
@@ -145,80 +145,84 @@
                                             {{ $row['initial'] }}
                                         </div>
                                     @endif
-                                    <span class="font-extrabold text-[#18181B] text-xs">
+                                    <span class="font-extrabold text-[#18181B] text-xs leading-none">
                                         {{ $row['name'] }}
                                     </span>
                                 </div>
                             </td>
 
                             <!-- Win Rate -->
-                            <td class="py-3.5 px-4 font-mono">
-                                <div>
+                            <td class="py-2 px-3.5 font-mono align-middle">
+                                <div class="flex flex-col justify-center leading-tight">
                                     @if($row['wr'] >= 58)
-                                        <div class="font-extrabold text-emerald-600 text-xs">
+                                        <div class="font-extrabold text-emerald-600 text-xs leading-none">
                                             {{ number_format($row['wr'], 2) }}%
                                         </div>
-                                        <div class="text-[9px] font-extrabold text-emerald-600 tracking-wider">HIGH</div>
+                                        <div class="text-[8.5px] font-extrabold text-emerald-600 tracking-wider mt-0.5">HIGH</div>
                                     @elseif($row['wr'] >= 50)
-                                        <div class="font-extrabold text-gray-700 text-xs">
+                                        <div class="font-extrabold text-gray-700 text-xs leading-none">
                                             {{ number_format($row['wr'], 2) }}%
                                         </div>
-                                        <div class="text-[9px] font-bold text-gray-500 tracking-wider">AVERAGE</div>
+                                        <div class="text-[8.5px] font-bold text-gray-500 tracking-wider mt-0.5">AVERAGE</div>
                                     @else
-                                        <div class="font-extrabold text-red-600 text-xs">
+                                        <div class="font-extrabold text-red-600 text-xs leading-none">
                                             {{ number_format($row['wr'], 2) }}%
                                         </div>
-                                        <div class="text-[9px] font-extrabold text-red-600 tracking-wider">LOW</div>
+                                        <div class="text-[8.5px] font-extrabold text-red-600 tracking-wider mt-0.5">LOW</div>
                                     @endif
                                 </div>
                             </td>
 
                             <!-- Pick Rate -->
-                            <td class="py-3.5 px-4 font-mono">
-                                <div class="font-bold text-gray-800 text-xs">
-                                    {{ number_format($row['pick_rate'], 2) }}%
-                                </div>
-                                <div class="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">
-                                    {{ $row['pick_tag'] }}
+                            <td class="py-2 px-3.5 font-mono align-middle">
+                                <div class="flex flex-col justify-center leading-tight">
+                                    <div class="font-bold text-gray-800 text-xs leading-none">
+                                        {{ number_format($row['pick_rate'], 2) }}%
+                                    </div>
+                                    <div class="text-[8.5px] font-semibold text-gray-400 uppercase tracking-wider mt-0.5">
+                                        {{ $row['pick_tag'] }}
+                                    </div>
                                 </div>
                             </td>
 
                             <!-- Ban Rate -->
-                            <td class="py-3.5 px-4 font-mono">
-                                @if($row['ban_rate'] >= 50)
-                                    <div class="font-extrabold text-red-600 text-xs">
-                                        {{ number_format($row['ban_rate'], 2) }}%
-                                    </div>
-                                    <div class="text-[9px] font-extrabold text-red-600 uppercase tracking-wider">
-                                        OFTEN BANNED
-                                    </div>
-                                @elseif($row['ban_rate'] >= 20)
-                                    <div class="font-bold text-gray-700 text-xs">
-                                        {{ number_format($row['ban_rate'], 2) }}%
-                                    </div>
-                                    <div class="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">
-                                        MODERATE
-                                    </div>
-                                @else
-                                    <div class="font-bold text-gray-700 text-xs">
-                                        {{ number_format($row['ban_rate'], 2) }}%
-                                    </div>
-                                    <div class="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">
-                                        LOW
-                                    </div>
-                                @endif
+                            <td class="py-2 px-3.5 font-mono align-middle">
+                                <div class="flex flex-col justify-center leading-tight">
+                                    @if($row['ban_rate'] >= 50)
+                                        <div class="font-extrabold text-red-600 text-xs leading-none">
+                                            {{ number_format($row['ban_rate'], 2) }}%
+                                        </div>
+                                        <div class="text-[8.5px] font-extrabold text-red-600 uppercase tracking-wider mt-0.5">
+                                            OFTEN BANNED
+                                        </div>
+                                    @elseif($row['ban_rate'] >= 20)
+                                        <div class="font-bold text-gray-700 text-xs leading-none">
+                                            {{ number_format($row['ban_rate'], 2) }}%
+                                        </div>
+                                        <div class="text-[8.5px] font-semibold text-gray-400 uppercase tracking-wider mt-0.5">
+                                            MODERATE
+                                        </div>
+                                    @else
+                                        <div class="font-bold text-gray-700 text-xs leading-none">
+                                            {{ number_format($row['ban_rate'], 2) }}%
+                                        </div>
+                                        <div class="text-[8.5px] font-semibold text-gray-400 uppercase tracking-wider mt-0.5">
+                                            LOW
+                                        </div>
+                                    @endif
+                                </div>
                             </td>
 
                             <!-- Role -->
-                            <td class="py-3.5 px-4 text-gray-700 font-medium text-xs">
-                                {{ $row['role'] }}
+                            <td class="py-2 px-3.5 text-gray-700 font-medium text-xs align-middle">
+                                <span class="leading-none">{{ $row['role'] }}</span>
                             </td>
 
                             <!-- Lane Pills -->
-                            <td class="py-3.5 px-4">
+                            <td class="py-2 px-3.5 align-middle">
                                 <div class="flex items-center gap-1 flex-wrap">
                                     @foreach((array)$row['lane'] as $l)
-                                        <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-600 text-[10px] font-semibold px-2 py-0.5 rounded-md">
+                                        <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-600 text-[10px] font-semibold px-2 py-0.5 rounded leading-tight">
                                             {{ $l }}
                                         </span>
                                     @endforeach
@@ -226,10 +230,10 @@
                             </td>
 
                             <!-- Speciality Pills -->
-                            <td class="py-3.5 px-4">
+                            <td class="py-2 px-3.5 align-middle">
                                 <div class="flex items-center gap-1 flex-wrap">
                                     @foreach((array)$row['speciality'] as $s)
-                                        <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-600 text-[10px] font-semibold px-2 py-0.5 rounded-md">
+                                        <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-600 text-[10px] font-semibold px-2 py-0.5 rounded leading-tight">
                                             {{ $s }}
                                         </span>
                                     @endforeach
@@ -241,67 +245,86 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- 3.5. PAGINATION FOOTER BAR (Limit default 10 per page, Next / Prev) -->
+        <div class="flex items-center justify-between flex-wrap gap-3 pt-3.5 border-t border-[#F3E8E8] text-xs">
+            <div class="flex items-center gap-2">
+                <span class="text-gray-500 font-medium">Tampilkan:</span>
+                <select id="statsPerPageSelect" onchange="changeStatsPerPage(this.value)" class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-lg px-2.5 py-1 text-xs font-bold text-[#18181B] focus:outline-none focus:border-[#700B1A] cursor-pointer">
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="all">Semua</option>
+                </select>
+                <span class="text-gray-300">|</span>
+                <div class="text-gray-600 font-semibold" id="statsPaginationInfo">
+                    Menampilkan <span class="font-extrabold text-[#700B1A]" id="statsPageStart">1</span> - <span class="font-extrabold text-[#700B1A]" id="statsPageEnd">10</span> dari <span class="font-extrabold text-[#18181B]" id="statsTotalRows">0</span> hero
+                </div>
+            </div>
+
+            <!-- Page Buttons (Prev, 1, 2, 3..., Next) -->
+            <div class="flex items-center gap-1.5" id="statsPaginationButtons">
+                <!-- Dynamically generated via JS -->
+            </div>
+        </div>
     </div>
 
-    <!-- 4. THREE BOTTOM INSIGHT CARDS -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+    <!-- 4. THREE BOTTOM INSIGHT CARDS (COMPACT & PROPORTIONAL) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
         
         <!-- Insight Card 1: Power Spike Insight -->
-        <div class="card-custom p-5 flex flex-col justify-between hover:shadow-md transition">
+        <div class="card-custom p-3.5 sm:p-4 flex flex-col justify-between hover:shadow-md transition">
             <div>
-                <div class="flex items-center gap-2 mb-2.5">
-                    <span class="w-6 h-6 rounded-lg bg-[#FCECEE] text-[#700B1A] flex items-center justify-center font-black text-xs">!</span>
-                    <h4 class="font-extrabold text-sm text-[#18181B]">Power Spike Insight</h4>
+                <div class="flex items-center gap-2 mb-1.5">
+                    <span class="w-5 h-5 rounded-md bg-[#FCECEE] text-[#700B1A] flex items-center justify-center font-black text-xs">!</span>
+                    <h4 class="font-extrabold text-xs sm:text-sm text-[#18181B]">Power Spike Insight</h4>
                 </div>
-                <p class="text-xs text-gray-600 leading-relaxed">
+                <p class="text-[11px] text-gray-600 leading-snug">
                     Harith dan Karrie mencatat 70%+ win rate dominan ketika dipasangkan dengan setup roamer CC keras seperti Tigreal atau Baxia.
                 </p>
             </div>
-            <div class="flex items-center justify-between text-[11px] font-bold text-gray-400 pt-4 mt-3 border-t border-[#FAF0F1]">
+            <div class="flex items-center justify-between text-[10px] font-bold text-gray-400 pt-2.5 mt-2 border-t border-[#FAF0F1]">
                 <span class="uppercase tracking-wider">FASE DRAFT 1-3</span>
-                <a href="{{ route('draft.analyzer') }}" class="text-[#700B1A] hover:underline flex items-center gap-1">
-                    <span>LIHAT DETAIL</span>
-                    <span>&gt;</span>
+                <a href="{{ route('draft.analyzer') }}" class="text-[#700B1A] hover:underline flex items-center gap-1 font-extrabold">
+                    <span>LIHAT DETAIL &gt;</span>
                 </a>
             </div>
         </div>
 
         <!-- Insight Card 2: Priority Permabans -->
-        <div class="card-custom p-5 flex flex-col justify-between hover:shadow-md transition">
+        <div class="card-custom p-3.5 sm:p-4 flex flex-col justify-between hover:shadow-md transition">
             <div>
-                <div class="flex items-center gap-2 mb-2.5">
-                    <span class="w-6 h-6 rounded-lg bg-[#FCECEE] text-[#700B1A] flex items-center justify-center font-black text-xs">⊘</span>
-                    <h4 class="font-extrabold text-sm text-[#18181B]">Priority Permabans</h4>
+                <div class="flex items-center gap-2 mb-1.5">
+                    <span class="w-5 h-5 rounded-md bg-[#FCECEE] text-[#700B1A] flex items-center justify-center font-black text-xs">⊘</span>
+                    <h4 class="font-extrabold text-xs sm:text-sm text-[#18181B]">Priority Permabans</h4>
                 </div>
-                <p class="text-xs text-gray-600 leading-relaxed">
+                <p class="text-[11px] text-gray-600 leading-snug">
                     Ban rate 91.3% Harith menjadikannya ancaman mutlak di patch 1.9.14, memaksa tim sisi merah merelakan first phase bans.
                 </p>
             </div>
-            <div class="flex items-center justify-between text-[11px] font-bold text-gray-400 pt-4 mt-3 border-t border-[#FAF0F1]">
+            <div class="flex items-center justify-between text-[10px] font-bold text-gray-400 pt-2.5 mt-2 border-t border-[#FAF0F1]">
                 <span class="uppercase tracking-wider">BAN RATE TINGGI</span>
-                <a href="{{ route('draft.analyzer') }}" class="text-[#700B1A] hover:underline flex items-center gap-1">
-                    <span>SIMULASI DRAFT</span>
-                    <span>&gt;</span>
+                <a href="{{ route('draft.analyzer') }}" class="text-[#700B1A] hover:underline flex items-center gap-1 font-extrabold">
+                    <span>SIMULASI DRAFT &gt;</span>
                 </a>
             </div>
         </div>
 
         <!-- Insight Card 3: Surprise Pocket Picks -->
-        <div class="card-custom p-5 flex flex-col justify-between hover:shadow-md transition">
+        <div class="card-custom p-3.5 sm:p-4 flex flex-col justify-between hover:shadow-md transition">
             <div>
-                <div class="flex items-center gap-2 mb-2.5">
-                    <span class="w-6 h-6 rounded-lg bg-[#ECFDF5] text-emerald-700 flex items-center justify-center font-black text-xs">✪</span>
-                    <h4 class="font-extrabold text-sm text-[#18181B]">Surprise Pocket Picks</h4>
+                <div class="flex items-center gap-2 mb-1.5">
+                    <span class="w-5 h-5 rounded-md bg-[#ECFDF5] text-emerald-700 flex items-center justify-center font-black text-xs">✪</span>
+                    <h4 class="font-extrabold text-xs sm:text-sm text-[#18181B]">Surprise Pocket Picks</h4>
                 </div>
-                <p class="text-xs text-gray-600 leading-relaxed">
+                <p class="text-[11px] text-gray-600 leading-snug">
                     Aulus dan Rafaela mempertahankan tingkat kemenangan 59%+ meskipun pick rate di bawah 2%, sangat efektif sebagai counter-draft situasional.
                 </p>
             </div>
-            <div class="flex items-center justify-between text-[11px] font-bold text-gray-400 pt-4 mt-3 border-t border-[#FAF0F1]">
+            <div class="flex items-center justify-between text-[10px] font-bold text-gray-400 pt-2.5 mt-2 border-t border-[#FAF0F1]">
                 <span class="uppercase tracking-wider">EFFICIENCY RATING</span>
-                <a href="{{ route('matches') }}" class="text-[#700B1A] hover:underline flex items-center gap-1">
-                    <span>ANALISIS SERI</span>
-                    <span>&gt;</span>
+                <a href="{{ route('matches') }}" class="text-[#700B1A] hover:underline flex items-center gap-1 font-extrabold">
+                    <span>ANALISIS SERI &gt;</span>
                 </a>
             </div>
         </div>
@@ -312,6 +335,9 @@
 
 @push('scripts')
 <script>
+    let currentStatsPage = 1;
+    let statsPerPage = 10;
+
     function filterStatsTable() {
         const query = (document.getElementById('statSearchInput').value || '').toLowerCase().trim();
         const role = (document.getElementById('roleSelect').value || '').toLowerCase().trim();
@@ -330,12 +356,105 @@
             const matchLane = !lane || laneText.includes(lane);
             const matchSpec = !spec || specText.includes(spec);
 
-            if (matchQuery && matchRole && matchLane && matchSpec) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
+            row.dataset.matched = (matchQuery && matchRole && matchLane && matchSpec) ? 'true' : 'false';
         });
+
+        currentStatsPage = 1;
+        updateStatsPagination();
+    }
+
+    function changeStatsPerPage(val) {
+        statsPerPage = val === 'all' ? 999999 : parseInt(val);
+        currentStatsPage = 1;
+        updateStatsPagination();
+    }
+
+    function goToStatsPage(page) {
+        currentStatsPage = page;
+        updateStatsPagination();
+        const table = document.getElementById('statsTable');
+        if (table) {
+            table.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    function updateStatsPagination() {
+        const tbody = document.getElementById('statsTbody');
+        const allRows = Array.from(tbody.querySelectorAll('.stat-table-row'));
+        const matchedRows = allRows.filter(r => r.dataset.matched !== 'false');
+        const totalMatched = matchedRows.length;
+        const totalPages = Math.ceil(totalMatched / statsPerPage) || 1;
+
+        if (currentStatsPage > totalPages) currentStatsPage = totalPages;
+        if (currentStatsPage < 1) currentStatsPage = 1;
+
+        const startIdx = (currentStatsPage - 1) * statsPerPage;
+        const endIdx = startIdx + statsPerPage;
+
+        allRows.forEach(r => r.style.display = 'none');
+        matchedRows.slice(startIdx, endIdx).forEach(r => r.style.display = '');
+
+        // Update Info Counter
+        const startElem = document.getElementById('statsPageStart');
+        const endElem = document.getElementById('statsPageEnd');
+        const totalElem = document.getElementById('statsTotalRows');
+        if (startElem) startElem.textContent = totalMatched > 0 ? (startIdx + 1) : 0;
+        if (endElem) endElem.textContent = Math.min(endIdx, totalMatched);
+        if (totalElem) totalElem.textContent = totalMatched;
+
+        // Render Pagination Buttons
+        const container = document.getElementById('statsPaginationButtons');
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (totalPages <= 1) return;
+
+        // Prev Button
+        const prevBtn = document.createElement('button');
+        prevBtn.type = 'button';
+        prevBtn.disabled = currentStatsPage === 1;
+        prevBtn.className = `px-3 py-1 rounded-full text-xs font-bold border transition ${
+            currentStatsPage === 1 
+                ? 'bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed' 
+                : 'bg-white hover:bg-[#FAF8F8] text-gray-700 border-[#F3E8E8] hover:text-[#700B1A] cursor-pointer shadow-2xs'
+        }`;
+        prevBtn.innerHTML = '&larr; Prev';
+        prevBtn.onclick = () => goToStatsPage(currentStatsPage - 1);
+        container.appendChild(prevBtn);
+
+        // Numbered Page Buttons
+        for (let p = 1; p <= totalPages; p++) {
+            if (p === 1 || p === totalPages || (p >= currentStatsPage - 1 && p <= currentStatsPage + 1)) {
+                const pageBtn = document.createElement('button');
+                pageBtn.type = 'button';
+                pageBtn.className = `w-7 h-7 rounded-full text-xs font-extrabold flex items-center justify-center transition ${
+                    p === currentStatsPage 
+                        ? 'bg-[#700B1A] text-white shadow-sm' 
+                        : 'bg-white hover:bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:text-[#700B1A] cursor-pointer'
+                }`;
+                pageBtn.textContent = p;
+                pageBtn.onclick = () => goToStatsPage(p);
+                container.appendChild(pageBtn);
+            } else if (p === currentStatsPage - 2 || p === currentStatsPage + 2) {
+                const dots = document.createElement('span');
+                dots.className = 'text-gray-400 px-1 font-bold text-xs';
+                dots.textContent = '...';
+                container.appendChild(dots);
+            }
+        }
+
+        // Next Button
+        const nextBtn = document.createElement('button');
+        nextBtn.type = 'button';
+        nextBtn.disabled = currentStatsPage === totalPages;
+        nextBtn.className = `px-3 py-1 rounded-full text-xs font-bold border transition ${
+            currentStatsPage === totalPages 
+                ? 'bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed' 
+                : 'bg-white hover:bg-[#FAF8F8] text-gray-700 border-[#F3E8E8] hover:text-[#700B1A] cursor-pointer shadow-2xs'
+        }`;
+        nextBtn.innerHTML = 'Next &rarr;';
+        nextBtn.onclick = () => goToStatsPage(currentStatsPage + 1);
+        container.appendChild(nextBtn);
     }
 
     function resetStatsFilters() {
@@ -376,6 +495,7 @@
         });
 
         rows.forEach(row => tbody.appendChild(row));
+        updateStatsPagination();
     }
 
     function exportTableToCSV(filename) {
@@ -400,6 +520,11 @@
         link.click();
         document.body.removeChild(link);
     }
+
+    // Inisialisasi saat load
+    document.addEventListener('DOMContentLoaded', function() {
+        filterStatsTable();
+    });
 </script>
 @endpush
 @endsection
