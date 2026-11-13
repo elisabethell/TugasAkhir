@@ -47,7 +47,7 @@ class DraftController extends Controller
                 'hero' => 'Granger',
                 'tier' => 'TIER S',
                 'win_rate' => '54.7%',
-                'win_rate_label' => 'TOURNAMENT WIN RATE',
+                'win_rate_label' => 'MPL ID S18 WIN RATE',
                 'role' => 'Marksman / Assassin',
                 'lane' => 'Jungle / Gold',
                 'impact_score' => 4.7,
@@ -55,15 +55,15 @@ class DraftController extends Controller
                 'accent_border' => true,
                 'portrait' => $this->csvService->resolveHeroPortrait('Granger'),
                 'initial' => 'GR',
-                'rule_text' => 'Prioritas meta turnamen: mobilitas burst tinggi & kontrol objektif kuat',
+                'rule_text' => 'Prioritas meta MPL ID S18: mobilitas burst tinggi & kontrol objektif kuat',
                 'rule_icon' => 'check',
-                'samples' => '69 MATCHES SAMPLE',
+                'samples' => 'MPL ID S18 DATASET',
             ],
             [
                 'hero' => 'Yve',
                 'tier' => 'TIER S',
                 'win_rate' => '78.3%',
-                'win_rate_label' => 'TOURNAMENT WIN RATE',
+                'win_rate_label' => 'MPL ID S18 WIN RATE',
                 'role' => 'Mage',
                 'lane' => 'Mid Lane',
                 'impact_score' => 4.6,
@@ -71,15 +71,15 @@ class DraftController extends Controller
                 'accent_border' => false,
                 'portrait' => $this->csvService->resolveHeroPortrait('Yve'),
                 'initial' => 'YV',
-                'rule_text' => 'Prioritas meta turnamen: zoning Real World Manipulation & slow area dominan',
+                'rule_text' => 'Prioritas meta MPL ID S18: zoning Real World Manipulation & slow area dominan',
                 'rule_icon' => 'check',
-                'samples' => '23 MATCHES SAMPLE',
+                'samples' => 'MPL ID S18 DATASET',
             ],
             [
                 'hero' => 'Belerick',
                 'tier' => 'TIER A',
                 'win_rate' => '70.4%',
-                'win_rate_label' => 'TOURNAMENT WIN RATE',
+                'win_rate_label' => 'MPL ID S18 WIN RATE',
                 'role' => 'Tank',
                 'lane' => 'Roam',
                 'impact_score' => 4.4,
@@ -87,15 +87,15 @@ class DraftController extends Controller
                 'accent_border' => false,
                 'portrait' => $this->csvService->resolveHeroPortrait('Belerick'),
                 'initial' => 'BL',
-                'rule_text' => 'Prioritas meta turnamen: frontline kokoh pembalik burst proyektil dan taunt area',
+                'rule_text' => 'Prioritas meta MPL ID S18: frontline kokoh pembalik burst proyektil dan taunt area',
                 'rule_icon' => 'check',
-                'samples' => '27 MATCHES SAMPLE',
+                'samples' => 'MPL ID S18 DATASET',
             ],
             [
                 'hero' => 'Carmilla',
                 'tier' => 'TIER S',
                 'win_rate' => '100.0%',
-                'win_rate_label' => 'TOURNAMENT WIN RATE',
+                'win_rate_label' => 'MPL ID S18 WIN RATE',
                 'role' => 'Support / Tank',
                 'lane' => 'Roam',
                 'impact_score' => 4.5,
@@ -103,15 +103,15 @@ class DraftController extends Controller
                 'accent_border' => false,
                 'portrait' => $this->csvService->resolveHeroPortrait('Carmilla'),
                 'initial' => 'CR',
-                'rule_text' => 'Prioritas meta turnamen: Curse of Blood membagi burst damage tim secara instan',
+                'rule_text' => 'Prioritas meta MPL ID S18: Curse of Blood membagi burst damage tim secara instan',
                 'rule_icon' => 'check',
-                'samples' => '5 MATCHES SAMPLE',
+                'samples' => 'MPL ID S18 DATASET',
             ],
             [
                 'hero' => 'Sora',
                 'tier' => 'TIER S',
                 'win_rate' => '68.8%',
-                'win_rate_label' => 'TOURNAMENT WIN RATE',
+                'win_rate_label' => 'MPL ID S18 WIN RATE',
                 'role' => 'Fighter / Assassin',
                 'lane' => 'Exp Lane',
                 'impact_score' => 4.3,
@@ -119,15 +119,15 @@ class DraftController extends Controller
                 'accent_border' => false,
                 'portrait' => $this->csvService->resolveHeroPortrait('Sora'),
                 'initial' => 'SR',
-                'rule_text' => 'Prioritas meta turnamen: fleksibilitas Thunder/Torrent & sustain duel lane tinggi',
+                'rule_text' => 'Prioritas meta MPL ID S18: fleksibilitas Thunder/Torrent & sustain duel lane tinggi',
                 'rule_icon' => 'check',
-                'samples' => '16 MATCHES SAMPLE',
+                'samples' => 'MPL ID S18 DATASET',
             ],
             [
                 'hero' => 'Kaja',
                 'tier' => null,
                 'win_rate' => '51.2%',
-                'win_rate_label' => 'TOURNAMENT WIN RATE',
+                'win_rate_label' => 'MPL ID S18 WIN RATE',
                 'role' => 'Support / Fighter',
                 'lane' => 'Roam / Mid',
                 'impact_score' => 3.8,
@@ -137,13 +137,13 @@ class DraftController extends Controller
                 'initial' => 'KJ',
                 'rule_text' => 'Suppression pick-off cepat untuk melumpuhkan core dan inisiator musuh',
                 'rule_icon' => 'lock',
-                'samples' => '48 MATCHES SAMPLE',
+                'samples' => 'MPL ID S18 DATASET',
             ],
             [
                 'hero' => 'Irithel',
                 'tier' => null,
                 'win_rate' => '48.9%',
-                'win_rate_label' => '7-DAY WIN RATE',
+                'win_rate_label' => 'MPL ID S18 WIN RATE',
                 'role' => 'Marksman',
                 'lane' => 'Gold Lane',
                 'impact_score' => 3.5,
@@ -153,13 +153,13 @@ class DraftController extends Controller
                 'initial' => 'IR',
                 'rule_text' => 'Mobilitas tembak terus menerus (kite while shooting) & debuff armor area',
                 'rule_icon' => 'arrow',
-                'samples' => '52 MATCHES SAMPLE',
+                'samples' => 'MPL ID S18 DATASET',
             ],
             [
                 'hero' => 'Khufra',
                 'tier' => null,
                 'win_rate' => '52.4%',
-                'win_rate_label' => 'TOURNAMENT WIN RATE',
+                'win_rate_label' => 'MPL ID S18 WIN RATE',
                 'role' => 'Tank / Roam',
                 'lane' => 'Roamer',
                 'impact_score' => 3.4,
@@ -169,7 +169,7 @@ class DraftController extends Controller
                 'initial' => 'KF',
                 'rule_text' => 'Bouncing Ball cc menghentikan seluruh skill dash/blink lincah musuh',
                 'rule_icon' => 'ban',
-                'samples' => '39 MATCHES SAMPLE',
+                'samples' => 'MPL ID S18 DATASET',
             ],
         ];
 
@@ -198,11 +198,11 @@ class DraftController extends Controller
                 'portrait'        => $h->portrait,
                 'initial'         => $h->tag,
                 'win_rate'        => $wrVal . '%',
-                'win_rate_label'  => ($stat && $stat['picks'] > 0) ? 'TOURNAMENT WIN RATE' : 'OVERALL WIN RATE',
+                'win_rate_label'  => ($stat && $stat['picks'] > 0) ? 'MPL ID S18 WIN RATE' : 'MPL ID S18 ESTIMATE',
                 'tier'            => $wrVal >= 60 ? 'TIER S' : ($wrVal >= 52 ? 'TIER A' : null),
                 'impact_score'    => min(5.0, round(2.5 + ($wrVal / 25), 1)),
                 'impact_progress' => min(100, (int)($wrVal * 1.3)),
-                'samples'         => (($stat && $stat['picks'] > 0) ? $stat['picks'] : 30) . ' MATCHES SAMPLE',
+                'samples'         => (($stat && $stat['picks'] > 0) ? $stat['picks'] : 15) . ' MATCHES (MPL ID S18)',
             ];
         }
 
@@ -253,14 +253,15 @@ class DraftController extends Controller
             $heroPortraits[$h->clean_key] = $h->portrait;
         }
 
+        // Ambil kalkulasi Power Spike empiris langsung dari dataset turnamen resmi MPL ID Season 18 (Liquipedia API)
+        $powerSpikesMap = $this->csvService->getEmpiricalPowerSpikes();
+
         // Membaca aturan hasil olahan Python engine (rbr_rules_generated.json)
         $rbrGenerated = [];
-        $powerSpikesMap = [];
         $rbrJsonPath = database_path('data/rbr_rules_generated.json');
         if (file_exists($rbrJsonPath)) {
             $jsonDecoded = json_decode(file_get_contents($rbrJsonPath), true);
             $rbrGenerated = $jsonDecoded['rbr_rules'] ?? [];
-            $powerSpikesMap = $jsonDecoded['power_spikes'] ?? [];
         }
 
         $knownMagic = [

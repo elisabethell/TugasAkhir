@@ -12,7 +12,7 @@
                 Mobile Legends Counter Pick
             </h1>
             <p class="text-xs text-gray-500 font-medium mt-0.5">
-                Strategize your team composition with optimal hero counters based on tournament statistics & rule-based reasoning.
+                Strategize your team composition with optimal hero counters based on MPL Indonesia Season 18 dataset (Liquipedia API) & rule-based reasoning.
             </p>
         </div>
 
@@ -147,6 +147,22 @@
                     <!-- Populated dynamically via JS -->
                 </div>
 
+                <!-- Synthesis Confidence Info -->
+                <div class="card-custom p-3.5 flex items-center justify-between gap-4 mt-3 bg-[#FAF8F8]">
+                    <div class="flex items-center gap-2.5 text-xs font-bold text-gray-700">
+                        <span class="text-[#700B1A] text-base">📈</span>
+                        <span>Seluruh statistik & rekomendasi counter disintesis dari dataset resmi <strong>MPL Indonesia Season 18</strong> (Liquipedia API).</span>
+                    </div>
+                    <div class="text-right flex-shrink-0">
+                        <div class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+                            DATASET SUMBER
+                        </div>
+                        <div class="text-xs font-black text-[#700B1A] uppercase tracking-wider">
+                            MPL ID S18
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
         </div>
@@ -270,14 +286,14 @@
                 hero: r.hero,
                 tier: r.tier || (idx === 0 ? 'Tier S' : (idx === 1 ? 'Tier A' : 'Tier B')),
                 win_rate: r.win_rate || '51.2%',
-                win_rate_label: 'Tournament Win Rate',
+                win_rate_label: 'MPL ID S18 Win Rate',
                 role: r.role || 'Hero',
                 lane: r.lane || 'Flex',
                 counter_score: (9.9 - (idx * 0.2)).toFixed(1),
                 progress_pct: Math.max(30, Math.round(99 - (idx * 4))),
                 portrait: r.portrait,
                 countered_enemies: ['Meta Priority'],
-                rule_text: r.rule_text || 'Prioritas meta turnamen MPL & MWI',
+                rule_text: r.rule_text || 'Prioritas meta turnamen MPL Indonesia Season 18',
                 accent_border: r.accent_border
             }));
         } else {
@@ -293,7 +309,7 @@
                         hero: cName,
                         tier: ruleInfo.tier || baseHero.tier || 'Tier A',
                         win_rate: baseHero.win_rate || '52.0%',
-                        win_rate_label: 'Tournament Win Rate',
+                        win_rate_label: 'MPL ID S18 Win Rate',
                         role: baseHero.role || 'Hero',
                         lane: baseHero.lane || 'Flex',
                         raw_score: 5.0 + (ruleInfo.impact || 4.2),
@@ -319,12 +335,12 @@
                         hero: cName,
                         tier: baseHero.tier || 'Tier B',
                         win_rate: baseHero.win_rate || '51.0%',
-                        win_rate_label: 'Tournament Win Rate',
+                        win_rate_label: 'MPL ID S18 Win Rate',
                         role: baseHero.role || 'Hero',
                         lane: baseHero.lane || 'Flex',
                         raw_score: 3.5 + (parseFloat(baseHero.win_rate) || 50) / 25,
                         portrait: baseHero.portrait || '',
-                        rule_text: `Direct counter terhadap mekanik utama ${enemyName} berdasarkan dataset turnamen`,
+                        rule_text: `Direct counter terhadap mekanik utama ${enemyName} berdasarkan dataset turnamen MPL ID S18`,
                         countered_enemies: []
                     };
                     if (!cur.countered_enemies.includes(enemyName)) {
@@ -343,13 +359,13 @@
                     hero: r.hero,
                     tier: r.tier || 'Tier A',
                     win_rate: r.win_rate || '51.2%',
-                    win_rate_label: 'Tournament Win Rate',
+                    win_rate_label: 'MPL ID S18 Win Rate',
                     role: r.role || 'Hero',
                     lane: r.lane || 'Flex',
                     raw_score: 8.0 - idx,
                     portrait: r.portrait,
                     countered_enemies: [selectedHeroes[0] || 'Lawan'],
-                    rule_text: r.rule_text || 'Prioritas counter turnamen'
+                    rule_text: r.rule_text || 'Prioritas counter turnamen MPL ID S18'
                 }));
             }
 

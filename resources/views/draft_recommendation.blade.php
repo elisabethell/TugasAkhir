@@ -130,7 +130,7 @@
 
                     <!-- POWER SPIKE TIMELINE TIM SEKUTU -->
                     <div class="pt-2 border-t border-dashed border-[#FAF0F1] flex items-center justify-between text-[9px] font-extrabold text-gray-600">
-                        <span class="text-gray-400 uppercase">Power Spike:</span>
+                        <span class="text-gray-400 uppercase font-black tracking-wider" title="Korelasi durasi kemenangan empiris MPL ID Season 18 (<13m, 13-17m, >17m)">Power Spike (MPL S18):</span>
                         <div class="flex items-center gap-2">
                             <span id="allyEarlySpike" class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">Early: 0</span>
                             <span id="allyMidSpike" class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">Mid: 0</span>
@@ -183,7 +183,7 @@
 
                     <!-- POWER SPIKE TIMELINE TIM MUSUH -->
                     <div class="pt-2 border-t border-dashed border-[#FAF0F1] flex items-center justify-between text-[9px] font-extrabold text-gray-600">
-                        <span class="text-gray-400 uppercase">Power Spike:</span>
+                        <span class="text-gray-400 uppercase font-black tracking-wider" title="Korelasi durasi kemenangan empiris MPL ID Season 18 (<13m, 13-17m, >17m)">Power Spike (MPL S18):</span>
                         <div class="flex items-center gap-2">
                             <span id="enemyEarlySpike" class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">Early: 0</span>
                             <span id="enemyMidSpike" class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">Mid: 0</span>
@@ -398,7 +398,7 @@
                         COACH TACTICAL DRAFT CHEAT SHEET
                     </h2>
                     <p class="text-[11px] text-gray-500 font-medium">
-                        Tournament Intelligence System • MWI x EWC 2026 Edition • Patch 1.9.14
+                        Tournament Intelligence System • MPL Indonesia Season 18 (Liquipedia API) • Patch 1.9.14
                     </p>
                 </div>
                 <div class="text-right text-[11px]">
@@ -862,9 +862,9 @@
         }
 
         const allySpikes = computeTeamPowerSpikes(allyTeam);
-        document.getElementById('allyEarlySpike').textContent = `Early: ${allySpikes.early}`;
-        document.getElementById('allyMidSpike').textContent = `Mid: ${allySpikes.mid}`;
-        document.getElementById('allyLateSpike').textContent = `Late: ${allySpikes.late}`;
+        document.getElementById('allyEarlySpike').innerHTML = `<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-extrabold" title="Dominan fase early (<13m MPL ID S18)">Early: ${allySpikes.early}</span>`;
+        document.getElementById('allyMidSpike').innerHTML = `<span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200 font-extrabold" title="Dominan fase mid (13-17m MPL ID S18)">Mid: ${allySpikes.mid}</span>`;
+        document.getElementById('allyLateSpike').innerHTML = `<span class="px-1.5 py-0.5 rounded bg-purple-50 text-purple-800 border border-purple-200 font-extrabold" title="Dominan fase late (>17m MPL ID S18)">Late: ${allySpikes.late}</span>`;
 
         // Tim Musuh
         const enemyDist = computeTeamDamage(enemyTeam);
@@ -899,9 +899,9 @@
         }
 
         const enemySpikes = computeTeamPowerSpikes(enemyTeam);
-        document.getElementById('enemyEarlySpike').textContent = `Early: ${enemySpikes.early}`;
-        document.getElementById('enemyMidSpike').textContent = `Mid: ${enemySpikes.mid}`;
-        document.getElementById('enemyLateSpike').textContent = `Late: ${enemySpikes.late}`;
+        document.getElementById('enemyEarlySpike').innerHTML = `<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-extrabold" title="Dominan fase early (<13m MPL ID S18)">Early: ${enemySpikes.early}</span>`;
+        document.getElementById('enemyMidSpike').innerHTML = `<span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200 font-extrabold" title="Dominan fase mid (13-17m MPL ID S18)">Mid: ${enemySpikes.mid}</span>`;
+        document.getElementById('enemyLateSpike').innerHTML = `<span class="px-1.5 py-0.5 rounded bg-purple-50 text-purple-800 border border-purple-200 font-extrabold" title="Dominan fase late (>17m MPL ID S18)">Late: ${enemySpikes.late}</span>`;
     }
 
     function computeTeamDamage(teamList) {
@@ -1300,7 +1300,7 @@
                 let subType = 'THR';
                 let subHero = 'Turnamen Threat';
                 let rbrId = 'RBR-BAN-01';
-                let rbrRationale = 'High Priority Ban berdasarkan kontestasi pro player MWI.';
+                let rbrRationale = 'High Priority Ban berdasarkan kontestasi pro player MPL ID S18.';
 
                 let threatTarget = '';
                 let threatCount = 0;

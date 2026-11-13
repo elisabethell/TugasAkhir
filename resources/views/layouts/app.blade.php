@@ -30,7 +30,7 @@
 </head>
 <body class="min-h-screen py-6 px-3 sm:px-6">
 
-    <div class="max-w-[1140px] mx-auto space-y-5">
+    <div class="max-w-[1140px] xl:max-w-[1200px] mx-auto space-y-5">
         @if(!View::hasSection('hide_navbar'))
             <x-navbar />
         @endif

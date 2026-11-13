@@ -8,28 +8,28 @@
 <div class="space-y-6">
 
     <!-- 1. ADMIN TOP NAVIGATION BAR -->
-    <header class="bg-white border border-[#F3E8E8] rounded-full px-5 py-2.5 flex items-center justify-between shadow-sm flex-wrap gap-3">
+    <header class="bg-white border border-[#F3E8E8] rounded-full px-4 lg:px-5 py-2 flex items-center justify-between shadow-sm flex-nowrap gap-3 w-full">
         <!-- Brand Logo -->
-        <a href="{{ route('home') }}" class="flex items-center gap-2.5">
+        <a href="{{ route('home') }}" class="flex items-center gap-2.5 flex-shrink-0">
             <span class="w-3 h-3 rounded-full bg-[#700B1A] inline-block shadow-[0_0_8px_rgba(112,11,26,0.5)]"></span>
             <span class="font-black text-sm tracking-widest text-[#18181B] uppercase">METASCOUT</span>
         </a>
 
         <!-- Admin Links -->
-        <nav class="flex items-center gap-1.5 sm:gap-2 flex-wrap text-xs font-bold uppercase tracking-wider">
-            <a href="{{ route('admin.dashboard') }}" class="text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
+        <nav class="flex items-center gap-1.5 sm:gap-2 flex-nowrap text-xs font-bold uppercase tracking-wider flex-shrink-0">
+            <a href="{{ route('admin.dashboard') }}" class="text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition whitespace-nowrap">
                 DASHBOARD
             </a>
-            <a href="{{ route('matches') }}" class="text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
+            <a href="{{ route('matches') }}" class="text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition whitespace-nowrap">
                 DATASET PERTANDINGAN
             </a>
-            <a href="{{ route('admin.heroes') }}" class="bg-[#700B1A] text-white px-4 py-1.5 rounded-full transition shadow-sm">
+            <a href="{{ route('admin.heroes') }}" class="bg-[#700B1A] text-white px-4 py-1.5 rounded-full transition shadow-sm whitespace-nowrap">
                 MANAJEMEN HERO
             </a>
         </nav>
 
         <!-- Superadmin Info & Logout -->
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <div class="flex items-center gap-1.5 text-[11px] font-extrabold text-[#700B1A] uppercase tracking-wider">
                 <span class="w-2 h-2 rounded-full bg-[#700B1A]"></span>
                 <span>SUPERADMIN</span>
