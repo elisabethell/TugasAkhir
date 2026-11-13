@@ -576,13 +576,13 @@ class LiquipediaApiService
         foreach ($g3T1Bans as $i => $h)  $this->createDetailRecord($g3, 'Alter Ego', 'Blue', 1, 'ban', $i+1, $h);
         foreach ($g3T2Bans as $i => $h)  $this->createDetailRecord($g3, 'ONIC', 'Red', 2, 'ban', $i+1, $h);
 
-        // 2. Mockup Match Bo7: Natus Vincere vs Bigetron By Vitality (Sesuai Screenshot User Image 2 & 3)
+        // 2. Mockup Match Bo7: Natus Vincere vs Bigetron By Vitality (Grand Final Playoffs)
         $mBo7Id = 'MPLIDS18PL_R04-M001';
         $datasetBo7 = MatchDataset::updateOrCreate(
             ['match_id' => $mBo7Id],
             [
                 'tournament_name' => 'MPL Indonesia Season 18',
-                'match_date'      => Carbon::create(2026, 11, 8, 17, 30, 0, 'Asia/Jakarta'),
+                'match_date'      => Carbon::create(2026, 11, 9, 0, 30, 0, 'Asia/Jakarta'),
                 'team_1_name'     => 'Natus Vincere',
                 'team_2_name'     => 'Bigetron By Vitality',
                 'team_1_logo'     => $this->resolveTeamLogo('Natus Vincere'),
@@ -668,6 +668,166 @@ class LiquipediaApiService
             foreach ($bg['p2'] as $i => $h) $this->createDetailRecord($gm, 'Bigetron By Vitality', $bg['s2'], 2, 'pick', $i+1, $h);
             foreach ($bg['b1'] as $i => $h) $this->createDetailRecord($gm, 'Natus Vincere', $bg['s1'], 1, 'ban', $i+1, $h);
             foreach ($bg['b2'] as $i => $h) $this->createDetailRecord($gm, 'Bigetron By Vitality', $bg['s2'], 2, 'ban', $i+1, $h);
+        }
+
+        // 3. Mockup Match Bo7: Team Liquid ID vs Bigetron By Vitality (Lower Bracket Final)
+        $mLbfId = 'MPLIDS18PL_R03-M002';
+        $datasetLbf = MatchDataset::updateOrCreate(
+            ['match_id' => $mLbfId],
+            [
+                'tournament_name' => 'MPL Indonesia Season 18',
+                'match_date'      => Carbon::create(2026, 11, 8, 0, 30, 0, 'Asia/Jakarta'),
+                'team_1_name'     => 'Team Liquid ID',
+                'team_2_name'     => 'Bigetron By Vitality',
+                'team_1_logo'     => $this->resolveTeamLogo('Team Liquid ID'),
+                'team_2_logo'     => $this->resolveTeamLogo('Bigetron By Vitality'),
+                'team_1_score'    => 3,
+                'team_2_score'    => 4,
+                'best_of'         => 'Bo7',
+                'stage_name'      => 'Lower Bracket Final',
+                'map_summary'     => 'Revealing Wisps / Healing Turtle / Golden Turret',
+                'series_mvp'      => 'Yehezkiel',
+            ]
+        );
+
+        $lbfGames = [
+            [
+                'num' => 1, 'dur' => '15:20', 'map' => 'Healing Turtle', 'winner' => 'Team Liquid ID', 't1' => 'W', 't2' => 'L', 's1' => 'Blue', 's2' => 'Red',
+                'p1' => ['Harith', 'Fredrinn', 'Valentina', 'Claude', 'Mathilda'],
+                'p2' => ['Joy', 'Terizla', 'Vexana', 'Karrie', 'Floryn'],
+                'b1' => ['Fanny', 'Paquito', 'Carmilla', 'Luo Yi', 'Gloo'],
+                'b2' => ['Freya', 'Yu Zhong', 'Nolan', 'Xavier', 'Chou'],
+            ],
+            [
+                'num' => 2, 'dur' => '17:45', 'map' => 'Revealing Wisps', 'winner' => 'Bigetron By Vitality', 't1' => 'L', 't2' => 'W', 's1' => 'Red', 's2' => 'Blue',
+                'p1' => ['Cici', 'Baxia', 'Lylia', 'Bruno', 'Chou'],
+                'p2' => ['Freya', 'Fredrinn', 'Zhuxin', 'Beatrix', 'Carmilla'],
+                'b1' => ['Joy', 'Fanny', 'Paquito', 'Esmeralda', 'Diggie'],
+                'b2' => ['Floryn', 'Harith', 'Valentina', 'Lancelot', 'Uranus'],
+            ],
+            [
+                'num' => 3, 'dur' => '12:30', 'map' => 'Golden Turret', 'winner' => 'Team Liquid ID', 't1' => 'W', 't2' => 'L', 's1' => 'Blue', 's2' => 'Red',
+                'p1' => ['Phoveus', 'Joy', 'Vexana', 'Moskov', 'Grock'],
+                'p2' => ['Uranus', 'Nolan', 'Lunox', 'Brody', 'Gloo'],
+                'b1' => ['Freya', 'Carmilla', 'Fredrinn', 'Claude', 'Nana'],
+                'b2' => ['Harith', 'Valentina', 'Xavier', 'Mathilda', 'Cici'],
+            ],
+            [
+                'num' => 4, 'dur' => '18:15', 'map' => 'Healing Turtle', 'winner' => 'Bigetron By Vitality', 't1' => 'L', 't2' => 'W', 's1' => 'Red', 's2' => 'Blue',
+                'p1' => ['Terizla', 'Fredrinn', 'Luo Yi', 'Roger', 'Rafaela'],
+                'p2' => ['Paquito', 'Baxia', 'Yve', 'Irithel', 'Tigreal'],
+                'b1' => ['Joy', 'Freya', 'Fanny', 'Carmilla', 'Gloo'],
+                'b2' => ['Harith', 'Floryn', 'Valentina', 'Bruno', 'Chou'],
+            ],
+            [
+                'num' => 5, 'dur' => '14:10', 'map' => 'Revealing Wisps', 'winner' => 'Team Liquid ID', 't1' => 'W', 't2' => 'L', 's1' => 'Blue', 's2' => 'Red',
+                'p1' => ['Joy', 'Paquito', 'Zhuxin', 'Claude', 'Floryn'],
+                'p2' => ['Cici', 'Fredrinn', 'Lunox', 'Karrie', 'Carmilla'],
+                'b1' => ['Fanny', 'Freya', 'Vexana', 'Esmeralda', 'Gloo'],
+                'b2' => ['Harith', 'Valentina', 'Xavier', 'Lancelot', 'Mathilda'],
+            ],
+            [
+                'num' => 6, 'dur' => '16:05', 'map' => 'Broken Walls', 'winner' => 'Bigetron By Vitality', 't1' => 'L', 't2' => 'W', 's1' => 'Red', 's2' => 'Blue',
+                'p1' => ['Uranus', 'Nolan', 'Vexana', 'Brody', 'Gloo'],
+                'p2' => ['Freya', 'Fredrinn', 'Lylia', 'Bruno', 'Mathilda'],
+                'b1' => ['Joy', 'Paquito', 'Carmilla', 'Claude', 'Zhuxin'],
+                'b2' => ['Harith', 'Floryn', 'Valentina', 'Cici', 'Chou'],
+            ],
+            [
+                'num' => 7, 'dur' => '21:30', 'map' => 'Expanding Rivers', 'winner' => 'Bigetron By Vitality', 't1' => 'L', 't2' => 'W', 's1' => 'Blue', 's2' => 'Red',
+                'p1' => ['Cici', 'Fredrinn', 'Valentina', 'Moskov', 'Carmilla'],
+                'p2' => ['Paquito', 'Joy', 'Zhuxin', 'Claude', 'Gloo'],
+                'b1' => ['Freya', 'Fanny', 'Harith', 'Luo Yi', 'Rafaela'],
+                'b2' => ['Floryn', 'Xavier', 'Lancelot', 'Bruno', 'Mathilda'],
+            ],
+        ];
+
+        foreach ($lbfGames as $lg) {
+            $gm = MatchGame::updateOrCreate(
+                ['match_id' => $mLbfId, 'game_number' => $lg['num']],
+                [
+                    'match_dataset_id' => $datasetLbf->id,
+                    'duration'         => $lg['dur'],
+                    'map_type'         => $lg['map'],
+                    'winner_team'      => $lg['winner'],
+                    'team_1_status'    => $lg['t1'],
+                    'team_2_status'    => $lg['t2'],
+                    'team_1_side'      => $lg['s1'],
+                    'team_2_side'      => $lg['s2'],
+                ]
+            );
+
+            MatchDetail::where('match_game_id', $gm->id)->delete();
+            foreach ($lg['p1'] as $i => $h) $this->createDetailRecord($gm, 'Team Liquid ID', $lg['s1'], 1, 'pick', $i+1, $h);
+            foreach ($lg['p2'] as $i => $h) $this->createDetailRecord($gm, 'Bigetron By Vitality', $lg['s2'], 2, 'pick', $i+1, $h);
+            foreach ($lg['b1'] as $i => $h) $this->createDetailRecord($gm, 'Team Liquid ID', $lg['s1'], 1, 'ban', $i+1, $h);
+            foreach ($lg['b2'] as $i => $h) $this->createDetailRecord($gm, 'Bigetron By Vitality', $lg['s2'], 2, 'ban', $i+1, $h);
+        }
+
+        // 4. Regular Season Match: Week 8 Regular Season: Alter Ego vs ONIC
+        $mRsId = 'MPLIDS18RS_W08-M001';
+        $datasetRs = MatchDataset::updateOrCreate(
+            ['match_id' => $mRsId],
+            [
+                'tournament_name' => 'MPL Indonesia Season 18',
+                'match_date'      => Carbon::create(2026, 10, 25, 15, 0, 0, 'Asia/Jakarta'),
+                'team_1_name'     => 'Alter Ego',
+                'team_2_name'     => 'ONIC',
+                'team_1_logo'     => $this->resolveTeamLogo('Alter Ego'),
+                'team_2_logo'     => $this->resolveTeamLogo('ONIC'),
+                'team_1_score'    => 2,
+                'team_2_score'    => 1,
+                'best_of'         => 'Bo3',
+                'stage_name'      => 'Week 8 Regular Season',
+                'map_summary'     => 'Healing Turtle / Golden Turret',
+                'series_mvp'      => 'Nino',
+            ]
+        );
+
+        $rsGames = [
+            [
+                'num' => 1, 'dur' => '13:50', 'map' => 'Healing Turtle', 'winner' => 'Alter Ego', 't1' => 'W', 't2' => 'L', 's1' => 'Blue', 's2' => 'Red',
+                'p1' => ['Freya', 'Fredrinn', 'Lylia', 'Bruno', 'Mathilda'],
+                'p2' => ['Uranus', 'Nolan', 'Lunox', 'Brody', 'Gloo'],
+                'b1' => ['Joy', 'Paquito', 'Carmilla', 'Claude', 'Zhuxin'],
+                'b2' => ['Harith', 'Floryn', 'Valentina', 'Cici', 'Chou'],
+            ],
+            [
+                'num' => 2, 'dur' => '19:15', 'map' => 'Golden Turret', 'winner' => 'ONIC', 't1' => 'L', 't2' => 'W', 's1' => 'Red', 's2' => 'Blue',
+                'p1' => ['Cici', 'Baxia', 'Vexana', 'Karrie', 'Chou'],
+                'p2' => ['Phoveus', 'Joy', 'Zhuxin', 'Claude', 'Grock'],
+                'b1' => ['Fanny', 'Freya', 'Carmilla', 'Luo Yi', 'Gloo'],
+                'b2' => ['Harith', 'Valentina', 'Xavier', 'Mathilda', 'Paquito'],
+            ],
+            [
+                'num' => 3, 'dur' => '15:40', 'map' => 'Revealing Wisps', 'winner' => 'Alter Ego', 't1' => 'W', 't2' => 'L', 's1' => 'Blue', 's2' => 'Red',
+                'p1' => ['Joy', 'Fredrinn', 'Valentina', 'Beatrix', 'Floryn'],
+                'p2' => ['Terizla', 'Nolan', 'Lunox', 'Moskov', 'Carmilla'],
+                'b1' => ['Fanny', 'Paquito', 'Esmeralda', 'Claude', 'Zhuxin'],
+                'b2' => ['Freya', 'Yu Zhong', 'Harith', 'Xavier', 'Mathilda'],
+            ],
+        ];
+
+        foreach ($rsGames as $rg) {
+            $gm = MatchGame::updateOrCreate(
+                ['match_id' => $mRsId, 'game_number' => $rg['num']],
+                [
+                    'match_dataset_id' => $datasetRs->id,
+                    'duration'         => $rg['dur'],
+                    'map_type'         => $rg['map'],
+                    'winner_team'      => $rg['winner'],
+                    'team_1_status'    => $rg['t1'],
+                    'team_2_status'    => $rg['t2'],
+                    'team_1_side'      => $rg['s1'],
+                    'team_2_side'      => $rg['s2'],
+                ]
+            );
+
+            MatchDetail::where('match_game_id', $gm->id)->delete();
+            foreach ($rg['p1'] as $i => $h) $this->createDetailRecord($gm, 'Alter Ego', $rg['s1'], 1, 'pick', $i+1, $h);
+            foreach ($rg['p2'] as $i => $h) $this->createDetailRecord($gm, 'ONIC', $rg['s2'], 2, 'pick', $i+1, $h);
+            foreach ($rg['b1'] as $i => $h) $this->createDetailRecord($gm, 'Alter Ego', $rg['s1'], 1, 'ban', $i+1, $h);
+            foreach ($rg['b2'] as $i => $h) $this->createDetailRecord($gm, 'ONIC', $rg['s2'], 2, 'ban', $i+1, $h);
         }
 
         return $datasetBo7;

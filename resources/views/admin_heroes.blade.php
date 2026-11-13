@@ -351,7 +351,7 @@
                                                 <span class="bg-[#700B1A] text-white text-[8px] font-black px-1 rounded">BARU</span>
                                             @endif
                                         </div>
-                                        <div class="text-[10px] text-gray-400">{{ $h->title ?? 'Land of Dawn Hero' }}</div>
+                                        <div class="text-[10px] text-gray-400">{{ property_exists($h, 'title') ? $h->title : 'Land of Dawn Hero' }}</div>
                                     </div>
                                 </div>
                             </td>

@@ -44,10 +44,11 @@ Route::get('/rules', [RbrRuleController::class, 'index'])->name('rules');
 
 
 // ==========================================
-// 2. AUTHENTICATION ROUTES (Admin Login)
+// 2. AUTHENTICATION & ACCESS REQUEST ROUTES
 // ==========================================
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/admin/request-access', [AuthController::class, 'requestAccess'])->name('admin.request.access');
 Route::get('/admin/logout', [AuthController::class, 'logout'])->name('admin.logout');
 Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.logout.post');
 

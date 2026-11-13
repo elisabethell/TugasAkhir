@@ -25,19 +25,44 @@
             border-radius: 1.25rem;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 12px rgba(112, 11, 26, 0.02);
         }
+        /* Custom scrollbar untuk varian map */
+        .map-scroll-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .map-scroll-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .map-scroll-container::-webkit-scrollbar-thumb {
+            background: #E5E7EB;
+            border-radius: 4px;
+        }
+        .map-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: #700B1A;
+        }
     </style>
 </head>
 <body class="min-h-screen py-6 px-3 sm:px-6">
 
     <div class="max-w-[1140px] mx-auto space-y-5">
 
-        <!-- 1. TOP NAVIGATION BAR (PILL HEADER) -->
+        <!-- 1. TOP NAVIGATION BAR (PILL HEADER DENGAN LOGO LIQUIPEDIA) -->
         <header class="bg-white border border-subtle rounded-full px-5 py-2.5 flex items-center justify-between shadow-sm flex-wrap gap-3">
             
-            <!-- Brand Logo -->
-            <div class="flex items-center gap-2.5">
-                <span class="w-3 h-3 rounded-full bg-maroon inline-block shadow-[0_0_8px_rgba(112,11,26,0.5)]"></span>
-                <span class="font-black text-sm tracking-widest text-[#18181B] uppercase">METASCOUT</span>
+            <!-- Brand Logo & Liquipedia Official Badge -->
+            <div class="flex items-center gap-3">
+                <a href="{{ route('home') }}" class="flex items-center gap-2.5 group">
+                    <span class="w-3 h-3 rounded-full bg-maroon inline-block shadow-[0_0_8px_rgba(112,11,26,0.5)]"></span>
+                    <span class="font-black text-sm tracking-widest text-[#18181B] group-hover:text-maroon transition uppercase">METASCOUT</span>
+                </a>
+
+                <span class="text-gray-300 font-light select-none">|</span>
+
+                <a href="https://liquipedia.net/mobilelegends" target="_blank" rel="noopener noreferrer" 
+                   class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#F5F8FC] hover:bg-[#EBF2FA] border border-[#D0E1F5] transition group shadow-2xs"
+                   title="Data Pertandingan Resmi Bersumber dari Liquipedia API">
+                    <img src="/images/liquipedia_logo.svg" alt="Liquipedia Logo" class="w-4 h-4 object-contain">
+                    <span class="font-black text-[11px] text-[#0A285F] group-hover:text-[#0072CE] tracking-wider uppercase">LIQUIPEDIA</span>
+                </a>
             </div>
 
             <!-- Navigation Links -->
@@ -81,6 +106,24 @@
 
         </header>
 
+        <!-- FLASH NOTIFICATIONS -->
+        @if(session('success_request'))
+            <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-2xl flex items-center justify-between text-xs font-bold shadow-sm">
+                <div class="flex items-center gap-2">
+                    <span class="text-emerald-600 text-base">✓</span>
+                    <span>{{ session('success_request') }}</span>
+                </div>
+            </div>
+        @endif
+        @if(session('info'))
+            <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-2xl flex items-center justify-between text-xs font-bold shadow-sm">
+                <div class="flex items-center gap-2">
+                    <span class="text-blue-600 text-base">ℹ</span>
+                    <span>{{ session('info') }}</span>
+                </div>
+            </div>
+        @endif
+
         <!-- 2. HERO TITLE BANNER -->
         <section class="card-home p-6 sm:p-8 relative overflow-hidden">
             <div class="flex justify-between items-start flex-wrap gap-4 mb-6">
@@ -91,17 +134,17 @@
                     </h1>
                 </div>
 
-                <!-- Last Updated Badge -->
+                <!-- Last Updated Badge (Dinamis Berdasarkan Data Dataset Liquipedia) -->
                 <div class="bg-[#FAF8F8] border border-subtle rounded-xl px-3.5 py-2 text-right">
                     <div class="flex items-center justify-end gap-1.5 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                         <span>TERAKHIR DIPERBARUI</span>
                     </div>
                     <div class="text-xs font-black text-[#18181B] mt-0.5">
-                        UTC+7: 18 Juli 2026
+                        UTC+7: {{ $lastUpdatedDate }}
                     </div>
                     <div class="text-[10px] font-semibold text-gray-400">
-                        23:40
+                        {{ $lastUpdatedTime }}
                     </div>
                 </div>
             </div>
@@ -122,7 +165,7 @@
                     </div>
                 </div>
 
-                <!-- Patch Version -->
+                <!-- Patch Version (Dinamis & Selaras Patch 1.9.14) -->
                 <div class="bg-[#FAF8F8] border border-subtle rounded-2xl p-3.5 flex items-center gap-3.5">
                     <div class="w-11 h-11 rounded-xl bg-maroon-subtle flex items-center justify-center text-maroon flex-shrink-0">
                         <!-- Sliders/Tune Icon -->
@@ -132,13 +175,13 @@
                     </div>
                     <div>
                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">PATCH</span>
-                        <span class="text-base font-black text-[#18181B] tracking-tight">VERSI 1.8.94</span>
+                        <span class="text-base font-black text-[#18181B] tracking-tight">VERSI {{ $patchVersion }}</span>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 3. METRICS CARDS (ROW OF 3) -->
+        <!-- 3. METRICS CARDS (ROW OF 3 - DINAMIS MENGIKUTI DATASET LIQUIPEDIA) -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-5">
             
             <!-- Game Dianalisis -->
@@ -154,7 +197,7 @@
                 <div class="w-full h-1 bg-maroon rounded-full mt-5"></div>
             </div>
 
-            <!-- Rata-Rata Durasi Match -->
+            <!-- Rata-Rata Durasi Match (Dinamis dari Isi Database Game) -->
             <div class="card-home p-5 flex flex-col justify-between">
                 <div>
                     <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">RATA-RATA DURASI MATCH</span>
@@ -173,7 +216,7 @@
                 </div>
             </div>
 
-            <!-- Map Faction Bias -->
+            <!-- Map Faction Bias (Dinamis dari Kemenangan Sisi Blue vs Red) -->
             <div class="card-home p-5 flex flex-col justify-between">
                 <div>
                     <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">MAP FACTION BIAS</span>
@@ -327,44 +370,60 @@
 
                 <!-- Footer Link -->
                 <div class="border-t border-gray-100 pt-3.5 mt-2 flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-gray-400 flex-wrap gap-2">
-                    <span>MENAMPILKAN 4 DARI 84 HERO YANG DIKONTES</span>
+                    <span>MENAMPILKAN 4 DARI HERO TERKONTES TURNAMEN</span>
                     <a href="{{ route('hero.statistics') }}" class="text-maroon hover:underline font-extrabold">
                         LIHAT STATISTIK SELURUH HERO &gt;
                     </a>
                 </div>
             </div>
 
-            <!-- Right: Varian Map Aktif (lg:col-span-4) -->
+            <!-- Right: Varian Map Aktif (lg:col-span-4 - Scrollable container for ~4 visible, all accessible) -->
             <div class="lg:col-span-4 card-home p-6 flex flex-col justify-between">
                 <div>
                     <!-- Title -->
-                    <div class="flex items-center gap-2 mb-4">
-                        <span class="w-2.5 h-2.5 rounded-full bg-maroon"></span>
-                        <h2 class="text-xs font-black text-[#18181B] uppercase tracking-wider">
-                            VARIAN MAP AKTIF
-                        </h2>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-maroon"></span>
+                            <h2 class="text-xs font-black text-[#18181B] uppercase tracking-wider">
+                                VARIAN MAP AKTIF
+                            </h2>
+                        </div>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                            {{ count($mapVariants) }} Varian
+                        </span>
                     </div>
 
-                    <!-- 4 Map Variant Boxes -->
-                    <div class="space-y-2.5">
+                    <!-- Scrollable Map Variant List (~4 visible at once, scroll for more) -->
+                    <div class="map-scroll-container max-h-[305px] overflow-y-auto space-y-2.5 pr-1.5">
                         @foreach($mapVariants as $map)
                             <div class="bg-[#FAF8F8] border border-subtle rounded-xl p-3 flex items-center gap-3.5 hover:border-maroon/30 transition">
                                 <img src="{{ $map['image'] }}" 
                                      alt="{{ $map['name'] }}" 
-                                     class="w-10 h-10 rounded-lg object-cover border border-subtle flex-shrink-0 shadow-sm">
-                                <div class="min-w-0">
-                                    <h4 class="text-xs font-black text-[#18181B] tracking-wide">{{ $map['name'] }}</h4>
-                                    <p class="text-[10px] text-gray-400 font-medium truncate">{{ $map['desc'] }}</p>
+                                     class="w-10 h-10 rounded-lg object-cover border border-subtle flex-shrink-0 shadow-sm"
+                                     onerror="this.onerror=null; this.src='/images/maps/healing_turtle.webp';">
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center justify-between gap-1">
+                                        <h4 class="text-xs font-black text-[#18181B] tracking-wide">{{ $map['name'] }}</h4>
+                                        @if(!empty($map['is_new']))
+                                            <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 tracking-wider">BARU</span>
+                                        @endif
+                                    </div>
+                                    <p class="text-[10px] text-gray-500 font-medium truncate mt-0.5">{{ $map['desc'] }}</p>
                                 </div>
                             </div>
                         @endforeach
                     </div>
                 </div>
+
+                <div class="border-t border-gray-100 pt-3 mt-3 text-[10px] font-semibold text-gray-400 flex items-center justify-between">
+                    <span>Gulir untuk melihat seluruh varian map</span>
+                    <span class="text-maroon font-bold">↓ Scroll</span>
+                </div>
             </div>
 
         </section>
 
-        <!-- 6. ADMIN CALL-TO-ACTION CARD -->
+        <!-- 6. ADMIN CALL-TO-ACTION CARD (BY REQUEST ACCESS / PORTAL ADMIN) -->
         <section class="card-home p-5 flex items-center justify-between flex-wrap gap-4 border-l-4 border-l-maroon">
             <div class="flex items-center gap-3.5">
                 <div class="w-10 h-10 rounded-xl bg-maroon-subtle text-maroon flex items-center justify-center flex-shrink-0">
@@ -378,29 +437,44 @@
                         INGIN BERKONTRIBUSI SEBAGAI DATA ENTRY TURNAMEN ATAU ANALIS RISET?
                     </h3>
                     <p class="text-[11px] text-gray-500 mt-0.5">
-                        Portal Admin menyediakan panel kontrol untuk input match sheet resmi.
+                        Akses panel admin dibatasi melalui pengajuan verifikasi resmi. Tim kami akan mengirimkan kredensial via email.
                     </p>
                 </div>
             </div>
 
-            <div>
-                <a href="{{ route('login') }}" class="bg-maroon bg-maroon-hover text-white text-xs font-bold py-2.5 px-5 rounded-xl flex items-center gap-2 transition shadow-sm uppercase tracking-wider">
-                    <!-- Padlock Icon -->
+            <div class="flex items-center gap-2.5 flex-wrap">
+                <!-- Request Access Trigger Button -->
+                <button type="button" onclick="openRequestAccessModal()" 
+                        class="bg-maroon bg-maroon-hover text-white text-xs font-bold py-2.5 px-5 rounded-xl flex items-center gap-2 transition shadow-sm uppercase tracking-wider cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                    </svg>
+                    <span>AJUKAN AKSES ADMIN / ANALIS</span>
+                </button>
+
+                <!-- Direct Login Link for Existing Admins -->
+                <a href="{{ route('login') }}" class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-gray-700 hover:text-maroon border border-subtle text-xs font-bold py-2.5 px-4 rounded-xl flex items-center gap-1.5 transition uppercase tracking-wider">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                     </svg>
-                    <span>MASUK KE PORTAL ADMIN</span>
+                    <span>LOGIN LANGSUNG</span>
                 </a>
             </div>
         </section>
 
-        <!-- 7. FOOTER -->
-        <footer class="border-t border-subtle pt-5 flex items-center justify-between flex-wrap gap-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-            <div class="flex items-center gap-2">
+        <!-- 7. FOOTER DENGAN KREDIT ATRIBUSI RESMI LIQUIPEDIA -->
+        <footer class="border-t border-subtle pt-6 pb-2 flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+            <div class="flex items-center gap-2 flex-wrap">
                 <span class="w-2 h-2 rounded-full bg-maroon"></span>
                 <span>METASCOUT : LAND OF DAWN</span>
                 <span>•</span>
                 <span>ALL TIMESTAMPS IN UTC+7</span>
+                <span class="hidden sm:inline">•</span>
+                <a href="https://liquipedia.net/mobilelegends" target="_blank" rel="noopener noreferrer" 
+                   class="inline-flex items-center gap-1.5 text-[#0A285F] hover:text-[#0072CE] transition font-extrabold">
+                    <img src="/images/liquipedia_logo.svg" alt="Liquipedia Logo" class="w-3.5 h-3.5 object-contain">
+                    <span>CREDIT: LIQUIPEDIA MLBB API</span>
+                </a>
             </div>
             <div class="flex items-center gap-6">
                 <a href="{{ route('rules') }}" class="hover:text-maroon transition">API DOCUMENTATION</a>
@@ -409,6 +483,138 @@
         </footer>
 
     </div>
+
+    <!-- MODAL FORM PENGAJUAN AKSES ADMIN / ANALIS -->
+    <div id="requestAccessModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs transition-opacity">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-subtle relative max-h-[92vh] overflow-y-auto">
+            
+            <!-- Modal Header -->
+            <div class="flex items-start justify-between pb-4 border-b border-gray-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-maroon-subtle flex items-center justify-center text-maroon flex-shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-[#18181B] tracking-tight uppercase">
+                            Pengajuan Akses Admin & Analis
+                        </h3>
+                        <p class="text-xs text-gray-500 mt-0.5">
+                            Lengkapi data verifikasi untuk mendapatkan akun data entry & riset.
+                        </p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeRequestAccessModal()" class="text-gray-400 hover:text-gray-700 p-1.5 rounded-full hover:bg-gray-100 transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Form -->
+            <form action="{{ route('admin.request.access') }}" method="POST" class="space-y-4 mt-5">
+                @csrf
+
+                <!-- Nama Lengkap -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                        Nama Lengkap <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="name" required placeholder="Contoh: Ellois Karina Handoyo"
+                           class="w-full px-4 py-2.5 bg-[#FAF8F8] border border-subtle rounded-xl text-xs font-semibold focus:outline-none focus:border-maroon focus:bg-white transition">
+                </div>
+
+                <!-- Email Resmi -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                        Alamat Email Resmi <span class="text-red-500">*</span>
+                    </label>
+                    <input type="email" name="email" required placeholder="analyst@universitas.ac.id atau email@team.gg"
+                           class="w-full px-4 py-2.5 bg-[#FAF8F8] border border-subtle rounded-xl text-xs font-semibold focus:outline-none focus:border-maroon focus:bg-white transition">
+                </div>
+
+                <!-- Peran / Afiliasi -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                        Peran / Instansi Afiliasi <span class="text-red-500">*</span>
+                    </label>
+                    <select name="role" required class="w-full px-4 py-2.5 bg-[#FAF8F8] border border-subtle rounded-xl text-xs font-semibold focus:outline-none focus:border-maroon focus:bg-white transition">
+                        <option value="Mahasiswa / Peneliti Akademik">Mahasiswa / Peneliti Akademik (Riset Skripsi)</option>
+                        <option value="Data Analyst / Coach Tim Esports">Data Analyst / Coach Tim Esports</option>
+                        <option value="Data Entry Turnamen Resmi">Data Entry Turnamen Resmi</option>
+                        <option value="Kontributor Independen MLBB">Kontributor Independen MLBB</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+                </div>
+
+                <!-- Alasan & Kebutuhan Akses -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                        Alasan & Kebutuhan Akses <span class="text-red-500">*</span>
+                    </label>
+                    <textarea name="reason" rows="3" required placeholder="Jelaskan tujuan penggunaan akses panel admin MetaScout..."
+                              class="w-full px-4 py-2.5 bg-[#FAF8F8] border border-subtle rounded-xl text-xs font-semibold focus:outline-none focus:border-maroon focus:bg-white transition resize-none"></textarea>
+                </div>
+
+                <!-- Notice -->
+                <div class="bg-[#FAF8F8] border border-subtle rounded-xl p-3 text-[11px] text-gray-500 leading-relaxed flex items-start gap-2">
+                    <span class="text-maroon font-bold text-sm">ℹ</span>
+                    <span>Permohonan Anda akan diverifikasi oleh superadmin MetaScout. Kredensial login dan panduan akses akan dikirimkan langsung ke email Anda.</span>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="pt-2 flex items-center justify-between gap-3">
+                    <a href="{{ route('login') }}" class="text-xs font-bold text-gray-500 hover:text-maroon underline transition">
+                        Sudah punya akun? Login langsung
+                    </a>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="closeRequestAccessModal()" 
+                                class="px-4 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-xl transition cursor-pointer">
+                            Batal
+                        </button>
+                        <button type="submit" 
+                                class="bg-maroon bg-maroon-hover text-white text-xs font-bold py-2.5 px-5 rounded-xl transition shadow-sm uppercase tracking-wider cursor-pointer">
+                            Kirim Pengajuan
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Modal Control -->
+    <script>
+        function openRequestAccessModal() {
+            const modal = document.getElementById('requestAccessModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeRequestAccessModal() {
+            const modal = document.getElementById('requestAccessModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Close on backdrop click
+        document.getElementById('requestAccessModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeRequestAccessModal();
+            }
+        });
+
+        // Close on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeRequestAccessModal();
+            }
+        });
+    </script>
 
 </body>
 </html>

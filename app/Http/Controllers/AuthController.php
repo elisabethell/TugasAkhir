@@ -94,4 +94,21 @@ class AuthController extends Controller
 
         return redirect()->route('home')->with('info', 'Sesi admin Anda telah diakhiri dengan aman.');
     }
+
+    /**
+     * Menangani formulir pengajuan akses Admin / Analis Riset
+     */
+    public function requestAccess(Request $request)
+    {
+        $request->validate([
+            'name'   => 'required|string|max:100',
+            'email'  => 'required|email|max:150',
+            'role'   => 'required|string|max:100',
+            'reason' => 'required|string|max:500',
+        ]);
+
+        \Illuminate\Support\Facades\Log::info("Admin Access Request from {$request->input('name')} ({$request->input('email')}) - Role: {$request->input('role')}. Reason: {$request->input('reason')}");
+
+        return redirect()->route('home')->with('success_request', "Terima kasih, {$request->input('name')}! Pengajuan akses Anda telah diterima. Tim verifikator MetaScout akan meninjau dan mengirimkan kredensial akses ke email {$request->input('email')}.");
+    }
 }
