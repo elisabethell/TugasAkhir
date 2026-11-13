@@ -72,9 +72,9 @@ class HomeController extends Controller
         // 4. Versi Patch Aktif Turnamen (Patch 1.9.14)
         $patchVersion = '1.9.14';
 
-        // 5. 4 Hero Terkontes Teratas (Pick + Ban)
+        // 5. 6 Hero Terkontes Teratas (Pick + Ban)
         $topStats = $this->csvService->getTournamentStatistics();
-        $topHeroesRaw = array_slice($topStats, 0, 4);
+        $topHeroesRaw = array_slice($topStats, 0, 6);
 
         $topHeroes = array_map(function($h, $idx) {
             $highlight = match($idx) {

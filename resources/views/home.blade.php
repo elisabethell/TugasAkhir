@@ -370,18 +370,18 @@
 
                 <!-- Footer Link -->
                 <div class="border-t border-gray-100 pt-3.5 mt-2 flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-gray-400 flex-wrap gap-2">
-                    <span>MENAMPILKAN 4 DARI HERO TERKONTES TURNAMEN</span>
+                    <span>MENAMPILKAN {{ count($topHeroes) }} DARI HERO TERKONTES TURNAMEN</span>
                     <a href="{{ route('hero.statistics') }}" class="text-maroon hover:underline font-extrabold">
                         LIHAT STATISTIK SELURUH HERO &gt;
                     </a>
                 </div>
             </div>
 
-            <!-- Right: Varian Map Aktif (lg:col-span-4 - Scrollable container for ~4 visible, all accessible) -->
+            <!-- Right: Varian Map Aktif (lg:col-span-4 - Vision sejajar ke bawah dengan tabel top pick ban) -->
             <div class="lg:col-span-4 card-home p-6 flex flex-col justify-between">
-                <div>
+                <div class="flex-1 flex flex-col min-h-0">
                     <!-- Title -->
-                    <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center justify-between mb-3.5">
                         <div class="flex items-center gap-2">
                             <span class="w-2.5 h-2.5 rounded-full bg-maroon"></span>
                             <h2 class="text-xs font-black text-[#18181B] uppercase tracking-wider">
@@ -393,8 +393,8 @@
                         </span>
                     </div>
 
-                    <!-- Scrollable Map Variant List (~4 visible at once, scroll for more) -->
-                    <div class="map-scroll-container max-h-[305px] overflow-y-auto space-y-2.5 pr-1.5">
+                    <!-- Scrollable Map Variant List (Vision diperpanjang ke bawah agar sejajar presisi dengan tabel hero) -->
+                    <div class="map-scroll-container flex-1 overflow-y-auto space-y-2.5 pr-1.5 max-h-[365px]">
                         @foreach($mapVariants as $map)
                             <div class="bg-[#FAF8F8] border border-subtle rounded-xl p-3 flex items-center gap-3.5 hover:border-maroon/30 transition">
                                 <img src="{{ $map['image'] }}" 
@@ -415,9 +415,9 @@
                     </div>
                 </div>
 
-                <div class="border-t border-gray-100 pt-3 mt-3 text-[10px] font-semibold text-gray-400 flex items-center justify-between">
-                    <span>Gulir untuk melihat seluruh varian map</span>
-                    <span class="text-maroon font-bold">↓ Scroll</span>
+                <div class="border-t border-gray-100 pt-3.5 mt-2 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                    <span>GULIR UNTUK MELIHAT SELURUH VARIAN MAP</span>
+                    <span class="text-maroon font-extrabold">↓ SCROLL</span>
                 </div>
             </div>
 
