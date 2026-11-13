@@ -82,6 +82,9 @@
                 <a href="{{ route('hero.statistics') }}" class="text-gray-600 hover:text-maroon hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition">
                     STATISTIK HERO
                 </a>
+                <a href="{{ route('rules') }}" class="text-gray-600 hover:text-maroon hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition" title="Knowledge Base & Rules Inspector RBR">
+                    RULES RBR
+                </a>
             </nav>
 
             <!-- Admin Login / Console Action -->
@@ -394,7 +397,7 @@
                     </div>
 
                     <!-- Scrollable Map Variant List (Vision diperpanjang ke bawah agar sejajar presisi dengan tabel hero) -->
-                    <div class="map-scroll-container flex-1 overflow-y-auto space-y-2.5 pr-1.5 max-h-[365px]">
+                    <div class="map-scroll-container flex-1 overflow-y-auto space-y-2.5 pr-1.5 pt-1 pb-1 max-h-[425px]">
                         @foreach($mapVariants as $map)
                             <div class="bg-[#FAF8F8] border border-subtle rounded-xl p-3 flex items-center gap-3.5 hover:border-maroon/30 transition">
                                 <img src="{{ $map['image'] }}" 

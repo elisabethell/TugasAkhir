@@ -610,11 +610,13 @@ class DraftController extends Controller
 
     public function analyze(Request $request)
     {
-        $enemyTeam = $request->input('enemy_team', []);
-        $lane = $request->input('lane', 'all');
-        $role = $request->input('role', 'all');
+        $myTeam = (array) $request->input('my_team', $request->input('ally_team', []));
+        $enemyTeam = (array) $request->input('enemy_team', []);
+        $map = $request->input('map', null);
+        $myLanes = (array) $request->input('my_lanes', $request->input('ally_lanes', []));
+        $enemyLanes = (array) $request->input('enemy_lanes', []);
 
-        $result = $this->engine->analyze([], $enemyTeam, null);
+        $result = $this->engine->analyze($myTeam, $enemyTeam, $map, $myLanes, $enemyLanes);
 
         return response()->json($result);
     }

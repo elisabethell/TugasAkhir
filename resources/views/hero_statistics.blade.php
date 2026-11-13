@@ -116,20 +116,20 @@
                             data-br="{{ $row['ban_rate'] }}">
                             
                             <!-- Index -->
-                            <td class="py-2 px-3 text-center font-bold text-gray-400 text-xs align-middle">
+                            <td class="py-1 px-2.5 text-center font-bold text-gray-400 text-xs align-middle">
                                 {{ $idx + 1 }}
                             </td>
 
                             <!-- Hero Name with Avatar Box -->
-                            <td class="py-2 px-3.5 align-middle">
-                                <div class="flex items-center gap-2.5">
+                            <td class="py-1 px-3 align-middle">
+                                <div class="flex items-center gap-2">
                                     @if(!empty($row['portrait']))
                                         <img src="{{ $row['portrait'] }}" 
                                              alt="{{ $row['name'] }}" 
-                                             class="w-7 h-7 rounded-full object-cover border border-[#F3E8E8] flex-shrink-0"
+                                             class="w-6 h-6 rounded-full object-cover border border-[#F3E8E8] flex-shrink-0"
                                              onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($row['name']) }}&background=700B1A&color=fff';">
                                     @else
-                                        <div class="w-7 h-7 rounded-full flex items-center justify-center font-black text-xs shadow-sm flex-shrink-0 {{ $row['initial_bg'] }}">
+                                        <div class="w-6 h-6 rounded-full flex items-center justify-center font-black text-xs shadow-sm flex-shrink-0 {{ $row['initial_bg'] }}">
                                             {{ $row['initial'] }}
                                         </div>
                                     @endif
@@ -140,61 +140,61 @@
                             </td>
 
                             <!-- Win Rate -->
-                            <td class="py-2 px-3.5 font-mono align-middle">
+                            <td class="py-1 px-3 font-mono align-middle">
                                 <div class="flex flex-col justify-center leading-tight">
                                     @if($row['wr'] >= 58)
                                         <div class="font-extrabold text-emerald-600 text-xs leading-none">
                                             {{ number_format($row['wr'], 2) }}%
                                         </div>
-                                        <div class="text-[8.5px] font-extrabold text-emerald-600 tracking-wider mt-0.5">HIGH</div>
+                                        <div class="text-[8px] font-extrabold text-emerald-600 tracking-wider">HIGH</div>
                                     @elseif($row['wr'] >= 50)
                                         <div class="font-extrabold text-gray-700 text-xs leading-none">
                                             {{ number_format($row['wr'], 2) }}%
                                         </div>
-                                        <div class="text-[8.5px] font-bold text-gray-500 tracking-wider mt-0.5">AVERAGE</div>
+                                        <div class="text-[8px] font-bold text-gray-500 tracking-wider">AVERAGE</div>
                                     @else
                                         <div class="font-extrabold text-red-600 text-xs leading-none">
                                             {{ number_format($row['wr'], 2) }}%
                                         </div>
-                                        <div class="text-[8.5px] font-extrabold text-red-600 tracking-wider mt-0.5">LOW</div>
+                                        <div class="text-[8px] font-extrabold text-red-600 tracking-wider">LOW</div>
                                     @endif
                                 </div>
                             </td>
 
                             <!-- Pick Rate -->
-                            <td class="py-2 px-3.5 font-mono align-middle">
+                            <td class="py-1 px-3 font-mono align-middle">
                                 <div class="flex flex-col justify-center leading-tight">
                                     <div class="font-bold text-gray-800 text-xs leading-none">
                                         {{ number_format($row['pick_rate'], 2) }}%
                                     </div>
-                                    <div class="text-[8.5px] font-semibold text-gray-400 uppercase tracking-wider mt-0.5">
+                                    <div class="text-[8px] font-semibold text-gray-400 uppercase tracking-wider">
                                         {{ $row['pick_tag'] }}
                                     </div>
                                 </div>
                             </td>
 
                             <!-- Ban Rate -->
-                            <td class="py-2 px-3.5 font-mono align-middle">
+                            <td class="py-1 px-3 font-mono align-middle">
                                 <div class="flex flex-col justify-center leading-tight">
                                     @if($row['ban_rate'] >= 50)
                                         <div class="font-extrabold text-red-600 text-xs leading-none">
                                             {{ number_format($row['ban_rate'], 2) }}%
                                         </div>
-                                        <div class="text-[8.5px] font-extrabold text-red-600 uppercase tracking-wider mt-0.5">
+                                        <div class="text-[8px] font-extrabold text-red-600 uppercase tracking-wider">
                                             OFTEN BANNED
                                         </div>
                                     @elseif($row['ban_rate'] >= 20)
                                         <div class="font-bold text-gray-700 text-xs leading-none">
                                             {{ number_format($row['ban_rate'], 2) }}%
                                         </div>
-                                        <div class="text-[8.5px] font-semibold text-gray-400 uppercase tracking-wider mt-0.5">
+                                        <div class="text-[8px] font-semibold text-gray-400 uppercase tracking-wider">
                                             MODERATE
                                         </div>
                                     @else
                                         <div class="font-bold text-gray-700 text-xs leading-none">
                                             {{ number_format($row['ban_rate'], 2) }}%
                                         </div>
-                                        <div class="text-[8.5px] font-semibold text-gray-400 uppercase tracking-wider mt-0.5">
+                                        <div class="text-[8px] font-semibold text-gray-400 uppercase tracking-wider">
                                             LOW
                                         </div>
                                     @endif
@@ -202,15 +202,15 @@
                             </td>
 
                             <!-- Role -->
-                            <td class="py-2 px-3.5 text-gray-700 font-medium text-xs align-middle">
+                            <td class="py-1 px-3 text-gray-700 font-medium text-xs align-middle">
                                 <span class="leading-none">{{ $row['role'] }}</span>
                             </td>
 
                             <!-- Lane Pills -->
-                            <td class="py-2 px-3.5 align-middle">
+                            <td class="py-1 px-3 align-middle">
                                 <div class="flex items-center gap-1 flex-wrap">
                                     @foreach((array)$row['lane'] as $l)
-                                        <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-600 text-[10px] font-semibold px-2 py-0.5 rounded leading-tight">
+                                        <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-600 text-[9.5px] font-semibold px-1.5 py-0.2 rounded leading-tight">
                                             {{ $l }}
                                         </span>
                                     @endforeach
@@ -218,10 +218,10 @@
                             </td>
 
                             <!-- Speciality Pills -->
-                            <td class="py-2 px-3.5 align-middle">
+                            <td class="py-1 px-3 align-middle">
                                 <div class="flex items-center gap-1 flex-wrap">
                                     @foreach((array)$row['speciality'] as $s)
-                                        <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-600 text-[10px] font-semibold px-2 py-0.5 rounded leading-tight">
+                                        <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-600 text-[9.5px] font-semibold px-1.5 py-0.2 rounded leading-tight">
                                             {{ $s }}
                                         </span>
                                     @endforeach

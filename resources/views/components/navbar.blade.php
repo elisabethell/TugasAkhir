@@ -17,7 +17,7 @@
         </a>
     </div>
 
-    <!-- Navigation Links: Tepat 5 Halaman Publik Sesuai Permintaan -->
+    <!-- Navigation Links: Halaman Publik & Rules RBR -->
     <nav class="flex items-center gap-1.5 sm:gap-2 flex-wrap text-xs font-bold uppercase tracking-wider">
         <a href="{{ route('home') }}" 
            class="{{ request()->routeIs('home') ? 'bg-[#700B1A] text-white shadow-sm' : 'text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE]' }} px-4 py-1.5 rounded-full transition">
@@ -38,6 +38,11 @@
         <a href="{{ route('hero.statistics') }}" 
            class="{{ request()->routeIs('hero.statistics') ? 'bg-[#700B1A] text-white shadow-sm' : 'text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE]' }} px-3.5 py-1.5 rounded-full transition">
             STATISTIK HERO
+        </a>
+        <a href="{{ route('rules') }}" 
+           class="{{ request()->routeIs('rules') ? 'bg-[#700B1A] text-white shadow-sm' : 'text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE]' }} px-3.5 py-1.5 rounded-full transition"
+           title="Knowledge Base & Rules Inspector RBR untuk Dosen Penguji">
+            RULES RBR
         </a>
     </nav>
 

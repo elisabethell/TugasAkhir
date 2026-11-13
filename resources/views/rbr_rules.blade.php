@@ -1,79 +1,185 @@
 @extends('layouts.app')
 
-@section('title', 'Knowledge Base Aturan RBR - MetaScout: Land of Dawn')
+@section('title', 'Rule Inspector Dosen - Knowledge Base RBR MetaScout')
 
 @section('content')
 <div class="space-y-6">
 
-    <!-- HEADER & ACADEMIC CONTEXT -->
-    <div class="card-custom p-6 sm:p-8 bg-gradient-to-r from-[#111827] via-[#1e1b4b] to-[#0f172a] border border-gray-800">
-        <div class="max-w-3xl">
-            <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-cyan-950 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-2 border border-cyan-800">
-                <span>🧠 Transparansi Akademik • Expert System Knowledge Base</span>
+    <!-- 1. ACADEMIC HEADER & DOSEN INSPECTOR TITLE -->
+    <div class="card-custom p-6 sm:p-8 bg-gradient-to-r from-[#18181B] via-[#2A050B] to-[#700B1A] border border-[#F8B4BD]/30 shadow-md text-white relative overflow-hidden">
+        <div class="max-w-4xl relative z-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-rose-200 text-xs font-black uppercase tracking-wider mb-3 border border-white/20">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>PANEL VERIFIKASI SIDANG SKRIPSI • RULE INSPECTOR DOSEN</span>
             </div>
-            <h1 class="text-3xl font-extrabold text-white tracking-tight">
-                Pangkalan Pengetahuan Aturan (RBR Rules)
+            <h1 class="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
+                Pangkalan Pengetahuan Aturan (RBR Rule Inspector)
             </h1>
-            <p class="text-gray-300 text-sm mt-2 leading-relaxed">
-                Daftar basis aturan formal <strong class="text-cyan-400 font-mono">IF-THEN</strong> yang disimpan pada tabel database <code class="text-gray-200 bg-gray-800 px-1 py-0.5 rounded">rbr_rules</code>.
-                Aturan ini digunakan oleh mesin inferensi <em>Forward Chaining</em> untuk menganalisis komposisi draft hero, memprediksi kurva <em>power spike</em>, dan merumuskan panduan gameplay serta <em>winning condition</em> taktis.
+            <p class="text-gray-200 text-xs sm:text-sm mt-2.5 leading-relaxed font-medium">
+                Daftar basis aturan formal <strong class="text-white font-mono bg-white/20 px-1.5 py-0.5 rounded">IF-THEN</strong> pada tabel database <code class="text-rose-200 bg-black/40 px-1.5 py-0.5 rounded font-mono">rbr_rules</code>.
+                Aturan-aturan ini dieksekusi oleh mesin inferensi <em>Forward Chaining</em> untuk memvalidasi batasan komposisi tim (keseimbangan damage magic/physical), memicu counter pick terhadap hero ancaman lawan, serta merumuskan panduan <em>winning condition</em> berbasis data turnamen MPL ID S18.
             </p>
-            <div class="mt-4 flex flex-wrap gap-2 text-xs">
-                <span class="bg-gray-800/80 text-gray-300 px-3 py-1 rounded-lg border border-gray-700">Metode: Rule-Based Reasoning (RBR)</span>
-                <span class="bg-gray-800/80 text-gray-300 px-3 py-1 rounded-lg border border-gray-700">Mesin Inferensi: Forward Chaining</span>
-                <span class="bg-cyan-950 text-cyan-300 px-3 py-1 rounded-lg border border-cyan-800 font-bold">Total: {{ count($rules) }} Aturan Aktif</span>
+
+            <!-- Metrics Pills -->
+            <div class="mt-5 flex flex-wrap items-center gap-2.5 text-xs font-bold">
+                <span class="bg-black/40 text-gray-200 px-3 py-1.5 rounded-xl border border-white/10 flex items-center gap-1.5">
+                    <span class="text-rose-300">Metode:</span> Rule-Based Reasoning (RBR)
+                </span>
+                <span class="bg-black/40 text-gray-200 px-3 py-1.5 rounded-xl border border-white/10 flex items-center gap-1.5">
+                    <span class="text-rose-300">Inferensi:</span> Forward Chaining (Data-Driven)
+                </span>
+                <span class="bg-emerald-500/20 text-emerald-300 px-3 py-1.5 rounded-xl border border-emerald-500/30 font-black flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Total: {{ $allRulesCount }} Aturan Terdaftar
+                </span>
             </div>
         </div>
-    </div>
 
-    <!-- FILTER / SEARCH BAR -->
-    <div class="card-custom p-4 bg-[#121620] border-gray-800 flex justify-between items-center flex-wrap gap-4">
-        <div class="flex-1 min-w-[240px]">
-            <input type="text" id="rule-search" onkeyup="filterRules()" placeholder="Cari isi aturan IF atau THEN (misal: Pick-Off, Teamfight, Broken Walls)..." 
-                   class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3.5 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500">
-        </div>
-        <div class="flex items-center gap-2">
-            <a href="{{ route('draft.analyzer') }}" class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-extrabold rounded-lg text-xs tracking-wider uppercase transition shadow-[0_0_15px_rgba(0,242,255,0.25)]">
-                🎮 Coba di Rekomendasi Draft
-            </a>
+        <!-- Decorative Watermark Background Icon -->
+        <div class="absolute right-[-20px] bottom-[-30px] opacity-10 pointer-events-none select-none text-white">
+            <svg class="w-64 h-64" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+            </svg>
         </div>
     </div>
 
-    <!-- DAFTAR ATURAN RBR -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="rules-container">
+    <!-- 2. QUICK TEST GUIDE FOR EXAMINER / DOSEN -->
+    <div class="card-custom p-4 sm:p-5 bg-[#FAF8F8] border border-[#F3E8E8] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-[#FCECEE] text-[#700B1A] flex items-center justify-center font-black flex-shrink-0 text-lg">
+                💡
+            </div>
+            <div>
+                <h3 class="text-xs font-black text-[#18181B] uppercase tracking-wider">
+                    Panduan Pengujian Sidang Skripsi (Live Validation)
+                </h3>
+                <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                    Dosen penguji dapat memvalidasi kinerja inferensi sistem pakar secara langsung:
+                    <strong>1) Uji Aturan Mage Wajib</strong> (pilih 4 hero non-mage di Tim Sekutu, amati apakah sistem otomatis merekomendasikan Mage di Top 1), 
+                    <strong>2) Uji Counter Assassin</strong> (masukkan Fanny/Ling ke Tim Musuh, amati apakah Khufra/Kaja otomatis di-boost).
+                </p>
+            </div>
+        </div>
+
+        <a href="{{ route('draft.recommendation') }}" class="bg-[#700B1A] hover:bg-[#550713] text-white text-xs font-bold py-2.5 px-4 rounded-xl flex items-center gap-2 transition shadow-sm uppercase tracking-wider flex-shrink-0">
+            <span>Buka Arena Draft Simulator</span>
+            <span>&rarr;</span>
+        </a>
+    </div>
+
+    <!-- 3. SEARCH & CATEGORY FILTER TABS -->
+    <div class="card-custom p-4 flex flex-col md:flex-row items-center justify-between gap-3 flex-wrap">
+        
+        <!-- Search Input -->
+        <div class="relative w-full md:w-80 flex-shrink-0">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </span>
+            <input type="text" 
+                   id="ruleSearchInput" 
+                   oninput="filterRules()" 
+                   placeholder="Cari rule code, hero, premis IF, atau kesimpulan THEN..." 
+                   class="w-full bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl py-2 pl-9 pr-3 text-xs font-medium text-[#18181B] placeholder-gray-400 focus:outline-none focus:border-[#700B1A] transition">
+        </div>
+
+        <!-- Category Filter Buttons -->
+        <div class="flex items-center gap-1.5 flex-wrap">
+            <button type="button" onclick="setCategoryFilter('all', this)" class="category-btn bg-[#700B1A] text-white px-3 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider shadow-sm transition">
+                Semua ({{ $allRulesCount }})
+            </button>
+            <button type="button" onclick="setCategoryFilter('composition', this)" class="category-btn bg-[#FAF8F8] text-gray-700 hover:bg-[#FCECEE] hover:text-[#700B1A] border border-[#F3E8E8] px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition">
+                Komposisi Mutlak ({{ $compositionCount }})
+            </button>
+            <button type="button" onclick="setCategoryFilter('synergy', this)" class="category-btn bg-[#FAF8F8] text-gray-700 hover:bg-[#FCECEE] hover:text-[#700B1A] border border-[#F3E8E8] px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition">
+                Sinergi ({{ $synergyCount }})
+            </button>
+            <button type="button" onclick="setCategoryFilter('counter', this)" class="category-btn bg-[#FAF8F8] text-gray-700 hover:bg-[#FCECEE] hover:text-[#700B1A] border border-[#F3E8E8] px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition">
+                Counter Pick ({{ $counterCount }})
+            </button>
+            <button type="button" onclick="setCategoryFilter('powerspike', this)" class="category-btn bg-[#FAF8F8] text-gray-700 hover:bg-[#FCECEE] hover:text-[#700B1A] border border-[#F3E8E8] px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition">
+                Power Spike & Map ({{ $powerSpikeCount }})
+            </button>
+        </div>
+
+    </div>
+
+    <!-- 4. LIST OF ACADEMIC RBR RULES (2 COLUMNS CARDS) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="rulesListContainer">
         @foreach($rules as $rule)
-            <div class="rule-card card-custom p-5 bg-[#121620] border-gray-800 hover:border-cyan-500/50 transition space-y-3"
-                 data-content="{{ strtolower($rule->kondisi_if . ' ' . $rule->kesimpulan_then) }}">
+            @php
+                $cat = strtolower($rule->category ?? 'synergy');
+                $catBadgeStyle = match($cat) {
+                    'composition' => 'bg-amber-100 text-amber-900 border-amber-300',
+                    'counter'     => 'bg-rose-100 text-rose-900 border-rose-300',
+                    'powerspike'  => 'bg-indigo-100 text-indigo-900 border-indigo-300',
+                    default       => 'bg-emerald-100 text-emerald-900 border-emerald-300',
+                };
+                $confidence = $rule->confidence_weight ?? 0.85;
+                $confPct = (int)($confidence * 100);
+            @endphp
+            <div class="rule-card card-custom p-5 space-y-3.5 hover:border-[#700B1A]/40 transition shadow-sm bg-white"
+                 data-category="{{ $cat }}"
+                 data-search="{{ strtolower(($rule->rule_code ?? '') . ' ' . ($rule->category ?? '') . ' ' . $rule->if_condition . ' ' . $rule->then_recommendation . ' ' . ($rule->description ?? '')) }}">
                 
-                <div class="flex items-center justify-between border-b border-gray-800/80 pb-2.5">
-                    <span class="text-xs font-mono font-bold text-cyan-400">
-                        Rule #{{ $rule->id_rule }}
-                    </span>
-                    <span class="text-[10px] px-2 py-0.5 rounded font-semibold {{ $rule->status_aktif ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-gray-800 text-gray-500' }}">
-                        {{ $rule->status_aktif ? 'Aktif ●' : 'Nonaktif' }}
-                    </span>
+                <!-- Card Header -->
+                <div class="flex items-center justify-between border-b border-gray-100 pb-3 flex-wrap gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="font-mono font-black text-xs px-2.5 py-1 rounded-md bg-[#FAF8F8] border border-[#F3E8E8] text-[#700B1A]">
+                            {{ $rule->rule_code ?: 'RBR-' . str_pad($rule->id_rule, 2, '0', STR_PAD_LEFT) }}
+                        </span>
+                        <span class="text-[9.5px] font-black uppercase px-2 py-0.5 rounded-full border {{ $catBadgeStyle }}">
+                            {{ strtoupper($rule->category ?: 'SYNERGY') }}
+                        </span>
+                    </div>
+
+                    <!-- Confidence Weight Pill -->
+                    <div class="flex items-center gap-1.5 text-[11px] font-black text-gray-700">
+                        <span class="text-gray-400 font-semibold text-[10px]">Confidence:</span>
+                        <span class="text-[#700B1A] font-mono">{{ number_format($confidence, 2) }}</span>
+                        <span class="text-[9px] text-gray-400">({{ $confPct }}%)</span>
+                    </div>
                 </div>
 
+                <!-- Premise & Conclusion Blocks -->
                 <div class="space-y-2 text-xs">
-                    <!-- IF CONDITION -->
-                    <div class="p-3 bg-gray-900/80 border border-gray-800 rounded-lg">
-                        <span class="text-[10px] font-black text-amber-400 uppercase tracking-wider block mb-1">
-                            PREMIS (KONDISI IF):
+                    <!-- IF Condition (Premise) -->
+                    <div class="p-3 bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl space-y-1">
+                        <span class="text-[9.5px] font-black text-amber-700 uppercase tracking-wider block flex items-center gap-1">
+                            <span>PREMIS (KONDISI IF):</span>
                         </span>
-                        <p class="text-gray-200 leading-relaxed font-mono text-[11px]">
-                            {{ $rule->kondisi_if }}
+                        <p class="text-[#18181B] font-mono text-[11px] leading-relaxed">
+                            {{ $rule->if_condition }}
                         </p>
                     </div>
 
-                    <!-- THEN CONCLUSION -->
-                    <div class="p-3 bg-cyan-950/20 border border-cyan-900/40 rounded-lg">
-                        <span class="text-[10px] font-black text-cyan-400 uppercase tracking-wider block mb-1">
-                            KESIMPULAN (AKSI THEN):
+                    <!-- THEN Action (Conclusion) -->
+                    <div class="p-3 bg-[#FCECEE]/40 border border-[#F8B4BD]/60 rounded-xl space-y-1">
+                        <span class="text-[9.5px] font-black text-[#700B1A] uppercase tracking-wider block flex items-center gap-1">
+                            <span>KESIMPULAN (AKSI THEN & REKOMENDASI):</span>
                         </span>
-                        <p class="text-cyan-100 leading-relaxed">
-                            {{ $rule->kesimpulan_then }}
+                        <p class="text-[#700B1A] font-semibold text-[11px] leading-relaxed">
+                            {{ $rule->then_recommendation }}
                         </p>
                     </div>
+                </div>
+
+                <!-- Academic Justification / Description -->
+                @if(!empty($rule->description))
+                    <div class="pt-2 border-t border-gray-100 text-[10.5px] text-gray-500 leading-relaxed">
+                        <span class="font-bold text-gray-700">Justifikasi Akademik:</span> {{ $rule->description }}
+                    </div>
+                @endif
+
+                <!-- Card Bottom Status -->
+                <div class="flex items-center justify-between pt-1 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                    <span class="flex items-center gap-1 text-emerald-600">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        Status: Aktif di Engine
+                    </span>
+                    <a href="{{ route('draft.recommendation') }}" class="text-[#700B1A] hover:underline font-extrabold">
+                        Uji di Simulator &rarr;
+                    </a>
                 </div>
 
             </div>
@@ -84,13 +190,31 @@
 
 @push('scripts')
 <script>
+    let currentCategory = 'all';
+
+    function setCategoryFilter(category, btn) {
+        currentCategory = category.toLowerCase();
+        
+        document.querySelectorAll('.category-btn').forEach(b => {
+            b.className = 'category-btn bg-[#FAF8F8] text-gray-700 hover:bg-[#FCECEE] hover:text-[#700B1A] border border-[#F3E8E8] px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition';
+        });
+        btn.className = 'category-btn bg-[#700B1A] text-white px-3 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider shadow-sm transition';
+
+        filterRules();
+    }
+
     function filterRules() {
-        const query = document.getElementById('rule-search').value.toLowerCase().trim();
+        const query = (document.getElementById('ruleSearchInput')?.value || '').toLowerCase().trim();
         const cards = document.querySelectorAll('.rule-card');
 
         cards.forEach(card => {
-            const content = card.getAttribute('data-content');
-            if (!query || content.includes(query)) {
+            const cardCat = (card.dataset.category || '').toLowerCase();
+            const cardSearch = (card.dataset.search || '').toLowerCase();
+
+            const matchCat = (currentCategory === 'all' || cardCat.includes(currentCategory));
+            const matchQuery = (!query || cardSearch.includes(query));
+
+            if (matchCat && matchQuery) {
                 card.style.display = '';
             } else {
                 card.style.display = 'none';

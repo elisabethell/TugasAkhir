@@ -3,22 +3,22 @@
 @section('title', 'Counter Picks - MetaScout: Land of Dawn')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-5">
 
-    <!-- 1. HEADER & RESET COUNTER PICKS -->
-    <div class="flex items-center justify-between flex-wrap gap-3 pt-2">
+    <!-- 1. HEADER SECTION -->
+    <div class="flex items-center justify-between flex-wrap gap-3 pt-1">
         <div>
             <h1 class="text-2xl sm:text-3xl font-black text-[#18181B] tracking-tight">
-                Counter Picks & Rekomendasi Lawan
+                Mobile Legends Counter Pick
             </h1>
             <p class="text-xs text-gray-500 font-medium mt-0.5">
-                Pilih 1–5 hero musuh untuk mendapatkan rekomendasi counter pick terbaik berdasarkan dataset turnamen & rule-based reasoning.
+                Strategize your team composition with optimal hero counters based on tournament statistics & rule-based reasoning.
             </p>
         </div>
 
         <button type="button" 
                 onclick="resetDraft()" 
-                class="bg-white hover:bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition">
+                class="bg-white hover:bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-2xs hover:border-[#700B1A] transition">
             <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
             </svg>
@@ -26,27 +26,38 @@
         </button>
     </div>
 
-    <!-- 2. TWO-COLUMN MAIN CONTENT -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <!-- 2. TWO-COLUMN MAIN CONTENT (LEFT: SELECT ENEMY HEROES | RIGHT: RECOMMENDED COUNTER PICKS) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
-        <!-- ================= LEFT COLUMN: SELECT ENEMY HEROES (5 cols) ================= -->
+        <!-- ================= LEFT COLUMN: SELECT ENEMY HEROES (5 COLS) ================= -->
         <div class="lg:col-span-5 space-y-4">
             
-            <div class="card-custom p-5 space-y-4">
-                <!-- Header -->
-                <div class="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#18181B]">
-                    <svg class="w-4 h-4 text-[#700B1A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                    </svg>
-                    <span>SELECT ENEMY HEROES (1–5)</span>
+            <div class="card-custom p-4 sm:p-5 space-y-4">
+                <!-- Section Header -->
+                <div>
+                    <h3 class="text-sm font-black uppercase tracking-wider text-[#18181B]">
+                        Select Enemy Heroes (1-5)
+                    </h3>
                 </div>
 
-                <!-- 5 Slots Row -->
-                <div class="grid grid-cols-5 gap-2 pt-2 px-1 pb-1" id="selectedSlotsContainer">
+                <!-- Enemy Team Slots Header -->
+                <div class="flex items-center justify-between text-xs font-extrabold text-gray-700 pt-1">
+                    <span class="flex items-center gap-1.5">
+                        <span>☠️</span>
+                        <span class="text-gray-800">Enemy team</span>
+                        <span id="enemySlotCounter" class="text-gray-400 font-semibold">(2/5)</span>
+                    </span>
+                    <a href="{{ route('draft.recommendation') }}" class="text-[10px] text-[#700B1A] hover:underline font-bold flex items-center gap-1">
+                        <span>Planning a full draft? Try Rekom Draft &rarr;</span>
+                    </a>
+                </div>
+
+                <!-- 5 Circular Slots Row -->
+                <div class="grid grid-cols-5 gap-2 pt-1 pb-1" id="selectedSlotsContainer">
                     <!-- Populated dynamically via JS -->
                 </div>
 
-                <!-- Search & Clear Row -->
+                <!-- Search Input & Clear Button -->
                 <div class="flex items-center gap-2">
                     <div class="relative flex-1">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
@@ -63,170 +74,79 @@
                     <button type="button" 
                             id="clearSelectedBtn" 
                             onclick="clearAllSelected()" 
-                            class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-gray-600 hover:text-[#700B1A] border border-[#F3E8E8] text-[11px] font-extrabold uppercase px-3 py-2 rounded-xl transition flex-shrink-0">
-                        CLEAR (0)
+                            class="bg-[#DC2626] hover:bg-[#B91C1C] text-white text-xs font-black uppercase px-3.5 py-2 rounded-xl transition flex-shrink-0 shadow-2xs">
+                        Clear (2)
                     </button>
                 </div>
 
-                <!-- Lane Filter Row -->
+                <!-- Lane Filter Pills (Left Side) -->
                 <div class="flex items-center gap-1.5 flex-wrap text-xs">
-                    <button type="button" onclick="setPickerLane('all', this)" class="picker-lane-btn px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#700B1A] text-white transition">All</button>
-                    <button type="button" onclick="setPickerLane('gold', this)" class="picker-lane-btn px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Gold Lane</button>
-                    <button type="button" onclick="setPickerLane('mid', this)" class="picker-lane-btn px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Mid Lane</button>
-                    <button type="button" onclick="setPickerLane('exp', this)" class="picker-lane-btn px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Exp Lane</button>
-                    <button type="button" onclick="setPickerLane('jungle', this)" class="picker-lane-btn px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Jungle</button>
-                    <button type="button" onclick="setPickerLane('roam', this)" class="picker-lane-btn px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Roam</button>
+                    <button type="button" onclick="setPickerLane('all', this)" class="picker-lane-btn px-3 py-1 rounded-full text-xs font-bold bg-[#700B1A] text-white transition shadow-2xs">All</button>
+                    <button type="button" onclick="setPickerLane('gold', this)" class="picker-lane-btn px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Gold</button>
+                    <button type="button" onclick="setPickerLane('mid', this)" class="picker-lane-btn px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Mid</button>
+                    <button type="button" onclick="setPickerLane('exp', this)" class="picker-lane-btn px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Exp</button>
+                    <button type="button" onclick="setPickerLane('jungle', this)" class="picker-lane-btn px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Jungle</button>
+                    <button type="button" onclick="setPickerLane('roam', this)" class="picker-lane-btn px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Roam</button>
                 </div>
 
-                <!-- Hero Grid Picker (6 columns) -->
-                <div class="grid grid-cols-6 gap-2 pt-2 max-h-[380px] overflow-y-auto pr-1" id="pickerGrid">
-                    <!-- Dynamic Hero Cards -->
+                <!-- Hero Grid Picker (6 columns circular avatar buttons) -->
+                <div class="grid grid-cols-6 gap-2 pt-1 max-h-[440px] overflow-y-auto pr-1" id="pickerGrid">
+                    <!-- Populated dynamically via JS -->
                 </div>
 
             </div>
 
         </div>
 
-        <!-- ================= RIGHT COLUMN: RECOMMENDED COUNTER PICKS (7 cols) ================= -->
+        <!-- ================= RIGHT COLUMN: RECOMMENDED COUNTER PICKS (7 COLS) ================= -->
         <div class="lg:col-span-7 space-y-4">
             
-            <div class="card-custom p-5 space-y-4">
+            <div class="card-custom p-4 sm:p-5 space-y-3.5">
                 <!-- Header -->
                 <div class="flex items-center justify-between flex-wrap gap-2">
                     <h3 class="text-sm font-black uppercase tracking-wider text-[#18181B]">
-                        RECOMMENDED COUNTER PICKS
+                        Recommended Counter Picks
                     </h3>
                 </div>
 
-                <!-- Filter Toolbar (Lane & Role) -->
-                <div class="space-y-2 text-xs border-b border-[#FAF0F1] pb-3">
-                    <!-- Lane Filters -->
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <span class="w-12 text-[10px] font-extrabold uppercase text-gray-400">LANE:</span>
-                        <div class="flex items-center gap-1 flex-wrap">
-                            <button type="button" onclick="setRecLane('all', this)" class="rec-lane-btn px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#700B1A] text-white transition">All</button>
-                            <button type="button" onclick="setRecLane('gold', this)" class="rec-lane-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#FAF8F8] text-gray-600 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Gold</button>
-                            <button type="button" onclick="setRecLane('mid', this)" class="rec-lane-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#FAF8F8] text-gray-600 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Mid</button>
-                            <button type="button" onclick="setRecLane('exp', this)" class="rec-lane-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#FAF8F8] text-gray-600 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Exp</button>
-                            <button type="button" onclick="setRecLane('jungle', this)" class="rec-lane-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#FAF8F8] text-gray-600 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Jungle</button>
-                            <button type="button" onclick="setRecLane('roam', this)" class="rec-lane-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#FAF8F8] text-gray-600 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Roam</button>
-                        </div>
+                <!-- Filter Toolbar: Lane & Role -->
+                <div class="flex items-center gap-3 flex-wrap text-xs bg-[#FAF8F8] border border-[#F3E8E8] p-2.5 rounded-xl">
+                    <!-- Lane Pills -->
+                    <div class="flex items-center gap-1 flex-wrap">
+                        <span class="text-[10px] font-black uppercase text-gray-400 mr-1">LANE</span>
+                        <button type="button" onclick="setRecLane('all', this)" class="rec-lane-btn px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#700B1A] text-white transition">All</button>
+                        <button type="button" onclick="setRecLane('gold', this)" class="rec-lane-btn px-2 py-0.5 rounded-md text-[10px] font-semibold bg-white text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Gold</button>
+                        <button type="button" onclick="setRecLane('mid', this)" class="rec-lane-btn px-2 py-0.5 rounded-md text-[10px] font-semibold bg-white text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Mid</button>
+                        <button type="button" onclick="setRecLane('exp', this)" class="rec-lane-btn px-2 py-0.5 rounded-md text-[10px] font-semibold bg-white text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Exp</button>
+                        <button type="button" onclick="setRecLane('jungle', this)" class="rec-lane-btn px-2 py-0.5 rounded-md text-[10px] font-semibold bg-white text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Jungle</button>
+                        <button type="button" onclick="setRecLane('roam', this)" class="rec-lane-btn px-2 py-0.5 rounded-md text-[10px] font-semibold bg-white text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Roam</button>
                     </div>
 
-                    <!-- Role Filters -->
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <span class="w-12 text-[10px] font-extrabold uppercase text-gray-400">ROLE:</span>
-                        <div class="flex items-center gap-1 flex-wrap">
-                            <button type="button" onclick="setRecRole('all', this)" class="rec-role-btn px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#700B1A] text-white transition">All</button>
-                            <button type="button" onclick="setRecRole('tank', this)" class="rec-role-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#FAF8F8] text-gray-600 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Tank</button>
-                            <button type="button" onclick="setRecRole('fighter', this)" class="rec-role-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#FAF8F8] text-gray-600 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Fighter</button>
-                            <button type="button" onclick="setRecRole('assassin', this)" class="rec-role-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#FAF8F8] text-gray-600 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Assassin</button>
-                            <button type="button" onclick="setRecRole('mage', this)" class="rec-role-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#FAF8F8] text-gray-600 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Mage</button>
-                            <button type="button" onclick="setRecRole('marksman', this)" class="rec-role-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#FAF8F8] text-gray-600 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Marksman</button>
-                            <button type="button" onclick="setRecRole('support', this)" class="rec-role-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#FAF8F8] text-gray-600 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Support</button>
-                        </div>
+                    <span class="text-gray-300">|</span>
+
+                    <!-- Role Pills -->
+                    <div class="flex items-center gap-1 flex-wrap">
+                        <span class="text-[10px] font-black uppercase text-gray-400 mr-1">ROLE</span>
+                        <button type="button" onclick="setRecRole('all', this)" class="rec-role-btn px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#700B1A] text-white transition">All</button>
+                        <button type="button" onclick="setRecRole('tank', this)" class="rec-role-btn px-2 py-0.5 rounded-md text-[10px] font-semibold bg-white text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Tank</button>
+                        <button type="button" onclick="setRecRole('fighter', this)" class="rec-role-btn px-2 py-0.5 rounded-md text-[10px] font-semibold bg-white text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Fighter</button>
+                        <button type="button" onclick="setRecRole('assassin', this)" class="rec-role-btn px-2 py-0.5 rounded-md text-[10px] font-semibold bg-white text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Assassin</button>
+                        <button type="button" onclick="setRecRole('mage', this)" class="rec-role-btn px-2 py-0.5 rounded-md text-[10px] font-semibold bg-white text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Mage</button>
+                        <button type="button" onclick="setRecRole('marksman', this)" class="rec-role-btn px-2 py-0.5 rounded-md text-[10px] font-semibold bg-white text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Marksman</button>
+                        <button type="button" onclick="setRecRole('support', this)" class="rec-role-btn px-2 py-0.5 rounded-md text-[10px] font-semibold bg-white text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition">Support</button>
                     </div>
+                </div>
+
+                <!-- Subtitle Info -->
+                <div class="text-[11px] text-gray-500 font-medium">
+                    Sorted by counter score &bull; Counter score bars are relative to the top result
                 </div>
 
                 <!-- Recommendation Cards List -->
-                <div class="space-y-3" id="recommendationsList">
-                    @foreach($defaultRecommendations as $rec)
-                        <div class="rec-card bg-white border border-[#F3E8E8] rounded-2xl p-4 shadow-sm hover:shadow-md transition relative {{ $rec['accent_border'] ? 'border-l-4 border-l-[#700B1A]' : '' }}"
-                             data-lane="{{ strtolower($rec['lane']) }}"
-                             data-role="{{ strtolower($rec['role']) }}">
-                            
-                            <div class="flex items-start justify-between gap-3">
-                                <!-- Left Info with Avatar -->
-                                <div class="flex items-start gap-3 min-w-0">
-                                    @if(!empty($rec['portrait']))
-                                        <img src="{{ $rec['portrait'] }}" 
-                                             alt="{{ $rec['hero'] }}" 
-                                             class="w-11 h-11 rounded-full object-cover bg-gray-100 border border-[#F3E8E8] flex-shrink-0"
-                                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($rec['hero']) }}&background=700B1A&color=fff';">
-                                    @else
-                                        <div class="w-11 h-11 rounded-full bg-[#FAF8F8] border border-[#F3E8E8] text-[#700B1A] font-black text-sm flex items-center justify-center flex-shrink-0">
-                                            {{ $rec['initial'] }}
-                                        </div>
-                                    @endif
-
-                                    <div class="min-w-0">
-                                        <div class="flex items-center gap-2">
-                                            <h4 class="font-extrabold text-sm text-[#18181B] truncate">
-                                                {{ $rec['hero'] }}
-                                            </h4>
-                                            @if(!empty($rec['tier']))
-                                                <span class="bg-[#700B1A] text-white text-[9px] font-black px-1.5 py-0.2 rounded-md">
-                                                    {{ $rec['tier'] }}
-                                                </span>
-                                            @endif
-                                        </div>
-                                        <p class="text-[11px] text-gray-500 font-medium truncate mt-0.5">
-                                            Role: {{ $rec['role'] }} • Lane: {{ $rec['lane'] }}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <!-- Win Rate Right -->
-                                <div class="text-right flex-shrink-0">
-                                    <div class="font-mono font-black text-sm text-[#18181B]">
-                                        {{ $rec['win_rate'] }}
-                                    </div>
-                                    <div class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
-                                        {{ $rec['win_rate_label'] }}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Impact Index Bar -->
-                            <div class="mt-3 pt-2.5 border-t border-[#FAF0F1]">
-                                <div class="flex items-center justify-between text-[10px] font-bold text-gray-400 mb-1">
-                                    <span class="uppercase tracking-wider">COUNTER IMPACT INDEX</span>
-                                    <span class="text-[#18181B] font-extrabold">{{ $rec['impact_score'] }} / 5.0</span>
-                                </div>
-                                <div class="w-full bg-[#FAF0F1] h-1.5 rounded-full overflow-hidden">
-                                    <div class="bg-[#700B1A] h-full rounded-full" style="width: {{ $rec['impact_progress'] }}%"></div>
-                                </div>
-                            </div>
-
-                            <!-- Rule Reason Badge -->
-                            <div class="flex items-center justify-between text-[11px] font-medium text-gray-600 mt-2.5 pt-2 border-t border-dashed border-[#FAF0F1] flex-wrap gap-2">
-                                <div class="flex items-center gap-1.5 text-xs text-[#18181B] font-semibold">
-                                    @if($rec['rule_icon'] === 'check')
-                                        <span class="text-emerald-600 font-bold">✔</span>
-                                    @elseif($rec['rule_icon'] === 'lock')
-                                        <span>🔒</span>
-                                    @elseif($rec['rule_icon'] === 'arrow')
-                                        <span>🏹</span>
-                                    @else
-                                        <span class="text-red-600">🚫</span>
-                                    @endif
-                                    <span>{{ $rec['rule_text'] }}</span>
-                                </div>
-                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                                    {{ $rec['samples'] }}
-                                </span>
-                            </div>
-
-                        </div>
-                    @endforeach
+                <div class="space-y-3 pt-1" id="recommendationsList">
+                    <!-- Populated dynamically via JS -->
                 </div>
 
-            </div>
-
-            <!-- Synthesis Confidence Card -->
-            <div class="card-custom p-4 flex items-center justify-between gap-4">
-                <div class="flex items-center gap-2.5 text-xs font-bold text-gray-700">
-                    <span class="text-[#700B1A] text-base">📈</span>
-                    <span>Data synthesized from 69 tournament games (MWI X EWC)</span>
-                </div>
-                <div class="text-right">
-                    <div class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
-                        ALGORITHM CONFIDENCE
-                    </div>
-                    <div class="text-sm font-black text-[#18181B]">
-                        94.2%
-                    </div>
-                </div>
             </div>
 
         </div>
@@ -237,14 +157,15 @@
 
 @push('scripts')
 <script>
-    // Master data
+    // Master data dari controller
     const pickerHeroes = @json($pickerHeroes);
     const defaultRecommendations = @json($defaultRecommendations);
     const heroCounterMap = @json($heroCounterMap);
     const heroStatsLookup = @json($heroStatsLookup);
     const specificRules = @json($specificRules);
 
-    let selectedHeroes = [];
+    // Initial state (Pre-populate Freya & Gloo agar kartu counter pick langsung aktif sesuai screenshot)
+    let selectedHeroes = ['Freya', 'Gloo'];
     let pickerLane = 'all';
     let recLane = 'all';
     let recRole = 'all';
@@ -263,7 +184,7 @@
                 const portraitSrc = heroObj.portrait || `https://ui-avatars.com/api/?name=${encodeURIComponent(heroName)}&background=700B1A&color=fff`;
                 slotCol.innerHTML = `
                     <div class="relative w-full aspect-square">
-                        <div class="w-full h-full bg-[#700B1A]/5 border-2 border-[#700B1A] rounded-full flex items-center justify-center p-0.5 shadow-sm overflow-hidden">
+                        <div class="w-full h-full bg-[#FAF8F8] border-2 border-[#700B1A] rounded-full flex items-center justify-center p-0.5 shadow-sm overflow-hidden">
                             <img src="${portraitSrc}" 
                                  alt="${heroName}" 
                                  class="w-full h-full object-cover rounded-full"
@@ -272,30 +193,36 @@
                         <button type="button" 
                                 onclick="removeHero('${heroName}')" 
                                 title="Hapus ${heroName}"
-                                class="absolute top-0 right-0 translate-x-1 -translate-y-1 w-5 h-5 rounded-full bg-[#700B1A] hover:bg-[#550713] text-white flex items-center justify-center shadow-md border-2 border-white transition transform hover:scale-110 z-20 cursor-pointer">
-                            <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                class="absolute top-0 right-0 translate-x-1 -translate-y-1 w-4 h-4 rounded-full bg-[#DC2626] hover:bg-[#B91C1C] text-white flex items-center justify-center shadow-md border border-white transition transform hover:scale-110 z-20 cursor-pointer">
+                            <svg class="w-2 h-2" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
                         </button>
                     </div>
-                    <span class="font-extrabold text-[11px] text-[#18181B] mt-1 truncate max-w-full text-center">${heroName}</span>
-                    <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-500 text-[8px] font-black px-1.5 py-0.2 rounded uppercase mt-0.5">
-                        ${(heroObj.lane || 'FLEX').split('•')[0].trim().toUpperCase()}
-                    </span>
+                    <span class="font-extrabold text-[10px] text-[#18181B] mt-1 truncate max-w-full text-center">${heroName}</span>
                 `;
             } else {
                 slotCol.innerHTML = `
                     <div class="w-full aspect-square bg-[#FAF8F8] border-2 border-dashed border-[#F3E8E8] rounded-full flex items-center justify-center text-gray-300">
-                        <span class="text-base font-light">+</span>
+                        <span class="text-xs font-bold">+</span>
                     </div>
-                    <span class="font-semibold text-[10px] text-gray-400 mt-1">Empty</span>
-                    <span class="text-[8px] font-bold text-gray-300 uppercase tracking-wider mt-0.5">SLOT ${i + 1}</span>
+                    <span class="font-semibold text-[9px] text-gray-400 mt-1">Empty</span>
                 `;
             }
             container.appendChild(slotCol);
         }
 
-        document.getElementById('clearSelectedBtn').textContent = `CLEAR (${selectedHeroes.length})`;
+        document.getElementById('enemySlotCounter').textContent = `(${selectedHeroes.length}/5)`;
+        const clearBtn = document.getElementById('clearSelectedBtn');
+        clearBtn.textContent = `Clear (${selectedHeroes.length})`;
+        if (selectedHeroes.length === 0) {
+            clearBtn.className = 'bg-gray-200 text-gray-400 text-xs font-black uppercase px-3.5 py-2 rounded-xl flex-shrink-0 cursor-not-allowed';
+            clearBtn.disabled = true;
+        } else {
+            clearBtn.className = 'bg-[#DC2626] hover:bg-[#B91C1C] text-white text-xs font-black uppercase px-3.5 py-2 rounded-xl transition flex-shrink-0 shadow-2xs cursor-pointer';
+            clearBtn.disabled = false;
+        }
+
         renderPickerGrid();
     }
 
@@ -313,21 +240,17 @@
                 const item = document.createElement('button');
                 item.type = 'button';
                 item.onclick = () => toggleSelectHero(hero.name);
-                item.className = `flex flex-col items-center justify-center p-2 rounded-xl transition ${
-                    isSelected 
-                    ? 'bg-[#FCECEE] border-2 border-[#700B1A] shadow-sm' 
-                    : 'bg-[#FAF8F8] border border-[#F3E8E8] hover:bg-[#FAF0F1] hover:border-[#F8B4BD]'
-                }`;
+                item.className = 'flex flex-col items-center justify-center p-1 rounded-xl transition group';
 
                 item.innerHTML = `
-                    <div class="relative w-8 h-8 rounded-full overflow-hidden ${isSelected ? 'border-2 border-[#700B1A]' : 'border border-[#F3E8E8]'} flex items-center justify-center font-black text-xs bg-white">
+                    <div class="relative w-9 h-9 rounded-full overflow-hidden ${isSelected ? 'border-2 border-[#700B1A] ring-2 ring-[#700B1A]/20' : 'border border-[#F3E8E8] group-hover:border-[#700B1A]'} flex items-center justify-center bg-white transition">
                         <img src="${hero.portrait}" 
                              alt="${hero.name}" 
                              class="w-full h-full object-cover rounded-full"
                              onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(hero.name)}&background=700B1A&color=fff';">
-                        ${isSelected ? `<span class="absolute inset-0 bg-[#700B1A]/80 text-white flex items-center justify-center font-black text-sm">✓</span>` : ''}
+                        ${isSelected ? `<span class="absolute inset-0 bg-[#700B1A]/85 text-white flex items-center justify-center font-black text-xs">✓</span>` : ''}
                     </div>
-                    <span class="font-bold text-[10px] text-gray-700 mt-1 truncate max-w-full text-center">${hero.name}</span>
+                    <span class="font-bold text-[9px] text-gray-700 mt-1 truncate max-w-full text-center ${isSelected ? 'text-[#700B1A] font-black' : ''}">${hero.name}</span>
                 `;
                 grid.appendChild(item);
             }
@@ -337,139 +260,179 @@
     function renderRecommendations() {
         const container = document.getElementById('recommendationsList');
         if (!container) return;
+        container.innerHTML = '';
 
         let recs = [];
 
         if (selectedHeroes.length === 0) {
-            recs = defaultRecommendations;
+            // Tampilkan default recommendations jika belum ada musuh terpilih
+            recs = defaultRecommendations.map((r, idx) => ({
+                hero: r.hero,
+                tier: r.tier || (idx === 0 ? 'Tier S' : (idx === 1 ? 'Tier A' : 'Tier B')),
+                win_rate: r.win_rate || '51.2%',
+                win_rate_label: 'Tournament Win Rate',
+                role: r.role || 'Hero',
+                lane: r.lane || 'Flex',
+                counter_score: (9.9 - (idx * 0.2)).toFixed(1),
+                progress_pct: Math.max(30, Math.round(99 - (idx * 4))),
+                portrait: r.portrait,
+                countered_enemies: ['Meta Priority'],
+                rule_text: r.rule_text || 'Prioritas meta turnamen MPL & MWI',
+                accent_border: r.accent_border
+            }));
         } else {
             const collectedCounters = new Map();
 
             selectedHeroes.forEach(enemyName => {
-                // 1. Cek specific rules (RBR)
+                // 1. Cek specific rules (RBR Knowledge Base)
                 const specific = specificRules[enemyName] || {};
                 Object.keys(specific).forEach(cName => {
                     const ruleInfo = specific[cName];
                     const baseHero = heroStatsLookup[cName] || pickerHeroes.find(h => h.name.toLowerCase() === cName.toLowerCase()) || {};
                     const cur = collectedCounters.get(cName) || {
                         hero: cName,
-                        tier: ruleInfo.tier || baseHero.tier || 'TIER A',
+                        tier: ruleInfo.tier || baseHero.tier || 'Tier A',
                         win_rate: baseHero.win_rate || '52.0%',
-                        win_rate_label: baseHero.win_rate_label || 'TOURNAMENT WIN RATE',
+                        win_rate_label: 'Tournament Win Rate',
                         role: baseHero.role || 'Hero',
                         lane: baseHero.lane || 'Flex',
-                        impact_score: ruleInfo.impact || 4.2,
-                        impact_progress: Math.min(100, Math.round((ruleInfo.impact || 4.2) * 20)),
-                        accent_border: true,
+                        raw_score: 5.0 + (ruleInfo.impact || 4.2),
                         portrait: baseHero.portrait || '',
-                        initial: baseHero.initial || cName.substring(0, 2).toUpperCase(),
                         rule_text: ruleInfo.rule,
-                        rule_icon: ruleInfo.icon || 'check',
-                        samples: baseHero.samples || '50+ MATCHES SAMPLE',
+                        countered_enemies: []
                     };
+                    if (!cur.countered_enemies.includes(enemyName)) {
+                        cur.countered_enemies.push(enemyName);
+                    }
+                    cur.raw_score += 2.0; // Bonus bila meng-counter lebih dari 1 musuh
                     collectedCounters.set(cName, cur);
                 });
 
-                // 2. Cek dataset counters dari data_hero.csv
+                // 2. Cek dataset counters dari dataset MLBB
                 const rawCounters = heroCounterMap[enemyName] || [];
                 rawCounters.forEach(cName => {
-                    if (!cName || collectedCounters.has(cName)) return;
+                    if (!cName) return;
                     const baseHero = heroStatsLookup[cName] || pickerHeroes.find(h => h.name.toLowerCase() === cName.toLowerCase());
                     if (!baseHero) return;
-                    collectedCounters.set(cName, {
+
+                    const cur = collectedCounters.get(cName) || {
                         hero: cName,
-                        tier: baseHero.tier || null,
+                        tier: baseHero.tier || 'Tier B',
                         win_rate: baseHero.win_rate || '51.0%',
-                        win_rate_label: baseHero.win_rate_label || 'TOURNAMENT WIN RATE',
+                        win_rate_label: 'Tournament Win Rate',
                         role: baseHero.role || 'Hero',
                         lane: baseHero.lane || 'Flex',
-                        impact_score: baseHero.impact_score || 3.8,
-                        impact_progress: baseHero.impact_progress || 76,
-                        accent_border: false,
+                        raw_score: 3.5 + (parseFloat(baseHero.win_rate) || 50) / 25,
                         portrait: baseHero.portrait || '',
-                        initial: baseHero.initial || cName.substring(0, 2).toUpperCase(),
-                        rule_text: `counters ${enemyName} (natural counter dari dataset & turnamen)`,
-                        rule_icon: 'check',
-                        samples: baseHero.samples || '40+ MATCHES SAMPLE',
-                    });
+                        rule_text: `Direct counter terhadap mekanik utama ${enemyName} berdasarkan dataset turnamen`,
+                        countered_enemies: []
+                    };
+                    if (!cur.countered_enemies.includes(enemyName)) {
+                        cur.countered_enemies.push(enemyName);
+                    }
+                    cur.raw_score += 1.5;
+                    collectedCounters.set(cName, cur);
                 });
             });
 
-            recs = Array.from(collectedCounters.values())
-                .sort((a, b) => b.impact_score - a.impact_score)
-                .slice(0, 8);
+            // Urutkan berdasarkan raw_score tertinggi
+            let sorted = Array.from(collectedCounters.values()).sort((a, b) => b.raw_score - a.raw_score);
 
-            if (recs.length === 0) {
-                recs = defaultRecommendations;
+            if (sorted.length === 0) {
+                sorted = defaultRecommendations.map((r, idx) => ({
+                    hero: r.hero,
+                    tier: r.tier || 'Tier A',
+                    win_rate: r.win_rate || '51.2%',
+                    win_rate_label: 'Tournament Win Rate',
+                    role: r.role || 'Hero',
+                    lane: r.lane || 'Flex',
+                    raw_score: 8.0 - idx,
+                    portrait: r.portrait,
+                    countered_enemies: [selectedHeroes[0] || 'Lawan'],
+                    rule_text: r.rule_text || 'Prioritas counter turnamen'
+                }));
             }
+
+            // Normalisasi counter score relatif ke peringkat #1 (misal 9.9 untuk top result)
+            const topScore = sorted[0].raw_score;
+            recs = sorted.slice(0, 10).map((item, idx) => {
+                const relativeFraction = item.raw_score / topScore;
+                const scoreVal = Math.max(7.5, (9.9 - (idx * 0.35) * (1.1 - relativeFraction * 0.1))).toFixed(1);
+                const progressPct = Math.min(99, Math.max(30, Math.round(relativeFraction * 99)));
+                return {
+                    ...item,
+                    counter_score: idx === 0 ? '9.9' : scoreVal,
+                    progress_pct: idx === 0 ? 99 : progressPct
+                };
+            });
         }
 
-        container.innerHTML = '';
+        // Render Kartu Counter Sesuai Mockup Screenshot
         recs.forEach(rec => {
             const card = document.createElement('div');
-            card.className = `rec-card bg-white border border-[#F3E8E8] rounded-2xl p-4 shadow-sm hover:shadow-md transition relative ${rec.accent_border ? 'border-l-4 border-l-[#700B1A]' : ''}`;
+            card.className = 'rec-card bg-white border border-[#F3E8E8] hover:border-[#700B1A] rounded-2xl p-4 shadow-2xs hover:shadow-xs transition space-y-2';
             card.dataset.lane = (rec.lane || '').toLowerCase();
             card.dataset.role = (rec.role || '').toLowerCase();
 
-            const portraitHtml = rec.portrait ? `
-                <img src="${rec.portrait}" 
-                     alt="${rec.hero}" 
-                     class="w-11 h-11 rounded-full object-cover bg-gray-100 border border-[#F3E8E8] flex-shrink-0"
-                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(rec.hero)}&background=700B1A&color=fff';">
-            ` : `
-                <div class="w-11 h-11 rounded-full bg-[#FAF8F8] border border-[#F3E8E8] text-[#700B1A] font-black text-sm flex items-center justify-center flex-shrink-0">
-                    ${rec.initial || rec.hero.substring(0, 2).toUpperCase()}
-                </div>
-            `;
+            // Tier Badge Styling
+            const tierStr = (rec.tier || 'Tier A').toUpperCase();
+            let tierClass = 'bg-[#700B1A] text-white';
+            if (tierStr.includes('TIER S')) tierClass = 'bg-purple-700 text-white';
+            else if (tierStr.includes('TIER A')) tierClass = 'bg-amber-600 text-white';
+            else if (tierStr.includes('TIER B')) tierClass = 'bg-blue-600 text-white';
+            else if (tierStr.includes('TIER C')) tierClass = 'bg-indigo-600 text-white';
+            else if (tierStr.includes('TIER D')) tierClass = 'bg-emerald-600 text-white';
 
-            let iconHtml = '<span class="text-emerald-600 font-bold">✔</span>';
-            if (rec.rule_icon === 'lock') iconHtml = '<span>🔒</span>';
-            else if (rec.rule_icon === 'arrow') iconHtml = '<span>🏹</span>';
-            else if (rec.rule_icon === 'ban') iconHtml = '<span class="text-red-600">🚫</span>';
+            // Counter Badges
+            const badgesHtml = rec.countered_enemies.map(en => `
+                <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-[#700B1A] font-extrabold text-[10px] px-2.5 py-0.5 rounded-lg flex items-center gap-1">
+                    <span>counters</span>
+                    <strong class="text-[#18181B]">${en}</strong>
+                </span>
+            `).join('');
 
             card.innerHTML = `
+                <!-- Baris 1: Avatar, Hero Name, Tier Badge, Win Rate, dan Counter Score -->
                 <div class="flex items-start justify-between gap-3">
-                    <div class="flex items-start gap-3 min-w-0">
-                        ${portraitHtml}
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <img src="${rec.portrait}" 
+                             alt="${rec.hero}" 
+                             class="w-10 h-10 rounded-full object-cover bg-gray-50 border border-[#F3E8E8] flex-shrink-0"
+                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(rec.hero)}&background=700B1A&color=fff';">
+                        
                         <div class="min-w-0">
-                            <div class="flex items-center gap-2">
-                                <h4 class="font-extrabold text-sm text-[#18181B] truncate">
-                                    ${rec.hero}
-                                </h4>
-                                ${rec.tier ? `<span class="bg-[#700B1A] text-white text-[9px] font-black px-1.5 py-0.2 rounded-md">${rec.tier}</span>` : ''}
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h4 class="font-black text-sm text-[#18181B] truncate">${rec.hero}</h4>
+                                <span class="${tierClass} text-[8.5px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider">${rec.tier || 'Tier A'}</span>
+                                <span class="text-[10px] text-gray-500 font-semibold">${rec.win_rate} &bull; ${rec.win_rate_label}</span>
                             </div>
-                            <p class="text-[11px] text-gray-500 font-medium truncate mt-0.5">
-                                Role: ${rec.role} • Lane: ${rec.lane}
+                            <!-- Baris 2: Role & Lane Subtitle -->
+                            <p class="text-[10.5px] text-gray-500 font-medium truncate mt-0.5">
+                                Role: <span class="text-gray-800 font-bold">${rec.role}</span> &bull; Lane: <span class="text-gray-800 font-bold">${rec.lane}</span>
                             </p>
                         </div>
                     </div>
+
+                    <!-- Counter Score Right -->
                     <div class="text-right flex-shrink-0">
-                        <div class="font-mono font-black text-sm text-[#18181B]">
-                            ${rec.win_rate}
-                        </div>
-                        <div class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
-                            ${rec.win_rate_label}
-                        </div>
+                        <span class="font-mono font-black text-sm text-[#700B1A]">
+                            ${rec.counter_score}
+                        </span>
                     </div>
                 </div>
 
-                <div class="mt-3 pt-2.5 border-t border-[#FAF0F1]">
-                    <div class="flex items-center justify-between text-[10px] font-bold text-gray-400 mb-1">
-                        <span class="uppercase tracking-wider">COUNTER IMPACT INDEX</span>
-                        <span class="text-[#18181B] font-extrabold">${rec.impact_score} / 5.0</span>
-                    </div>
-                    <div class="w-full bg-[#FAF0F1] h-1.5 rounded-full overflow-hidden">
-                        <div class="bg-[#700B1A] h-full rounded-full" style="width: ${rec.impact_progress}%"></div>
-                    </div>
+                <!-- Baris 3: Thin Horizontal Score Bar -->
+                <div class="w-full bg-[#FAF0F1] h-1.5 rounded-full overflow-hidden mt-1">
+                    <div class="bg-[#700B1A] h-full rounded-full transition-all duration-300" style="width: ${rec.progress_pct}%"></div>
                 </div>
 
-                <div class="flex items-center justify-between text-[11px] font-medium text-gray-600 mt-2.5 pt-2 border-t border-dashed border-[#FAF0F1] flex-wrap gap-2">
-                    <div class="flex items-center gap-1.5 text-xs text-[#18181B] font-semibold">
-                        ${iconHtml}
-                        <span>${rec.rule_text}</span>
+                <!-- Baris 4: Counter Badges ([counters Gloo], [counters Freya]) & Rationale -->
+                <div class="pt-1 flex items-center justify-between flex-wrap gap-2">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        ${badgesHtml}
                     </div>
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                        ${rec.samples}
+                    <span class="text-[9.5px] text-gray-400 font-semibold italic truncate max-w-xs">
+                        "${rec.rule_text}"
                     </span>
                 </div>
             `;
@@ -512,9 +475,9 @@
     function setPickerLane(lane, btn) {
         pickerLane = lane;
         document.querySelectorAll('.picker-lane-btn').forEach(b => {
-            b.className = 'picker-lane-btn px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition';
+            b.className = 'picker-lane-btn px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition';
         });
-        btn.className = 'picker-lane-btn px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#700B1A] text-white transition';
+        btn.className = 'picker-lane-btn px-3 py-1 rounded-full text-xs font-bold bg-[#700B1A] text-white transition shadow-2xs';
         renderPickerGrid();
     }
 
@@ -525,18 +488,18 @@
     function setRecLane(lane, btn) {
         recLane = lane;
         document.querySelectorAll('.rec-lane-btn').forEach(b => {
-            b.className = 'rec-lane-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#FAF8F8] text-gray-600 border border-[#F3E8E8] hover:bg-[#FCECEE] transition';
+            b.className = 'rec-lane-btn px-2 py-0.5 rounded-md text-[10px] font-semibold bg-white text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition';
         });
-        btn.className = 'rec-lane-btn px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#700B1A] text-white transition';
+        btn.className = 'rec-lane-btn px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#700B1A] text-white transition';
         filterRecCards();
     }
 
     function setRecRole(role, btn) {
         recRole = role;
         document.querySelectorAll('.rec-role-btn').forEach(b => {
-            b.className = 'rec-role-btn px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#FAF8F8] text-gray-600 border border-[#F3E8E8] hover:bg-[#FCECEE] transition';
+            b.className = 'rec-role-btn px-2 py-0.5 rounded-md text-[10px] font-semibold bg-white text-gray-700 border border-[#F3E8E8] hover:bg-[#FCECEE] transition';
         });
-        btn.className = 'rec-role-btn px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#700B1A] text-white transition';
+        btn.className = 'rec-role-btn px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#700B1A] text-white transition';
         filterRecCards();
     }
 

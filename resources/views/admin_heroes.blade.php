@@ -337,49 +337,49 @@
                             data-lane="{{ strtolower($laneStr) }}"
                             data-wr="{{ $wrNum }}"
                             data-br="{{ $brNum }}">
-                            <td class="py-3 px-3 text-center text-gray-400 font-bold row-num-cell">{{ sprintf('%02d', $idx + 1) }}</td>
-                            <td class="py-3 px-3">
+                            <td class="py-1.5 px-2.5 text-center text-gray-400 font-bold row-num-cell">{{ sprintf('%02d', $idx + 1) }}</td>
+                            <td class="py-1.5 px-2.5">
                                 <div class="flex items-center gap-2.5">
                                     <img src="{{ $h->portrait }}" 
                                          alt="{{ $h->hero_name }}" 
-                                         class="w-8 h-8 rounded-full object-cover bg-gray-100 border border-[#F3E8E8] shadow-2xs flex-shrink-0"
+                                         class="w-7 h-7 rounded-full object-cover bg-gray-100 border border-[#F3E8E8] shadow-2xs flex-shrink-0"
                                          onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($h->hero_name) }}&background=700B1A&color=fff';">
                                     <div>
-                                        <div class="font-extrabold text-[#18181B] flex items-center gap-1.5">
+                                        <div class="font-extrabold text-[#18181B] flex items-center gap-1.5 leading-tight">
                                             <span>{{ $h->hero_name }}</span>
                                             @if($h->hero_name === 'Suyou')
                                                 <span class="bg-[#700B1A] text-white text-[8px] font-black px-1 rounded">BARU</span>
                                             @endif
                                         </div>
-                                        <div class="text-[10px] text-gray-400">{{ property_exists($h, 'title') ? $h->title : 'Land of Dawn Hero' }}</div>
+                                        <div class="text-[9.5px] text-gray-400 leading-tight">{{ data_get($h, 'title', data_get($h, 'hero_title', 'Land of Dawn Hero')) }}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="py-3 px-3">
-                                <div class="font-bold text-[#18181B]">{{ $h->primary_class }}</div>
-                                <div class="text-[10px] text-gray-400">{{ $laneStr }}</div>
+                            <td class="py-1.5 px-2.5">
+                                <div class="font-bold text-[#18181B] leading-tight">{{ $h->primary_class }}</div>
+                                <div class="text-[9.5px] text-gray-400 leading-tight">{{ $laneStr }}</div>
                             </td>
-                            <td class="py-3 px-3 text-center">
+                            <td class="py-1.5 px-2.5 text-center">
                                 <span class="bg-[#18181B] text-white font-black text-[9px] px-2 py-0.5 rounded">
                                     {{ $tier }}
                                 </span>
                             </td>
-                            <td class="py-3 px-3 text-center font-mono font-black {{ $wrNum >= 55 ? 'text-emerald-700' : 'text-gray-700' }}">
+                            <td class="py-1.5 px-2.5 text-center font-mono font-black {{ $wrNum >= 55 ? 'text-emerald-700' : 'text-gray-700' }}">
                                 {{ $wr }}
                             </td>
-                            <td class="py-3 px-3 text-center font-mono font-extrabold {{ $brNum >= 30 ? 'text-red-700' : 'text-gray-700' }}">
+                            <td class="py-1.5 px-2.5 text-center font-mono font-extrabold {{ $brNum >= 30 ? 'text-red-700' : 'text-gray-700' }}">
                                 {{ $br }}
                             </td>
-                            <td class="py-3 px-3 text-[11px] text-gray-600">
+                            <td class="py-1.5 px-2.5 text-[11px] text-gray-600">
                                 <span class="bg-[#FAF8F8] border border-[#F3E8E8] px-2 py-0.5 rounded text-[10px] font-bold">
                                     {{ $specialtyStr }}
                                 </span>
                             </td>
-                            <td class="py-3 px-3 text-[11px]">
+                            <td class="py-1.5 px-2.5 text-[11px]">
                                 <div class="font-bold text-[#18181B]">Aktif</div>
-                                <div class="text-[10px] text-gray-400 truncate max-w-[140px]">Rule-Based Reasoning</div>
+                                <div class="text-[9.5px] text-gray-400 truncate max-w-[140px]">Rule-Based Reasoning</div>
                             </td>
-                            <td class="py-3 px-3 text-center">
+                            <td class="py-1.5 px-2.5 text-center">
                                 <span class="bg-[#FCECEE] text-[#700B1A] text-[9px] font-black px-2 py-0.5 rounded uppercase">
                                     Patch 1.9.14
                                 </span>
@@ -404,19 +404,19 @@
             </table>
         </div>
 
-        <!-- Pagination (Limit 20 per page, Next / Prev) -->
+        <!-- Pagination (Limit 10 per page, Next / Prev) -->
         <div class="flex items-center justify-between pt-4 border-t border-[#F3E8E8] flex-wrap gap-3 text-xs">
             <div class="flex items-center gap-2">
                 <span class="text-gray-500 font-medium">Tampilkan:</span>
                 <select id="adminHeroPerPageSelect" onchange="changeAdminHeroPerPage(this.value)" class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-lg px-2.5 py-1 text-xs font-bold text-[#18181B] focus:outline-none focus:border-[#700B1A] cursor-pointer">
-                    <option value="10">10</option>
-                    <option value="20" selected>20</option>
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
                     <option value="50">50</option>
                     <option value="all">Semua</option>
                 </select>
                 <span class="text-gray-300">|</span>
                 <div class="text-gray-600 font-semibold" id="adminHeroPaginationInfo">
-                    Menampilkan <span class="font-extrabold text-[#700B1A]" id="adminHeroPageStart">1</span> - <span class="font-extrabold text-[#700B1A]" id="adminHeroPageEnd">20</span> dari <span class="font-extrabold text-[#18181B]" id="adminHeroTotalRows">0</span> hero terdaftar
+                    Menampilkan <span class="font-extrabold text-[#700B1A]" id="adminHeroPageStart">1</span> - <span class="font-extrabold text-[#700B1A]" id="adminHeroPageEnd">10</span> dari <span class="font-extrabold text-[#18181B]" id="adminHeroTotalRows">0</span> hero terdaftar
                 </div>
             </div>
 
@@ -437,7 +437,7 @@
 
 <script>
     let currentAdminHeroPage = 1;
-    let adminHeroPerPage = 20;
+    let adminHeroPerPage = 10;
     let activeRoleFilter = 'all';
     let activeLaneFilter = 'all';
 

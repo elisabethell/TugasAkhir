@@ -110,18 +110,7 @@ class MatchDataset extends Model
         $raw = trim($this->stage_name ?? '');
         $mid = strtoupper($this->match_id ?? '');
 
-        // 1. Cek jika sudah eksplisit tercantum di stage_name
-        if (str_contains(strtolower($raw), 'grand final')) {
-            return 'Grand Final Playoffs';
-        }
-        if (str_contains(strtolower($raw), 'lower bracket final')) {
-            return 'Lower Bracket Final';
-        }
-        if (str_contains(strtolower($raw), 'upper bracket final')) {
-            return 'Upper Bracket Final';
-        }
-
-        // 2. Pola match2id resmi Liquipedia Bracket:
+        // 1. Pola Match ID spesifik Liquipedia Bracket (Prioritas Utama untuk akurasi babak):
         // R04-M001 = Round 4 Match 1 = Grand Final
         if (str_contains($mid, 'R04') || str_contains($mid, 'GF')) {
             return 'Grand Final Playoffs';
@@ -142,6 +131,17 @@ class MatchDataset extends Model
         }
         if (str_contains($mid, 'R01')) {
             return 'Playoffs Round 1';
+        }
+
+        // 2. Cek jika sudah eksplisit tercantum di stage_name
+        if (str_contains(strtolower($raw), 'lower bracket final')) {
+            return 'Lower Bracket Final';
+        }
+        if (str_contains(strtolower($raw), 'upper bracket final')) {
+            return 'Upper Bracket Final';
+        }
+        if (str_contains(strtolower($raw), 'grand final')) {
+            return 'Grand Final Playoffs';
         }
 
         // 3. Pola Regular Season dengan Nomor Week (Contoh: "Week 1 Regular Season", "Week 3 Regular Season")

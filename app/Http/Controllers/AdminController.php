@@ -33,8 +33,8 @@ class AdminController extends Controller
         if (Schema::hasTable('match_datasets') && Schema::hasTable('match_games')) {
             try {
                 // Pastikan pembeda babak Grand Final vs Lower Bracket Final tersimpan akurat
-                MatchDataset::where('match_id', 'like', '%R03-M002%')->where('stage_name', 'Playoffs')->update(['stage_name' => 'Lower Bracket Final']);
-                MatchDataset::where('match_id', 'like', '%R04-M001%')->where('stage_name', 'Playoffs')->update(['stage_name' => 'Grand Final Playoffs']);
+                MatchDataset::where('match_id', 'like', '%R03-M002%')->update(['stage_name' => 'Lower Bracket Final']);
+                MatchDataset::where('match_id', 'like', '%R04-M001%')->update(['stage_name' => 'Grand Final Playoffs']);
 
                 $seriesMatches = MatchDataset::with(['games.details'])->orderBy('match_date', 'desc')->get();
             } catch (\Throwable $e) {
