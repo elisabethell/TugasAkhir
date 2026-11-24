@@ -137,8 +137,8 @@ class DraftController extends Controller
             ];
         }
 
-        // 3. Evaluasi Forward Chaining RBR Dinamis untuk Draft Awal
-        $initialInference = $this->inferenceService->evaluateDraft();
+        // 3. Evaluasi Forward Chaining RBR Dinamis untuk Draft Awal (Default: Tim Alter Ego)
+        $initialInference = $this->inferenceService->evaluateDraft(teamName: 'Alter Ego');
         $defaultPicks = array_map(function($rec) {
             return array_merge($rec, [
                 'hero'          => $rec['nama'],
@@ -323,9 +323,10 @@ class DraftController extends Controller
         $map = $request->input('map', null);
         $myLanes = (array) $request->input('my_lanes', $request->input('ally_lanes', []));
         $enemyLanes = (array) $request->input('enemy_lanes', []);
-        $teamName = $request->input('team_name', $request->input('team', null));
+        $teamInput = $request->input('team_name', $request->input('team', 'Alter Ego'));
+        $teamName = !empty($teamInput) ? $teamInput : 'Alter Ego';
 
-        // Evaluasi Forward Chaining melalui DraftInferenceService (didukung Draft DNA spesifik tim)
+        // Evaluasi Forward Chaining melalui DraftInferenceService (didukung Draft DNA spesifik tim & RBR Ringan)
         $inference = $this->inferenceService->evaluateDraft(
             allyTeam: $myTeam,
             enemyTeam: $enemyTeam,
@@ -346,6 +347,9 @@ class DraftController extends Controller
             'recommendations'     => $inference['recommendations'],
             'composition_alerts'  => $inference['composition_alerts'] ?? [],
             'power_spikes'        => $inference['power_spikes'] ?? [],
+            'draft_identity'      => $inference['draft_identity'] ?? [],
+            'draft_strategy'      => $inference['draft_strategy'] ?? [],
+            'similar_matches'     => $inference['similar_matches'] ?? [],
             'team_dna'            => $inference['team_dna'] ?? null,
         ]));
     }
@@ -375,6 +379,25 @@ class DraftController extends Controller
         return response()->json([
             'status' => 'success',
             'data'   => $dna,
+        ]);
+    }
+
+    /**
+     * Endpoint API Match Mirip (Similar Matches) Turnamen MPL ID Season 18
+     */
+    public function getSimilarMatches(Request $request, ?string $team = null)
+    {
+        $teamInput = $team ?: $request->query('team_name', $request->query('team', 'Alter Ego'));
+        $teamName = !empty($teamInput) ? $teamInput : 'Alter Ego';
+        $currentPicks = (array) $request->query('picks', $request->input('picks', []));
+        $limit = (int) $request->query('limit', 3);
+
+        $matches = $this->teamDnaService->getSimilarMatches($currentPicks, $teamName, $limit);
+
+        return response()->json([
+            'status'          => 'success',
+            'team_name'       => $this->teamDnaService->normalizeTeamName($teamName),
+            'similar_matches' => $matches,
         ]);
     }
 

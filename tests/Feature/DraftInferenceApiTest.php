@@ -111,7 +111,8 @@ class DraftInferenceApiTest extends TestCase
         $response->assertSee('enemyCounterAdviceText');
         $response->assertSee('heroPickerCard');
         $response->assertSee('PILIH TIM / DRAFT DNA');
-        $response->assertSee('Overall Meta');
+        $response->assertSee('Alter Ego');
+        $response->assertSee('PERTANDINGAN MIRIP TURNAMEN');
         $response->assertSee('teamDnaSelectorContainer');
         $response->assertSee('teamDnaProfileCard');
         $response->assertDontSeeText('undefined');
@@ -370,5 +371,58 @@ class DraftInferenceApiTest extends TestCase
 
         $allDna = $service->getAllTeamsDna();
         $this->assertNotEmpty($allDna);
+
+        $similar = $service->getSimilarMatches(['Paquito'], 'Alter Ego', 2);
+        $this->assertIsArray($similar);
+    }
+
+    /**
+     * Test endpoint API POST /api/analyze-draft mengembalikan draft_strategy dan similar_matches
+     */
+    public function test_analyze_draft_api_returns_draft_strategy_and_similar_matches(): void
+    {
+        $payload = [
+            'my_team'   => ['Paquito', 'Yu Zhong'],
+            'team_name' => 'Alter Ego',
+        ];
+
+        $response = $this->postJson('/api/analyze-draft', $payload);
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'draft_strategy' => [
+                'draft_identity',
+                'power_spike',
+                'playstyle',
+                'winning_condition',
+            ],
+            'similar_matches',
+            'team_dna',
+        ]);
+
+        $data = $response->json();
+        $this->assertEquals('Double Fighter / Bruiser', $data['draft_strategy']['draft_identity']);
+        $this->assertEquals('Early-to-Mid (0–12m)', $data['draft_strategy']['power_spike']);
+        $this->assertEquals('Pick-off / Ganking', $data['draft_strategy']['playstyle']);
+        $this->assertIsArray($data['similar_matches']);
+    }
+
+    /**
+     * Test endpoint API GET /api/teams/{team}/similar-matches dan /api/similar-matches
+     */
+    public function test_get_similar_matches_api_endpoints(): void
+    {
+        $responseParam = $this->getJson('/api/teams/Alter Ego/similar-matches?picks[]=Paquito&picks[]=Zhuxin');
+        $responseParam->assertStatus(200);
+        $responseParam->assertJsonStructure([
+            'status',
+            'team_name',
+            'similar_matches',
+        ]);
+        $this->assertEquals('Alter Ego', $responseParam->json('team_name'));
+
+        $responseQuery = $this->getJson('/api/similar-matches?team=Alter Ego');
+        $responseQuery->assertStatus(200);
+        $this->assertEquals('Alter Ego', $responseQuery->json('team_name'));
     }
 }

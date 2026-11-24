@@ -9,6 +9,18 @@ use Illuminate\Support\Collection;
 
 class TeamDraftDnaService
 {
+    public const MPL_TEAMS = [
+        'Alter Ego',
+        'Bigetron By Vitality',
+        'Dewa United',
+        'EVOS',
+        'Geek Fam',
+        'Natus Vincere',
+        'ONIC',
+        'RRQ',
+        'Team Liquid ID',
+    ];
+
     protected CsvDataService $csvService;
     protected static array $cache = [];
 
@@ -24,11 +36,12 @@ class TeamDraftDnaService
 
     /**
      * Normalisasi nama tim / alias menjadi nama tim resmi turnamen MPL ID S18
+     * Default ke 'Alter Ego' jika parameter kosong atau Overall Meta dihapus
      */
     public function normalizeTeamName(?string $rawName): ?string
     {
-        if (empty($rawName)) {
-            return null;
+        if (empty($rawName) || strtolower(trim($rawName)) === 'overall meta' || strtolower(trim($rawName)) === 'all') {
+            return 'Alter Ego';
         }
 
         $clean = strtolower(trim(str_replace(['[[', ']]', '_'], ['', '', ' '], $rawName)));
@@ -79,7 +92,7 @@ class TeamDraftDnaService
     public function getTeamDraftDna(?string $teamInput): ?array
     {
         $teamName = $this->normalizeTeamName($teamInput);
-        if (!$teamName) {
+        if (!$teamName || !in_array($teamName, self::MPL_TEAMS)) {
             return null;
         }
 
@@ -89,10 +102,10 @@ class TeamDraftDnaService
 
         try {
             if (!\Illuminate\Support\Facades\Schema::hasTable('match_datasets') || !\Illuminate\Support\Facades\Schema::hasTable('match_games')) {
-                return null;
+                return $this->getBaselineTeamDna($teamName);
             }
         } catch (\Throwable $e) {
-            return null;
+            return $this->getBaselineTeamDna($teamName);
         }
 
         // Ambil data pertandingan yang melibatkan tim ini
@@ -114,7 +127,7 @@ class TeamDraftDnaService
         ->get();
 
         if ($matches->isEmpty()) {
-            return null;
+            return $this->getBaselineTeamDna($teamName);
         }
 
         $allHeroes = $this->csvService->getHeroes()->keyBy(fn($h) => strtolower($h->hero_name));
@@ -457,5 +470,166 @@ class TeamDraftDnaService
         }
 
         return $results;
+    }
+
+    /**
+     * Profil dasar / fallback Draft DNA untuk 9 tim MPL ID Season 18
+     */
+    public function getBaselineTeamDna(string $teamName): array
+    {
+        $tag = match($teamName) {
+            'Alter Ego' => 'Double Fighter',
+            'Bigetron By Vitality', 'ONIC' => 'Late Game Scaling',
+            'RRQ', 'EVOS' => 'Assassin Snowball',
+            'Geek Fam', 'Natus Vincere' => 'Double Fighter',
+            'Team Liquid ID' => 'Late Game Scaling',
+            'Dewa United' => 'Tank Jungler',
+            default => 'Balanced Teamfight',
+        };
+
+        return [
+            'team_name'             => $teamName,
+            'team_logo'             => getTeamLogo($teamName),
+            'total_games'           => 0,
+            'wins'                  => 0,
+            'losses'                => 0,
+            'win_rate'              => 50.0,
+            'win_rate_formatted'    => '50.0%',
+            'top_heroes'            => [],
+            'top_bans'              => [],
+            'hero_pool_keys'        => [],
+            'hero_stats'            => [],
+            'playstyle_tag'         => $tag,
+            'playstyle_frequency'   => 0,
+            'playstyle_description' => "Draft DNA untuk {$teamName} (fokus playstyle turnamen {$tag}).",
+            'composition_breakdown' => [],
+            'synergies'             => [],
+            'counters'              => [],
+        ];
+    }
+
+    /**
+     * Mencari 2-3 pertandingan asli turnamen MPL ID S18 yang paling mirip dengan draft saat ini.
+     * Prioritas: match milik tim yang dipilih (team_name) dengan irisan hero pick terbanyak.
+     * Jika hero pick belum ada di simulator, kembalikan 3 pertandingan terbaik / terbaru tim tersebut.
+     *
+     * @param array $currentPicks Hero yang sedang di-pick di simulator
+     * @param string|null $teamInput Nama tim yang dipilih (default 'Alter Ego')
+     * @param int $limit Jumlah game yang dikembalikan (default 3)
+     * @return array
+     */
+    public function getSimilarMatches(array $currentPicks = [], ?string $teamInput = 'Alter Ego', int $limit = 3): array
+    {
+        $teamName = $this->normalizeTeamName($teamInput) ?: 'Alter Ego';
+
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('match_games') || !\Illuminate\Support\Facades\Schema::hasTable('match_datasets')) {
+                return [];
+            }
+        } catch (\Throwable $e) {
+            return [];
+        }
+
+        $cleanCurrentPicks = array_values(array_filter(array_map(function($p) {
+            return strtolower(trim((string)$p));
+        }, $currentPicks)));
+
+        $games = MatchGame::with('dataset')
+            ->whereHas('dataset', function($sub) use ($teamName) {
+                $sub->where('team_1_name', 'like', "%{$teamName}%")
+                    ->orWhere('team_2_name', 'like', "%{$teamName}%");
+            })
+            ->whereNotNull('team_1_picks')
+            ->where('team_1_picks', '!=', '[]')
+            ->where('team_1_picks', '!=', '')
+            ->get();
+
+        if ($games->isEmpty()) {
+            return [];
+        }
+
+        $csv = app(CsvDataService::class);
+        $scored = [];
+        foreach ($games as $game) {
+            $dataset = $game->dataset;
+            $t1Name = $dataset->team_1_name ?? 'Team 1';
+            $t2Name = $dataset->team_2_name ?? 'Team 2';
+
+            $isTeam1 = (stripos($t1Name, $teamName) !== false);
+            $myPicks = $isTeam1 ? $game->team_1_picks : $game->team_2_picks;
+            $enemyPicks = $isTeam1 ? $game->team_2_picks : $game->team_1_picks;
+
+            if (empty($myPicks) || !is_array($myPicks)) {
+                continue;
+            }
+
+            $myStatus = $isTeam1 ? ($game->team_1_status ?? 'W') : ($game->team_2_status ?? 'L');
+            $enemyStatus = ($myStatus === 'W') ? 'L' : 'W';
+
+            $myPicksClean = array_map(fn($p) => strtolower(trim((string)$p)), $myPicks);
+            $matchingHeroes = !empty($cleanCurrentPicks) ? array_values(array_intersect($cleanCurrentPicks, $myPicksClean)) : [];
+            $matchCount = count($matchingHeroes);
+
+            $stage = !empty($dataset->formatted_stage_name) ? $dataset->formatted_stage_name : (!empty($dataset->stage_name) ? $dataset->stage_name : 'Regular Season');
+            $score = ($dataset && $dataset->team_1_score !== null && $dataset->team_2_score !== null)
+                ? "{$dataset->team_1_score} : {$dataset->team_2_score}"
+                : "Game {$game->game_number}";
+            $duration = !empty($game->duration) ? $game->duration : '15:20';
+
+            $teamPicksWithPortraits = array_map(function($p) use ($csv) {
+                return [
+                    'name'     => $p,
+                    'portrait' => $csv->resolveHeroPortrait($p),
+                ];
+            }, array_values($myPicks));
+
+            $enemyPicksWithPortraits = array_map(function($p) use ($csv) {
+                return [
+                    'name'     => $p,
+                    'portrait' => $csv->resolveHeroPortrait($p),
+                ];
+            }, is_array($enemyPicks) ? array_values($enemyPicks) : []);
+
+            $scored[] = [
+                'game_id'                   => $game->id,
+                'match_id'                  => $game->match_id ?? ($dataset->match_id ?? 'M-MPL'),
+                'game_number'               => $game->game_number,
+                'stage'                     => $stage,
+                'team_1_name'               => $t1Name,
+                'team_2_name'               => $t2Name,
+                'team_1_logo'               => getTeamLogo($t1Name),
+                'team_2_logo'               => getTeamLogo($t2Name),
+                'score'                     => $score,
+                'team_status'               => $myStatus,
+                'enemy_status'              => $enemyStatus,
+                'status_label'              => ($myStatus === 'W') ? 'MENANG' : 'KALAH',
+                'duration'                  => $duration,
+                'team_picks'                => array_values($myPicks),
+                'enemy_picks'               => is_array($enemyPicks) ? array_values($enemyPicks) : [],
+                'team_picks_with_portraits' => $teamPicksWithPortraits,
+                'enemy_picks_with_portraits'=> $enemyPicksWithPortraits,
+                'matched_count'             => $matchCount,
+                'matched_label'             => $matchCount > 0 ? "Mirip {$matchCount} Hero" : "Pertandingan Referensi",
+                'matching_heroes'           => $matchingHeroes,
+                'is_win'                    => ($myStatus === 'W'),
+            ];
+        }
+
+        // Sorting:
+        // Jika ada hero terpilih di simulator, utamakan matched_count terbanyak, lalu game menang (W), lalu id terbaru
+        // Jika simulator kosong, utamakan game menang (W), lalu id terbaru
+        usort($scored, function($a, $b) use ($cleanCurrentPicks) {
+            if (!empty($cleanCurrentPicks)) {
+                if ($b['matched_count'] !== $a['matched_count']) {
+                    return $b['matched_count'] <=> $a['matched_count'];
+                }
+            }
+            if ($b['is_win'] !== $a['is_win']) {
+                return $b['is_win'] ? 1 : -1;
+            }
+            return $b['game_id'] <=> $a['game_id'];
+        });
+
+        return array_slice($scored, 0, $limit);
     }
 }

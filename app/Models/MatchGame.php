@@ -67,6 +67,11 @@ class MatchGame extends Model
         return $this->belongsTo(MatchDataset::class, 'match_dataset_id');
     }
 
+    public function match(): BelongsTo
+    {
+        return $this->belongsTo(MatchDataset::class, 'match_dataset_id');
+    }
+
     /**
      * Relasi ke seluruh hero picks & bans di game ini (tabel match_details)
      */

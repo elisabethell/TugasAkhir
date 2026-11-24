@@ -60,8 +60,9 @@ class DraftInferenceService
         $tournamentStats = $this->csvService->getTournamentStatistics();
         $powerSpikesMap = $this->csvService->getEmpiricalPowerSpikes();
 
-        // Ambil profil Draft DNA historis jika nama tim disediakan
-        $teamDna = !empty($teamName) ? $this->teamDnaService->getTeamDraftDna($teamName) : null;
+        // Ambil profil Draft DNA historis untuk 9 tim MPL ID S18 (default ke 'Alter Ego' jika tidak ada parameter)
+        $normalizedTeam = !empty($teamName) ? $this->teamDnaService->normalizeTeamName($teamName) : 'Alter Ego';
+        $teamDna = $this->teamDnaService->getTeamDraftDna($normalizedTeam);
 
         // 1. Inisialisasi Working Memory
         $workingMemory = $this->buildWorkingMemory(
@@ -106,6 +107,12 @@ class DraftInferenceService
         $allyIdentity = $this->evaluateDraftIdentity($workingMemory['ally_heroes'], 'ally');
         $enemyIdentity = $this->evaluateDraftIdentity($workingMemory['enemy_heroes'], 'enemy');
 
+        // 7. RBR Ringan (Draft Strategy Engine): 4 Output Terstruktur
+        $draftStrategy = $this->evaluateDraftStrategyEngine($workingMemory['ally_heroes'], $teamDna);
+
+        // 8. Match Mirip (Similar Matches) Turnamen MPL ID Season 18
+        $similarMatches = $this->teamDnaService->getSimilarMatches($allyTeam, $normalizedTeam, 3);
+
         return [
             'working_memory'      => $workingMemory,
             'rule_evaluations'    => $ruleEvaluations,
@@ -120,9 +127,15 @@ class DraftInferenceService
                 'comparison' => $spikeComparison,
             ],
             'draft_identity'      => [
-                'ally'  => $allyIdentity,
-                'enemy' => $enemyIdentity,
+                'ally'              => array_merge($allyIdentity, $draftStrategy),
+                'enemy'             => $enemyIdentity,
+                'draft_identity'    => $draftStrategy['draft_identity'],
+                'power_spike'       => $draftStrategy['power_spike'],
+                'playstyle'         => $draftStrategy['playstyle'],
+                'winning_condition' => $draftStrategy['winning_condition'],
             ],
+            'draft_strategy'      => $draftStrategy,
+            'similar_matches'     => $similarMatches,
             'team_dna'            => $teamDna ? [
                 'team_name'             => $teamDna['team_name'],
                 'team_logo'             => $teamDna['team_logo'],
@@ -1262,5 +1275,161 @@ class DraftInferenceService
             'key_strengths'   => $strengths,
             'key_weaknesses'  => $weaknesses,
         ];
+    }
+
+    /**
+     * RBR Ringan (Draft Strategy Engine)
+     * Mengganti aturan RBR lama yang kaku dengan aturan IF-THEN ringan yang membaca
+     * komposisi hero tim (dari hero yang sudah di-pick di simulator + identitas tim yang dipilih)
+     * untuk menghasilkan 4 output terstruktur:
+     * 1. draft_identity: "Double Fighter / Bruiser", "Marksman Late Scaling", "Pick-off / High Mobility", "Balanced Teamfight", dll.
+     * 2. power_spike: "Early Game (0–5m)", "Early-to-Mid (0–12m)", atau "Mid-to-Late (12+m)"
+     * 3. playstyle: "Teamfight / War", "Pick-off / Ganking", atau "Split Push / Objective"
+     * 4. winning_condition: 1–2 kalimat taktis konkret
+     *
+     * @param array $teamHeroes Array hero sekutu di working memory (atau array nama hero)
+     * @param array|null $teamDna Profil Draft DNA tim yang dipilih
+     * @return array [draft_identity, power_spike, playstyle, winning_condition]
+     */
+    public function evaluateDraftStrategyEngine(array $teamHeroes = [], ?array $teamDna = null): array
+    {
+        $allyCount = count($teamHeroes);
+        $teamTag = $teamDna['playstyle_tag'] ?? '';
+
+        // Kasus 1: Belum ada hero yang di-pick di simulator (draft awal)
+        // Gunakan profil identitas dasar dari Draft DNA tim turnamen yang dipilih
+        if ($allyCount === 0) {
+            if ($teamTag === 'Double Fighter') {
+                return [
+                    'draft_identity'    => 'Double Fighter / Bruiser',
+                    'power_spike'       => 'Early-to-Mid (0–12m)',
+                    'playstyle'         => 'Pick-off / Ganking',
+                    'winning_condition' => 'Wajib snowball dan amankan objektif Turtle/Lord di early-to-mid game; hindari late game karena minim hitter turret.',
+                ];
+            } elseif ($teamTag === 'Late Game Scaling') {
+                return [
+                    'draft_identity'    => 'Marksman Late Scaling',
+                    'power_spike'       => 'Mid-to-Late (12+m)',
+                    'playstyle'         => 'Teamfight / War',
+                    'winning_condition' => 'Fokus proteksi Goldlaner hingga 2-3 core item selesai; stall game hingga menit 12+ untuk mendominasi war Evolved Lord.',
+                ];
+            } elseif ($teamTag === 'Assassin Snowball') {
+                return [
+                    'draft_identity'    => 'Pick-off / High Mobility',
+                    'power_spike'       => 'Early Game (0–5m)',
+                    'playstyle'         => 'Pick-off / Ganking',
+                    'winning_condition' => 'Kuasai vision semak river untuk mengisolasi carry musuh sebelum kontes objektif; hindari teamfight 5v5 frontal terbuka.',
+                ];
+            } elseif ($teamTag === 'Tank Jungler') {
+                return [
+                    'draft_identity'    => 'Double Fighter / Bruiser',
+                    'power_spike'       => 'Early-to-Mid (0–12m)',
+                    'playstyle'         => 'Teamfight / War',
+                    'winning_condition' => 'Manfaatkan durabilitas tinggi frontliner untuk merebut kendali Turtle & Lord; perang panjang berkelanjutan menguntungkan formasi tim.',
+                ];
+            } else {
+                return [
+                    'draft_identity'    => 'Balanced Teamfight',
+                    'power_spike'       => 'Early-to-Mid (0–12m)',
+                    'playstyle'         => 'Teamfight / War',
+                    'winning_condition' => 'Pertahankan formasi segitiga saat kontes Turtle; tunggu inisiasi Tank sebelum backline melakukan burst damage.',
+                ];
+            }
+        }
+
+        // Kasus 2: Minimal 1 hero terpilih di simulator
+        // Baca komposisi role & power spike hero sekutu
+        $fighterCount = 0;
+        $tankCount = 0;
+        $assassinCount = 0;
+        $marksmanCount = 0;
+        $mageCount = 0;
+        $supportCount = 0;
+        $earlyCount = 0;
+        $lateCount = 0;
+        $splitCount = 0;
+
+        $knownFighters = ['paquito', 'chou', 'ruby', 'terizla', 'arlott', 'yuzhong', 'yu zhong', 'lapulapu', 'lapu-lapu', 'dyrroth', 'thamuz', 'cici', 'martis', 'freya', 'jawhead', 'badang', 'hilda', 'guinevere', 'leomord', 'khaleed', 'alpha', 'sun', 'bane', 'roger'];
+        $knownTanks = ['tigreal', 'atlas', 'khufra', 'grock', 'akai', 'minotaur', 'fredrinn', 'baxia', 'hylos', 'belerick', 'gloo', 'barats', 'franco', 'lolita', 'gatotkaca', 'johnson', 'uranus', 'edith'];
+        $knownAssassins = ['ling', 'fanny', 'hayabusa', 'nolan', 'joy', 'lancelot', 'suyou', 'saber', 'helcurt', 'natalia', 'gusion', 'aamon', 'karina', 'benedetta', 'yin'];
+        $knownMarksmen = ['claude', 'bruno', 'karrie', 'moskov', 'beatrix', 'brody', 'roger', 'harith', 'natan', 'irithel', 'clint', 'wanwan', 'layla', 'miya', 'popol and kupa', 'popol', 'lesley', 'hanabi', 'ixia'];
+        $knownLate = ['claude', 'karrie', 'moskov', 'miya', 'layla', 'bruno', 'irithel', 'cecilion', 'aldous', 'natan', 'lesley', 'wanwan', 'ixia', 'harith'];
+        $knownEarly = ['martis', 'hilda', 'grock', 'jawhead', 'fanny', 'selena', 'dyrroth', 'terizla', 'thamuz', 'freya', 'paquito', 'chou', 'saber', 'mathilda'];
+        $knownSplit = ['zilong', 'sun', 'hayabusa', 'masha', 'benedetta', 'argus', 'ling', 'chou'];
+
+        foreach ($teamHeroes as $h) {
+            $name = is_array($h) ? ($h['name'] ?? '') : (is_string($h) ? $h : '');
+            $cleanName = preg_replace('/[^a-z0-9]/', '', strtolower($name));
+            $role = is_array($h) ? strtolower($h['role'] ?? '') : '';
+            $spike = is_array($h) ? strtolower($h['power_spike'] ?? '') : '';
+
+            if (str_contains($role, 'fighter') || in_array($cleanName, $knownFighters)) $fighterCount++;
+            if (str_contains($role, 'tank') || in_array($cleanName, $knownTanks)) $tankCount++;
+            if (str_contains($role, 'assassin') || in_array($cleanName, $knownAssassins)) $assassinCount++;
+            if (str_contains($role, 'marksman') || in_array($cleanName, $knownMarksmen)) $marksmanCount++;
+            if (str_contains($role, 'mage')) $mageCount++;
+            if (str_contains($role, 'support')) $supportCount++;
+
+            if (str_contains($spike, 'early') || in_array($cleanName, $knownEarly)) $earlyCount++;
+            if (str_contains($spike, 'late') || in_array($cleanName, $knownLate)) $lateCount++;
+            if (in_array($cleanName, $knownSplit)) $splitCount++;
+        }
+
+        // Aturan IF-THEN Ringan:
+        // 1. Double Fighter / Bruiser
+        if ($fighterCount >= 2 || ($fighterCount >= 1 && $tankCount >= 1 && ($teamTag === 'Double Fighter' || $teamTag === 'Tank Jungler'))) {
+            return [
+                'draft_identity'    => 'Double Fighter / Bruiser',
+                'power_spike'       => 'Early-to-Mid (0–12m)',
+                'playstyle'         => 'Pick-off / Ganking',
+                'winning_condition' => 'Wajib snowball dan amankan objektif Turtle/Lord di early-to-mid game; hindari late game karena minim hitter turret.',
+            ];
+        }
+
+        // 2. Marksman Late Scaling
+        if ($marksmanCount >= 1 && ($lateCount >= 1 || $tankCount >= 1 || $supportCount >= 1 || $teamTag === 'Late Game Scaling')) {
+            return [
+                'draft_identity'    => 'Marksman Late Scaling',
+                'power_spike'       => 'Mid-to-Late (12+m)',
+                'playstyle'         => 'Teamfight / War',
+                'winning_condition' => 'Fokus proteksi Goldlaner hingga 2-3 core item selesai; stall game hingga menit 12+ untuk mendominasi war Evolved Lord.',
+            ];
+        }
+
+        // 3. Pick-off / High Mobility
+        if ($assassinCount >= 1 || $splitCount >= 1 || $teamTag === 'Assassin Snowball') {
+            return [
+                'draft_identity'    => 'Pick-off / High Mobility',
+                'power_spike'       => ($earlyCount >= 2) ? 'Early Game (0–5m)' : 'Early-to-Mid (0–12m)',
+                'playstyle'         => 'Pick-off / Ganking',
+                'winning_condition' => 'Kuasai vision semak river untuk mengisolasi carry musuh sebelum kontes objektif; hindari teamfight 5v5 frontal terbuka.',
+            ];
+        }
+
+        // 4. Split Push / Objective
+        if ($splitCount >= 1 && $allyCount >= 2) {
+            return [
+                'draft_identity'    => 'Split Push / Objective',
+                'power_spike'       => 'Mid-to-Late (12+m)',
+                'playstyle'         => 'Split Push / Objective',
+                'winning_condition' => 'Berikan tekanan di side lane berlawanan saat Lord muncul; tarik 2-3 hero lawan sebelum tim sekutu mengamankan objektif utama.',
+            ];
+        }
+
+        // 5. Balanced Teamfight (Default)
+        return [
+            'draft_identity'    => 'Balanced Teamfight',
+            'power_spike'       => ($earlyCount > $lateCount) ? 'Early-to-Mid (0–12m)' : (($lateCount > 0) ? 'Mid-to-Late (12+m)' : 'Early-to-Mid (0–12m)'),
+            'playstyle'         => 'Teamfight / War',
+            'winning_condition' => 'Pertahankan formasi segitiga saat kontes Turtle; tunggu inisiasi Tank sebelum backline melakukan burst damage.',
+        ];
+    }
+
+    /**
+     * Proxy ke TeamDraftDnaService untuk mencari 2-3 pertandingan asli MPL ID S18 yang paling mirip
+     */
+    public function getSimilarMatches(array $currentPicks = [], ?string $teamName = 'Alter Ego', int $limit = 3): array
+    {
+        return $this->teamDnaService->getSimilarMatches($currentPicks, $teamName, $limit);
     }
 }

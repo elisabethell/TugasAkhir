@@ -214,4 +214,80 @@ class DraftInferenceServiceTest extends TestCase
         $this->assertNotEquals('Belum ada data', $result['power_spikes']['enemy']['text']);
         $this->assertStringContainsString('Kesimpulan:', $result['power_spikes']['comparison']);
     }
+
+    /**
+     * Test 8: Default team adalah 'Alter Ego' ketika team_name tidak diisi atau 'Overall Meta'
+     */
+    public function test_default_team_is_alter_ego_when_team_name_is_omitted_or_overall_meta(): void
+    {
+        $resNull = $this->service->evaluateDraft();
+        $this->assertNotNull($resNull['team_dna']);
+        $this->assertEquals('Alter Ego', $resNull['team_dna']['team_name']);
+
+        $resOverall = $this->service->evaluateDraft(teamName: 'Overall Meta');
+        $this->assertNotNull($resOverall['team_dna']);
+        $this->assertEquals('Alter Ego', $resOverall['team_dna']['team_name']);
+    }
+
+    /**
+     * Test 9: RBR Ringan (Draft Strategy Engine) menghasilkan 4 output terstruktur:
+     * - draft_identity
+     * - power_spike
+     * - playstyle
+     * - winning_condition
+     */
+    public function test_rbr_ringan_draft_strategy_engine_returns_4_structured_outputs(): void
+    {
+        // 1. Double Fighter
+        $resFighter = $this->service->evaluateDraft(allyTeam: ['Paquito', 'Yu Zhong'], teamName: 'Alter Ego');
+        $stratFighter = $resFighter['draft_strategy'];
+
+        $this->assertArrayHasKey('draft_identity', $stratFighter);
+        $this->assertArrayHasKey('power_spike', $stratFighter);
+        $this->assertArrayHasKey('playstyle', $stratFighter);
+        $this->assertArrayHasKey('winning_condition', $stratFighter);
+
+        $this->assertEquals('Double Fighter / Bruiser', $stratFighter['draft_identity']);
+        $this->assertEquals('Early-to-Mid (0–12m)', $stratFighter['power_spike']);
+        $this->assertEquals('Pick-off / Ganking', $stratFighter['playstyle']);
+        $this->assertStringContainsString('Wajib snowball', $stratFighter['winning_condition']);
+
+        // 2. Marksman Late Scaling
+        $resMm = $this->service->evaluateDraft(allyTeam: ['Claude', 'Tigreal'], teamName: 'Alter Ego');
+        $stratMm = $resMm['draft_strategy'];
+        $this->assertEquals('Marksman Late Scaling', $stratMm['draft_identity']);
+        $this->assertEquals('Mid-to-Late (12+m)', $stratMm['power_spike']);
+        $this->assertEquals('Teamfight / War', $stratMm['playstyle']);
+        $this->assertStringContainsString('Goldlaner', $stratMm['winning_condition']);
+
+        // 3. Pick-off / High Mobility
+        $resAssa = $this->service->evaluateDraft(allyTeam: ['Ling', 'Tigreal'], teamName: 'Alter Ego');
+        $stratAssa = $resAssa['draft_strategy'];
+        $this->assertEquals('Pick-off / High Mobility', $stratAssa['draft_identity']);
+        $this->assertEquals('Pick-off / Ganking', $stratAssa['playstyle']);
+        $this->assertStringContainsString('vision semak river', $stratAssa['winning_condition']);
+    }
+
+    /**
+     * Test 10: getSimilarMatches mengembalikan pertandingan historis turnamen dengan struktur lengkap
+     */
+    public function test_get_similar_matches_returns_matching_tournament_games(): void
+    {
+        $matches = $this->service->getSimilarMatches(['Paquito', 'Zhuxin'], 'Alter Ego', 2);
+        $this->assertIsArray($matches);
+
+        if (!empty($matches)) {
+            $m = $matches[0];
+            $this->assertArrayHasKey('team_1_name', $m);
+            $this->assertArrayHasKey('team_2_name', $m);
+            $this->assertArrayHasKey('stage', $m);
+            $this->assertArrayHasKey('score', $m);
+            $this->assertArrayHasKey('duration', $m);
+            $this->assertArrayHasKey('team_picks', $m);
+            $this->assertArrayHasKey('enemy_picks', $m);
+            $this->assertArrayHasKey('matched_count', $m);
+            $this->assertArrayHasKey('matched_label', $m);
+            $this->assertArrayHasKey('status_label', $m);
+        }
+    }
 }

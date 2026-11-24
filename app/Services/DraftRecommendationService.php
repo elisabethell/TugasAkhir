@@ -25,4 +25,12 @@ class DraftRecommendationService extends DraftInferenceService
     {
         return $this->teamDnaService->getAllTeamsDna();
     }
+
+    /**
+     * Mencari 2-3 pertandingan asli turnamen MPL ID S18 yang paling mirip dengan draft saat ini
+     */
+    public function getSimilarMatches(array $currentPicks = [], ?string $teamName = 'Alter Ego', int $limit = 3): array
+    {
+        return $this->teamDnaService->getSimilarMatches($currentPicks, $teamName, $limit);
+    }
 }
