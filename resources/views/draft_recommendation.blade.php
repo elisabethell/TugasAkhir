@@ -103,6 +103,79 @@
         </div>
     </div>
 
+    <!-- ================= STEP 1: PILIH TIM / DRAFT DNA (MPL ID S18) ================= -->
+    <div class="card-custom p-4 sm:p-5 border border-[#F3E8E8] shadow-sm bg-white space-y-4">
+        <div class="flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center gap-3">
+                <span class="w-7 h-7 rounded-full bg-[#700B1A] text-white flex items-center justify-center text-xs font-black shadow-xs">
+                    1
+                </span>
+                <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h2 class="text-sm sm:text-base font-black text-[#18181B] tracking-tight uppercase">
+                            PILIH TIM / DRAFT DNA
+                        </h2>
+                        <span class="bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD] text-[9.5px] font-black px-2 py-0.5 rounded-full uppercase">
+                            MPL ID Season 18
+                        </span>
+                    </div>
+                    <p class="text-xs text-gray-500 font-medium mt-0.5">
+                        Pilih tim untuk mengaktifkan karakteristik draft, hero pool signature, dan win rate historis tim di turnamen resmi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <span id="activeDnaStatusBadge" class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-700 text-[10px] font-black px-3 py-1 rounded-full flex items-center gap-1.5 shadow-2xs">
+                    <span id="activeDnaIndicator" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span id="activeDnaStatusText">Mode: Overall Meta (Semua Tim)</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- HORIZONTAL TEAM SELECTION PILLS (9 TIM + 1 OVERALL META) -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1.5 pt-1 scrollbar-thin" id="teamDnaSelectorContainer">
+            <!-- Default Option: Overall Meta (Semua Tim) -->
+            <button type="button" 
+                    onclick="selectTeamDna('')" 
+                    id="teamBtn-all"
+                    class="team-dna-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition-all flex-shrink-0 border bg-[#700B1A] text-white border-[#700B1A] shadow-xs ring-2 ring-[#700B1A]/20 cursor-pointer">
+                <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <span>Overall Meta</span>
+                <span class="text-[9px] bg-white/20 px-1.5 py-0.5 rounded font-bold">Semua Tim</span>
+            </button>
+
+            @foreach($allTeamsDna ?? [] as $t)
+                @php
+                    $tSlug = \Illuminate\Support\Str::slug($t['team_name']);
+                @endphp
+                <button type="button" 
+                        onclick="selectTeamDna('{{ addslashes($t['team_name']) }}')" 
+                        id="teamBtn-{{ $tSlug }}"
+                        data-team="{{ $t['team_name'] }}"
+                        class="team-dna-btn flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-black transition-all flex-shrink-0 border bg-white hover:bg-[#FAF8F8] text-gray-700 border-[#F3E8E8] hover:border-[#700B1A] shadow-2xs cursor-pointer">
+                    <img src="{{ $t['team_logo'] }}" 
+                         alt="{{ $t['team_name'] }}" 
+                         class="w-6 h-6 object-contain flex-shrink-0"
+                         onerror="this.onerror=null; this.src='/images/teams/default.png';">
+                    <span class="whitespace-nowrap">{{ $t['team_name'] }}</span>
+                    <span class="text-[9px] bg-[#FAF8F8] border border-[#F3E8E8] text-gray-500 px-1.5 py-0.5 rounded font-bold">
+                        {{ $t['win_rate_formatted'] ?? ($t['win_rate'] . '%') }}
+                    </span>
+                </button>
+            @endforeach
+        </div>
+
+        <!-- KARTU DRAFT DNA RINGKAS (Tampil Dinamis saat Tim Dipilih) -->
+        <div id="teamDnaProfileCard" class="hidden rounded-2xl bg-[#FAF8F8] border border-[#F8B4BD] p-4 sm:p-5 space-y-4 transition-all duration-300">
+            <!-- Konten di-render dinamis melalui JS renderTeamDnaProfileCard() -->
+        </div>
+    </div>
+
     <!-- 2. TWO-COLUMN DRAFT ARENA -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
@@ -1028,6 +1101,17 @@
     const rbrGenerated = @json($rbrGenerated ?? []);
     const powerSpikesMap = @json($powerSpikesMap ?? []);
     const initialInferenceData = @json($initialInference ?? null);
+    const allTeamsDna = @json($allTeamsDna ?? []);
+
+    let selectedTeamName = ''; // Default Overall Meta (Semua Tim)
+    const teamsDnaMap = {};
+    if (Array.isArray(allTeamsDna)) {
+        allTeamsDna.forEach(t => {
+            if (t && t.team_name) {
+                teamsDnaMap[t.team_name.toLowerCase()] = t;
+            }
+        });
+    }
 
     let latestInferenceData = initialInferenceData;
     let currentRecommendations = @json($defaultPicks ?? []);
@@ -1054,7 +1138,174 @@
         renderPickerGrid();
         updateDamageAndPowerSpikes();
         renderTacticalAnalysis();
+        updateTeamDnaUI();
     });
+
+    // Kontrol Pemilihan Tim / Draft DNA (Step 1)
+    function selectTeamDna(teamName) {
+        if (selectedTeamName && selectedTeamName.toLowerCase() === (teamName || '').toLowerCase()) {
+            selectedTeamName = '';
+        } else {
+            selectedTeamName = teamName || '';
+        }
+
+        updateTeamDnaUI();
+        syncServerDraft();
+
+        if (selectedTeamName) {
+            showToast(`Draft DNA tim ${selectedTeamName} diaktifkan.`);
+        } else {
+            showToast('Mode Overall Meta (Semua Tim) diaktifkan.');
+        }
+    }
+
+    function updateTeamDnaUI() {
+        const buttons = document.querySelectorAll('.team-dna-btn');
+        buttons.forEach(btn => {
+            const btnTeam = btn.getAttribute('data-team') || '';
+            const isAllBtn = (btn.id === 'teamBtn-all');
+
+            if (!selectedTeamName && isAllBtn) {
+                btn.className = 'team-dna-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition-all flex-shrink-0 border bg-[#700B1A] text-white border-[#700B1A] shadow-xs ring-2 ring-[#700B1A]/20 cursor-pointer';
+            } else if (selectedTeamName && btnTeam.toLowerCase() === selectedTeamName.toLowerCase()) {
+                btn.className = 'team-dna-btn flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black transition-all flex-shrink-0 border bg-[#700B1A] text-white border-[#700B1A] shadow-xs ring-2 ring-[#700B1A]/20 cursor-pointer';
+            } else {
+                btn.className = 'team-dna-btn flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-black transition-all flex-shrink-0 border bg-white hover:bg-[#FAF8F8] text-gray-700 border-[#F3E8E8] hover:border-[#700B1A] shadow-2xs cursor-pointer';
+            }
+        });
+
+        const statusText = document.getElementById('activeDnaStatusText');
+        const statusIndicator = document.getElementById('activeDnaIndicator');
+        const card = document.getElementById('teamDnaProfileCard');
+
+        if (!selectedTeamName) {
+            if (statusText) statusText.textContent = 'Mode: Overall Meta (Semua Tim)';
+            if (statusIndicator) statusIndicator.className = 'w-2 h-2 rounded-full bg-emerald-500';
+            if (card) {
+                card.classList.add('hidden');
+                card.innerHTML = '';
+            }
+        } else {
+            const dna = teamsDnaMap[selectedTeamName.toLowerCase()];
+            if (statusText) statusText.textContent = `Draft DNA: ${selectedTeamName} (${dna ? (dna.win_rate_formatted || dna.win_rate + '%') : 'Aktif'})`;
+            if (statusIndicator) statusIndicator.className = 'w-2 h-2 rounded-full bg-[#700B1A]';
+            if (card) {
+                if (dna) {
+                    renderTeamDnaProfileCard(dna);
+                    card.classList.remove('hidden');
+                } else {
+                    fetch(`/api/teams/${encodeURIComponent(selectedTeamName)}/dna`)
+                        .then(r => r.json())
+                        .then(res => {
+                            if (res.data) {
+                                teamsDnaMap[selectedTeamName.toLowerCase()] = res.data;
+                                renderTeamDnaProfileCard(res.data);
+                                card.classList.remove('hidden');
+                            }
+                        })
+                        .catch(err => console.warn('Failed to fetch team DNA:', err));
+                }
+            }
+        }
+    }
+
+    function renderTeamDnaProfileCard(dna) {
+        const container = document.getElementById('teamDnaProfileCard');
+        if (!container || !dna) return;
+
+        const topHeroesHtml = (dna.top_heroes && dna.top_heroes.length > 0) ? dna.top_heroes.slice(0, 8).map(h => `
+            <div class="bg-white border border-[#F3E8E8] rounded-xl p-2 flex items-center gap-2 shadow-2xs hover:border-[#700B1A] transition">
+                <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-[#F3E8E8] bg-gray-50">
+                    <img src="${h.portrait}" alt="${h.hero}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(h.hero)}&background=700B1A&color=fff';">
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div class="text-[11px] font-black text-[#18181B] truncate">${h.hero}</div>
+                    <div class="text-[9.5px] text-gray-500 flex items-center gap-1">
+                        <span>${h.picks} Pick</span>
+                        <span>•</span>
+                        <span class="text-[#700B1A] font-extrabold">${h.win_rate_formatted || h.win_rate + '%'} WR</span>
+                    </div>
+                </div>
+            </div>
+        `).join('') : '<div class="text-xs text-gray-400 italic col-span-4">Belum ada data pick hero.</div>';
+
+        const topBansHtml = (dna.top_bans && dna.top_bans.length > 0) ? dna.top_bans.slice(0, 5).map(b => `
+            <div class="bg-white border border-[#F3E8E8] rounded-xl p-2 flex items-center gap-2 shadow-2xs hover:border-[#700B1A] transition">
+                <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-[#F3E8E8] bg-gray-50">
+                    <img src="${b.portrait}" alt="${b.hero}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(b.hero)}&background=700B1A&color=fff';">
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div class="text-[11px] font-black text-[#18181B] truncate">${b.hero}</div>
+                    <div class="text-[9.5px] text-gray-500 flex items-center gap-1">
+                        <span>${b.bans} Ban</span>
+                        <span>•</span>
+                        <span class="text-red-700 font-extrabold">${b.ban_rate_formatted || b.ban_rate + '%'}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('') : '<div class="text-xs text-gray-400 italic col-span-3">Belum ada data ban hero.</div>';
+
+        container.innerHTML = `
+            <div class="flex items-start justify-between flex-wrap gap-3 pb-3 border-b border-[#F8B4BD]/60">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-13 h-13 rounded-2xl bg-white border border-[#F3E8E8] shadow-xs flex items-center justify-center p-2 flex-shrink-0">
+                        <img src="${dna.team_logo}" alt="${dna.team_name}" class="w-full h-full object-contain" onerror="this.onerror=null; this.src='/images/teams/default.png';">
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h3 class="text-lg font-black text-[#18181B] tracking-tight">${dna.team_name}</h3>
+                            <span class="bg-[#700B1A] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase flex items-center gap-1 shadow-2xs">
+                                <svg class="w-3 h-3 text-amber-300" fill="currentColor" viewBox="0 0 20 20"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"/></svg>
+                                <span>${dna.playstyle_tag}</span>
+                            </span>
+                        </div>
+                        <div class="text-xs text-gray-600 font-medium mt-0.5 flex items-center gap-2 flex-wrap">
+                            <span>${dna.total_games} Pertandingan</span>
+                            <span>•</span>
+                            <span>Win Rate: <strong class="text-[#700B1A] font-black">${dna.win_rate_formatted || dna.win_rate + '%'}</strong> (${dna.wins}W - ${dna.losses}L)</span>
+                            <span>•</span>
+                            <span class="text-gray-500">${dna.playstyle_frequency || ''}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-left sm:text-right max-w-md">
+                    <span class="text-[9.5px] uppercase font-black tracking-wider text-gray-400">Deskripsi Karakteristik Playstyle:</span>
+                    <p class="text-xs text-gray-700 font-medium leading-snug mt-0.5">
+                        ${dna.playstyle_description || 'Gaya main kompetitif turnamen MPL ID Season 18.'}
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 pt-1">
+                <div class="md:col-span-7 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black uppercase tracking-wider text-[#18181B] flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-[#700B1A]" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <span>Top Hero Pool Signature (${dna.top_heroes ? dna.top_heroes.length : 0})</span>
+                        </span>
+                        <span class="text-[9px] text-gray-400 font-bold">Paling Sering Di-pick Tim</span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        ${topHeroesHtml}
+                    </div>
+                </div>
+
+                <div class="md:col-span-5 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black uppercase tracking-wider text-red-900 flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-red-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd"/></svg>
+                            <span>Top Bans Turnamen (${dna.top_bans ? dna.top_bans.length : 0})</span>
+                        </span>
+                        <span class="text-[9px] text-gray-400 font-bold">Ban Tim & Lawan</span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        ${topBansHtml}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
 
     function resolveDefaultLane(heroObj) {
         if (!heroObj || !heroObj.lane) return 'EXP';
@@ -2297,6 +2548,14 @@
             const dmgBadgeHtml = (p.damage_type && p.damage_type !== '—') ? 
                 `<span class="${p.damage_type === 'Magic' ? 'bg-purple-100 text-purple-800' : (p.damage_type === 'Mixed' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800')} text-[7.5px] font-bold px-1 rounded" title="Tipe Serangan: ${p.damage_type}">${p.damage_type === 'Magic' ? 'MG' : (p.damage_type === 'Mixed' ? 'MX' : 'PH')}</span>` : '';
 
+            // Comfort Pick Check (Draft DNA Tim)
+            const isComfortPick = Boolean(p.team_dna && p.team_dna.in_hero_pool);
+            const comfortBadgeHtml = isComfortPick ? 
+                `<span class="bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD] text-[8px] font-black px-1.5 py-0.2 rounded flex items-center gap-0.5 shadow-2xs flex-shrink-0" title="Comfort Pick / DNA Tim: Hero Pool Signature ${p.team_dna.team_name} (${p.team_dna.team_picks} Game, ${p.team_dna.team_wr}% WR)">
+                    <svg class="w-2.5 h-2.5 text-[#700B1A]" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    <span>Comfort Pick / DNA Tim</span>
+                </span>` : '';
+
             // Data extraction for accordion
             const dataScoreVal = (p.breakdown && p.breakdown.data && p.breakdown.data.score != null) ? parseFloat(p.breakdown.data.score) : 50.0;
             const ruleScoreVal = (p.breakdown && p.breakdown.rule && p.breakdown.rule.score != null) ? parseFloat(p.breakdown.rule.score) : 50.0;
@@ -2335,6 +2594,7 @@
                                     ${primaryLane}
                                 </span>
                                 ${dmgBadgeHtml}
+                                ${comfortBadgeHtml}
                             </div>
                             <!-- SATU chip alasan utama (Compact) -->
                             <div class="flex items-center gap-1 mt-0.5">
@@ -2467,6 +2727,35 @@
                             ${renderUnfiredRulesList(notFiredRulesList)}
                         </div>
                     </div>
+
+                    ${p.team_dna ? `
+                    <!-- e. Analisis Profil Draft DNA Tim -->
+                    <div class="bg-white border border-[#F8B4BD] rounded-xl p-2.5 space-y-1.5 shadow-2xs">
+                        <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-[#700B1A]">
+                            <span class="flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-[#700B1A]" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <span>Profil Draft DNA: ${p.team_dna.team_name}</span>
+                            </span>
+                            <span class="${p.team_dna.in_hero_pool ? 'bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD]' : 'bg-gray-100 text-gray-600'} text-[8.5px] font-extrabold px-2 py-0.5 rounded-full">
+                                ${p.team_dna.in_hero_pool ? 'Hero Pool Signature' : 'Opsi Penyesuaian Meta'}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[9.5px] pt-1 border-t border-[#FAF0F1]">
+                            <div>
+                                <span class="text-gray-400">Match Tim:</span>
+                                <strong class="text-gray-800 ml-1">${p.team_dna.team_picks > 0 ? p.team_dna.team_picks + ' game (' + p.team_dna.team_wins + 'W)' : '0 game (fallback MPL)'}</strong>
+                            </div>
+                            <div>
+                                <span class="text-gray-400">Win Rate Tim:</span>
+                                <strong class="text-[#700B1A] ml-1">${p.team_dna.team_wr != null ? p.team_dna.team_wr + '%' : (winRateVal + '%')}</strong>
+                            </div>
+                            <div>
+                                <span class="text-gray-400">Playstyle Fit:</span>
+                                <strong class="${p.team_dna.playstyle_fit ? 'text-emerald-700 font-extrabold' : 'text-gray-700'} ml-1">${p.team_dna.playstyle_fit ? 'Sangat Selaras' : 'Standar'}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
 
                     <!-- e. Confidence definition & action button -->
                     <div class="flex items-center justify-between pt-1 flex-wrap gap-2">
@@ -3152,12 +3441,19 @@
                 enemy_team: enemyTeam,
                 my_lanes: allyLanes,
                 enemy_lanes: enemyLanes,
-                banned: allBans
+                banned: allBans,
+                team_name: selectedTeamName
             })
         }).then(res => res.json()).then(data => {
             if (data && data.recommendations) {
                 currentRecommendations = data.recommendations;
                 latestInferenceData = data.inference || data;
+            }
+            if (data && data.team_dna) {
+                teamsDnaMap[data.team_dna.team_name.toLowerCase()] = data.team_dna;
+                if (selectedTeamName && selectedTeamName.toLowerCase() === data.team_dna.team_name.toLowerCase()) {
+                    renderTeamDnaProfileCard(data.team_dna);
+                }
             }
             renderTacticalAnalysis();
             updateInferenceModalContent();

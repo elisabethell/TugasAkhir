@@ -110,6 +110,10 @@ class DraftInferenceApiTest extends TestCase
         $response->assertSee('allyWinConditionText');
         $response->assertSee('enemyCounterAdviceText');
         $response->assertSee('heroPickerCard');
+        $response->assertSee('PILIH TIM / DRAFT DNA');
+        $response->assertSee('Overall Meta');
+        $response->assertSee('teamDnaSelectorContainer');
+        $response->assertSee('teamDnaProfileCard');
         $response->assertDontSeeText('undefined');
         $response->assertDontSee('OP-01 PICKS');
         $response->assertDontSee('OP-02 BANS');

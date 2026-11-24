@@ -439,13 +439,19 @@ class TeamDraftDnaService
             $dna = $this->getTeamDraftDna($t);
             if ($dna) {
                 $results[] = [
-                    'team_name'          => $dna['team_name'],
-                    'team_logo'          => $dna['team_logo'],
-                    'total_games'        => $dna['total_games'],
-                    'win_rate'           => $dna['win_rate'],
-                    'win_rate_formatted' => $dna['win_rate_formatted'],
-                    'playstyle_tag'      => $dna['playstyle_tag'],
-                    'top_hero_names'     => array_column(array_slice($dna['top_heroes'], 0, 5), 'hero'),
+                    'team_name'             => $dna['team_name'],
+                    'team_logo'             => $dna['team_logo'],
+                    'total_games'           => $dna['total_games'],
+                    'wins'                  => $dna['wins'],
+                    'losses'                => $dna['losses'],
+                    'win_rate'              => $dna['win_rate'],
+                    'win_rate_formatted'    => $dna['win_rate_formatted'],
+                    'playstyle_tag'         => $dna['playstyle_tag'],
+                    'playstyle_frequency'   => $dna['playstyle_frequency'],
+                    'playstyle_description' => $dna['playstyle_description'],
+                    'top_heroes'            => $dna['top_heroes'],
+                    'top_bans'              => $dna['top_bans'],
+                    'top_hero_names'        => array_column(array_slice($dna['top_heroes'], 0, 5), 'hero'),
                 ];
             }
         }
