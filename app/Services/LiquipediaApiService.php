@@ -599,25 +599,12 @@ class LiquipediaApiService
     }
 
     /**
-     * Menyediakan URL logo tim profesional MPL ID
+     * Menyediakan path logo tim lokal di public/images/teams/ (PNG)
+     * Menggunakan fungsi helper getTeamLogo($teamName).
      */
     public function resolveTeamLogo(string $teamName, ?string $rawIcon = null): string
     {
-        $clean = strtolower($teamName);
-
-        return match (true) {
-            str_contains($clean, 'alter ego') => '/images/teams/ae.svg',
-            str_contains($clean, 'onic')      => '/images/teams/onic.svg',
-            str_contains($clean, 'rrq')       => '/images/teams/rrq.svg',
-            str_contains($clean, 'evos')      => '/images/teams/evos.svg',
-            str_contains($clean, 'geek')      => '/images/teams/geek.svg',
-            str_contains($clean, 'bigetron')  => '/images/teams/btr.svg',
-            str_contains($clean, 'navi') || str_contains($clean, 'natus') => '/images/teams/navi.svg',
-            str_contains($clean, 'rebellion') => '/images/teams/rbl.svg',
-            str_contains($clean, 'liquid')    => '/images/teams/liquid.svg',
-            str_contains($clean, 'dewa')      => '/images/teams/dewa.svg',
-            default                           => (!empty($rawIcon) && str_starts_with($rawIcon, 'http') ? $rawIcon : ("https://ui-avatars.com/api/?name=" . urlencode($teamName) . "&background=700B1A&color=fff&size=128")),
-        };
+        return getTeamLogo($teamName);
     }
 
     public function seedMockupSampleMatch(): ?MatchDataset

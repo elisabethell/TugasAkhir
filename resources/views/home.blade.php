@@ -418,7 +418,7 @@
                 <span class="hidden sm:inline">•</span>
                 <a href="https://liquipedia.net/mobilelegends" target="_blank" rel="noopener noreferrer" 
                    class="inline-flex items-center gap-1.5 text-[#0A285F] hover:text-[#0072CE] transition font-extrabold">
-                    <img src="/images/liquipedia_logo.svg" alt="Liquipedia Logo" class="w-3.5 h-3.5 object-contain">
+                    <img src="/images/liquipedia_logo.png" alt="Liquipedia Logo" class="w-3.5 h-3.5 object-contain">
                     <span>CREDIT: LIQUIPEDIA MLBB API</span>
                 </a>
             </div>

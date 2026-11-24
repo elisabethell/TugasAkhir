@@ -181,25 +181,19 @@ class MatchDataset extends Model
     }
 
     /**
-     * Resolusi Logo Tim 1 (Memastikan logo resmi SVG lokal / Liquipedia termuat tanpa 403)
+     * Resolusi Logo Tim 1 (Memastikan logo resmi PNG lokal termuat)
      */
     public function getTeam1LogoAttribute($value): string
     {
-        if (!empty($this->team_1_name)) {
-            return app(\App\Services\LiquipediaApiService::class)->resolveTeamLogo($this->team_1_name, $value);
-        }
-        return $value ?? '';
+        return getTeamLogo($this->team_1_name ?? $value ?? '');
     }
 
     /**
-     * Resolusi Logo Tim 2 (Memastikan logo resmi SVG lokal / Liquipedia termuat tanpa 403)
+     * Resolusi Logo Tim 2 (Memastikan logo resmi PNG lokal termuat)
      */
     public function getTeam2LogoAttribute($value): string
     {
-        if (!empty($this->team_2_name)) {
-            return app(\App\Services\LiquipediaApiService::class)->resolveTeamLogo($this->team_2_name, $value);
-        }
-        return $value ?? '';
+        return getTeamLogo($this->team_2_name ?? $value ?? '');
     }
 
     /**

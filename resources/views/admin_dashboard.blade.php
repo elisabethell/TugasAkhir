@@ -21,7 +21,7 @@
             <a href="https://liquipedia.net/mobilelegends" target="_blank" rel="noopener noreferrer" 
                class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#F5F8FC] hover:bg-[#EBF2FA] border border-[#D0E1F5] transition group shadow-2xs"
                title="Data Pertandingan Resmi Bersumber dari Liquipedia API">
-                <img src="/images/liquipedia_logo.svg" alt="Liquipedia Logo" class="w-4 h-4 object-contain">
+                <img src="/images/liquipedia_logo.png" alt="Liquipedia Logo" class="w-4 h-4 object-contain">
                 <span class="font-black text-[11px] text-[#0A285F] group-hover:text-[#0072CE] tracking-wider uppercase">LIQUIPEDIA</span>
             </a>
         </div>
@@ -219,20 +219,12 @@
                                               title="{{ $match->team_1_name }}">
                                             {{ $match->team_1_name }}
                                         </span>
-                                        @if(!empty($match->team_1_logo))
-                                            <img src="{{ $match->team_1_logo }}" 
+                                        @if(getTeamLogo($match->team_1_name))
+                                            <img src="{{ getTeamLogo($match->team_1_name) }}" 
                                                  alt="{{ $match->team_1_name }}" 
-                                                 referrerpolicy="no-referrer"
-                                                 loading="lazy"
                                                  class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0"
-                                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($match->team_1_name) }}&background=700B1A&color=fff&size=64';">
+                                                 onerror="this.style.display='none';">
                                         @endif
-                                        <img src="/images/teams/{{ strtolower($match->team_a_name) }}.png" 
-                                             alt="{{ $match->team_1_name }}" 
-                                             referrerpolicy="no-referrer"
-                                             loading="lazy"
-                                             class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0"
-                                             onerror="this.onerror=null; this.src='{{ $match->team_1_logo ?: 'https://ui-avatars.com/api/?name=' . urlencode($match->team_1_name) . '&background=700B1A&color=fff&size=64' }}';">
                                     </div>
 
                                     <!-- Score Badge (Pill, never wraps) -->
@@ -244,20 +236,12 @@
 
                                     <!-- Team 2 (Left aligned) -->
                                     <div class="flex items-center gap-1.5 flex-1 justify-start min-w-0">
-                                        @if(!empty($match->team_2_logo))
-                                            <img src="{{ $match->team_2_logo }}" 
+                                        @if(getTeamLogo($match->team_2_name))
+                                            <img src="{{ getTeamLogo($match->team_2_name) }}" 
                                                  alt="{{ $match->team_2_name }}" 
-                                                 referrerpolicy="no-referrer"
-                                                 loading="lazy"
                                                  class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0"
-                                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($match->team_2_name) }}&background=700B1A&color=fff&size=64';">
+                                                 onerror="this.style.display='none';">
                                         @endif
-                                        <img src="/images/teams/{{ strtolower($match->team_b_name) }}.png" 
-                                             alt="{{ $match->team_2_name }}" 
-                                             referrerpolicy="no-referrer"
-                                             loading="lazy"
-                                             class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0"
-                                             onerror="this.onerror=null; this.src='{{ $match->team_2_logo ?: 'https://ui-avatars.com/api/?name=' . urlencode($match->team_2_name) . '&background=700B1A&color=fff&size=64' }}';">
                                         <span class="font-black text-xs sm:text-sm text-left whitespace-nowrap {{ $match->team_2_score > $match->team_1_score ? 'text-[#18181B]' : 'text-gray-500' }}"
                                               title="{{ $match->team_2_name }}">
                                             {{ $match->team_2_name }}
@@ -539,6 +523,25 @@
         }
     }
 
+    /**
+     * Resolusi logo tim resmi dari public/images/teams/*.png
+     */
+    function getTeamLogoJS(teamName) {
+        if (!teamName) return '';
+        const clean = teamName.toLowerCase().replace(/[[\]_]/g, ' ').trim();
+        if (clean.includes('evos')) return '/images/teams/evos.png';
+        if (clean.includes('rrq')) return '/images/teams/rrq.png';
+        if (clean.includes('navi') || clean.includes('natus')) return '/images/teams/navi.png';
+        if (clean.includes('alter ego') || clean === 'ae' || clean.startsWith('ae ')) return '/images/teams/ae.png';
+        if (clean.includes('tlid') || clean.includes('liquid')) return '/images/teams/tlid.png';
+        if (clean.includes('geek')) return '/images/teams/geek.png';
+        if (clean.includes('dewa')) return '/images/teams/dewa.png';
+        if (clean.includes('btr') || clean.includes('bigetron') || clean.includes('vitality')) return '/images/teams/btr.png';
+        if (clean.includes('onic')) return '/images/teams/onic.png';
+        if (clean.includes('rebellion') || clean.includes('rbl')) return '/images/teams/rbl.png';
+        return '';
+    }
+
     function resolveHeroImg(heroName, existingUrl) {
         if (existingUrl && existingUrl.startsWith('http') && !existingUrl.includes('ui-avatars.com') && !existingUrl.includes('deviantart') && !existingUrl.includes('placeholder')) {
             return existingUrl;
@@ -610,13 +613,12 @@
                         <span class="font-black text-base sm:text-lg text-[#0260a8] tracking-tight truncate max-w-[130px] sm:max-w-[180px]">
                             ${match.team_1_name}
                         </span>
-                        ${match.team_1_logo ? `<img src="${match.team_1_logo}" alt="${match.team_1_name}" referrerpolicy="no-referrer" loading="lazy" class="w-8 h-8 sm:w-9 sm:h-9 object-contain flex-shrink-0" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(match.team_1_name)}&background=700B1A&color=fff&size=64';">` : ''}
-                        <img src="/images/teams/${(match.team_1_name || '').toLowerCase()}.png" 
-                             alt="${match.team_1_name}" 
-                             referrerpolicy="no-referrer" 
-                             loading="lazy" 
-                             class="w-8 h-8 sm:w-9 sm:h-9 object-contain flex-shrink-0" 
-                             onerror="this.onerror=null; this.src='${match.team_1_logo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(match.team_1_name) + '&background=700B1A&color=fff&size=64'}';">
+                        ${(match.team_1_logo || getTeamLogoJS(match.team_1_name)) ? `
+                            <img src="${match.team_1_logo || getTeamLogoJS(match.team_1_name)}" 
+                                 alt="${match.team_1_name}" 
+                                 class="w-8 h-8 sm:w-9 sm:h-9 object-contain flex-shrink-0" 
+                                 onerror="this.style.display='none';">
+                        ` : ''}
                     </div>
 
                     <div class="text-center px-3 flex-shrink-0">
@@ -633,13 +635,12 @@
                     </div>
 
                     <div class="flex items-center gap-2.5 flex-1 justify-end">
-                        ${match.team_2_logo ? `<img src="${match.team_2_logo}" alt="${match.team_2_name}" referrerpolicy="no-referrer" loading="lazy" class="w-8 h-8 sm:w-9 sm:h-9 object-contain flex-shrink-0" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(match.team_2_name)}&background=700B1A&color=fff&size=64';">` : ''}
-                        <img src="/images/teams/${(match.team_2_name || '').toLowerCase()}.png" 
-                             alt="${match.team_2_name}" 
-                             referrerpolicy="no-referrer" 
-                             loading="lazy" 
-                             class="w-8 h-8 sm:w-9 sm:h-9 object-contain flex-shrink-0" 
-                             onerror="this.onerror=null; this.src='${match.team_2_logo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(match.team_2_name) + '&background=700B1A&color=fff&size=64'}';">
+                        ${(match.team_2_logo || getTeamLogoJS(match.team_2_name)) ? `
+                            <img src="${match.team_2_logo || getTeamLogoJS(match.team_2_name)}" 
+                                 alt="${match.team_2_name}" 
+                                 class="w-8 h-8 sm:w-9 sm:h-9 object-contain flex-shrink-0" 
+                                 onerror="this.style.display='none';">
+                        ` : ''}
                         <span class="font-black text-base sm:text-lg text-[#0260a8] tracking-tight truncate max-w-[130px] sm:max-w-[180px]">
                             ${match.team_2_name}
                         </span>

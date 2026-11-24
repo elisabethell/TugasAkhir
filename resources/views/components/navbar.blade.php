@@ -12,7 +12,7 @@
         <a href="https://liquipedia.net/mobilelegends" target="_blank" rel="noopener noreferrer" 
            class="flex items-center gap-1.5 px-2 py-0.5 sm:py-1 rounded-full bg-[#F5F8FC] hover:bg-[#EBF2FA] border border-[#D0E1F5] transition group shadow-2xs whitespace-nowrap"
            title="Data Pertandingan Resmi Bersumber dari Liquipedia API">
-            <img src="/images/liquipedia_logo.svg" alt="Liquipedia Logo" class="w-3.5 h-3.5 object-contain">
+            <img src="/images/liquipedia_logo.png" alt="Liquipedia Logo" class="w-3.5 h-3.5 object-contain">
             <span class="font-black text-[10px] sm:text-[11px] text-[#0A285F] group-hover:text-[#0072CE] tracking-wider uppercase">LIQUIPEDIA</span>
         </a>
     </div>
