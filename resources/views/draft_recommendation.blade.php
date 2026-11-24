@@ -47,9 +47,35 @@
         </div>
 
         <div class="flex items-center gap-2 flex-wrap">
+            <!-- Skenario Demo Dropdown Button (FASE 6) -->
+            <div class="relative inline-block text-left" id="demoScenarioDropdown">
+                <button type="button" 
+                        onclick="toggleScenarioMenu(event)" 
+                        class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-amber-900 border border-amber-300 rounded-full px-3.5 py-1.5 sm:py-2 text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition">
+                    <span>Skenario Demo</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <div id="demoScenarioMenu" class="hidden absolute right-0 mt-2 w-72 rounded-2xl bg-white shadow-xl border border-[#F3E8E8] py-2 z-50 text-left divide-y divide-gray-100">
+                    <button type="button" onclick="loadDemoScenario('magic-deficit')" class="w-full px-4 py-2.5 text-left text-xs hover:bg-[#FCECEE] transition block">
+                        <div class="font-extrabold text-[#700B1A]">Skenario 1: Defisit Magic (Mage Wajib)</div>
+                        <div class="text-[10px] text-gray-500 mt-0.5">3 Physical (Tigreal, Bruno, Ling) memicu [RBR-COMP-01] Critical</div>
+                    </button>
+                    <button type="button" onclick="loadDemoScenario('no-frontline')" class="w-full px-4 py-2.5 text-left text-xs hover:bg-[#FCECEE] transition block">
+                        <div class="font-extrabold text-[#700B1A]">Skenario 2: Tanpa Frontline & Minim CC</div>
+                        <div class="text-[10px] text-gray-500 mt-0.5">Layla, Lesley, Hanabi memicu [RBR-COMP-02] & [RBR-CC-01]</div>
+                    </button>
+                    <button type="button" onclick="loadDemoScenario('late-scaling')" class="w-full px-4 py-2.5 text-left text-xs hover:bg-[#FCECEE] transition block">
+                        <div class="font-extrabold text-[#700B1A]">Skenario 3: Late-Heavy vs Early Snowball</div>
+                        <div class="text-[10px] text-gray-500 mt-0.5">Late scalers (Claude, Cecilion, Aldous) vs Early aggro memicu [RBR-POW-02]</div>
+                    </button>
+                </div>
+            </div>
+
             <button type="button" 
                     onclick="resetDraft()" 
-                    class="bg-white hover:bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition">
+                    class="bg-white hover:bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] rounded-full px-3.5 py-1.5 sm:py-2 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition">
                 <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                 </svg>
@@ -109,32 +135,63 @@
                         <!-- Populated dynamically via JS -->
                     </div>
 
+                    <!-- IDENTITAS DRAFT & CARA MAIN TIM SEKUTU -->
+                    <div class="pt-2.5 border-t border-[#FAF0F1] space-y-2" id="allyIdentitySection">
+                        <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-wider">
+                            <span class="text-gray-400">Identitas Draft Tim:</span>
+                            <span id="allyIdentityBadge" class="bg-gray-100 text-gray-700 border border-gray-200 text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">
+                                <span id="allyIdentityBadgeText">Draft Belum Terbentuk</span>
+                            </span>
+                        </div>
+                        <div class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl p-2.5 space-y-1 text-[10px]">
+                            <div class="font-extrabold text-[#700B1A] flex items-center gap-1 text-[10.5px]">
+                                <span>Cara Main & Win Condition Tim:</span>
+                            </div>
+                            <p id="allyWinConditionText" class="text-gray-700 leading-snug font-medium">
+                                Pilih hero sekutu untuk merumuskan win condition dan rencana permainan tim.
+                            </p>
+                            <div id="allyGamePlanBox" class="text-[9px] text-gray-500 pt-1 border-t border-gray-200/70 leading-tight">
+                                <strong>Rencana Makro:</strong> <span id="allyGamePlanText">Kuasai lane dasar dan amankan objektif sungai.</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- DAMAGE DISTRIBUTION COMPARISON WIDGET (TIM SEKUTU) -->
                     <div class="pt-2.5 border-t border-[#FAF0F1] space-y-1.5">
                         <div class="flex items-center justify-between text-[10px] font-black uppercase">
                             <span class="text-amber-700 flex items-center gap-1">
-                                <span>⚔️ Physical:</span> <strong id="allyPhysPct">0%</strong>
+                                <span>PHYSICAL:</span> <strong id="allyPhysPct">0%</strong>
                             </span>
                             <span class="text-purple-700 flex items-center gap-1">
-                                <span>🔮 Magic:</span> <strong id="allyMagPct">0%</strong>
+                                <span>MAGIC:</span> <strong id="allyMagPct">0%</strong>
                             </span>
                         </div>
-                        <div class="w-full h-2 rounded-full overflow-hidden flex bg-gray-100 border border-[#F3E8E8]">
-                            <div id="allyPhysBar" class="bg-amber-600 h-full transition-all duration-300" style="width: 50%;"></div>
-                            <div id="allyMagBar" class="bg-purple-600 h-full transition-all duration-300" style="width: 50%;"></div>
-                        </div>
-                        <div id="allyDamageAlert" class="text-[9px] font-bold text-gray-500 leading-tight">
-                            Status: Belum ada hero terpilih.
+                        <div class="w-full h-1.5 rounded-full overflow-hidden flex bg-gray-100 border border-[#F3E8E8] transition-all" id="allyDamageBarContainer">
+                            <div id="allyPhysBar" class="bg-amber-500 h-full transition-all duration-300" style="width: 0%;"></div>
+                            <div id="allyMagBar" class="bg-purple-600 h-full transition-all duration-300" style="width: 0%;"></div>
                         </div>
                     </div>
 
-                    <!-- POWER SPIKE TIMELINE TIM SEKUTU -->
-                    <div class="pt-2 border-t border-dashed border-[#FAF0F1] flex items-center justify-between text-[9px] font-extrabold text-gray-600">
-                        <span class="text-gray-400 uppercase font-black tracking-wider" title="Korelasi durasi kemenangan empiris MPL ID Season 18 (<13m, 13-17m, >17m)">Power Spike (MPL S18):</span>
-                        <div class="flex items-center gap-2">
-                            <span id="allyEarlySpike" class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">Early: 0</span>
-                            <span id="allyMidSpike" class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">Mid: 0</span>
-                            <span id="allyLateSpike" class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">Late: 0</span>
+                    <!-- POWER SPIKE 3-SEGMENT BAR & INTERPRETASI (TIM SEKUTU) -->
+                    <div class="pt-2 border-t border-dashed border-[#FAF0F1] space-y-1.5" id="allyPowerSpikeSection">
+                        <div class="flex items-center justify-between text-[9px] font-extrabold text-gray-600">
+                            <span class="text-gray-400 uppercase font-black tracking-wider" title="Fase Power Spike: Early (0–5m), Mid (5–12m), Late (12+m / Trinity Marksman)">Power Spike (MPL S18):</span>
+                            <div id="allyPowerSpikeCounts" class="text-[9px] font-semibold text-gray-500 hidden"></div>
+                        </div>
+                        <div id="allyPowerSpikeContent">
+                            <div class="text-[9.5px] text-gray-400 italic py-0.5">Belum ada data</div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL ALERT KOMPOSISI RULE-BASED (TIM SEKUTU) -->
+                    <div class="pt-2 border-t border-[#FAF0F1] space-y-1.5">
+                        <div class="flex items-center justify-between text-[9px] font-extrabold text-gray-600">
+                            <span class="text-gray-400 uppercase font-black tracking-wider">Alert Komposisi Tim:</span>
+                        </div>
+                        <div id="allyCompositionAlerts" class="space-y-1.5">
+                            <div class="text-[9.5px] font-medium text-gray-400 italic py-0.5">
+                                Status: Belum ada hero terpilih.
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -162,40 +219,87 @@
                         <!-- Populated dynamically via JS -->
                     </div>
 
+                    <!-- IDENTITAS DRAFT & CARA LAWAN MUSUH -->
+                    <div class="pt-2.5 border-t border-[#FAF0F1] space-y-2" id="enemyIdentitySection">
+                        <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-wider">
+                            <span class="text-gray-400">Gaya Main Lawan:</span>
+                            <span id="enemyIdentityBadge" class="bg-gray-100 text-gray-700 border border-gray-200 text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">
+                                <span id="enemyIdentityBadgeText">Draft Belum Terdeteksi</span>
+                            </span>
+                        </div>
+                        <div class="bg-red-50/60 border border-red-100 rounded-xl p-2.5 space-y-1 text-[10px]">
+                            <div class="font-extrabold text-[#DC2626] flex items-center gap-1 text-[10.5px]">
+                                <span>Cara Menghadapi / Counter Lawan:</span>
+                            </div>
+                            <p id="enemyCounterAdviceText" class="text-gray-700 leading-snug font-medium">
+                                Pilih hero musuh untuk menganalisis titik lemah dan strategi mengalahkannya.
+                            </p>
+                            <div id="enemyWeaknessBox" class="text-[9px] text-red-800/80 pt-1 border-t border-red-200/70 leading-tight">
+                                <strong>Titik Lemah Musuh:</strong> <span id="enemyWeaknessText">Menunggu pemilihan hero lawan.</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- DAMAGE DISTRIBUTION COMPARISON WIDGET (TIM MUSUH) -->
                     <div class="pt-2.5 border-t border-[#FAF0F1] space-y-1.5">
                         <div class="flex items-center justify-between text-[10px] font-black uppercase">
                             <span class="text-amber-700 flex items-center gap-1">
-                                <span>⚔️ Physical:</span> <strong id="enemyPhysPct">0%</strong>
+                                <span>PHYSICAL:</span> <strong id="enemyPhysPct">0%</strong>
                             </span>
                             <span class="text-purple-700 flex items-center gap-1">
-                                <span>🔮 Magic:</span> <strong id="enemyMagPct">0%</strong>
+                                <span>MAGIC:</span> <strong id="enemyMagPct">0%</strong>
                             </span>
                         </div>
-                        <div class="w-full h-2 rounded-full overflow-hidden flex bg-gray-100 border border-[#F3E8E8]">
-                            <div id="enemyPhysBar" class="bg-amber-600 h-full transition-all duration-300" style="width: 50%;"></div>
-                            <div id="enemyMagBar" class="bg-purple-600 h-full transition-all duration-300" style="width: 50%;"></div>
-                        </div>
-                        <div id="enemyDamageAlert" class="text-[9px] font-bold text-gray-500 leading-tight">
-                            Status: Belum ada hero terpilih.
+                        <div class="w-full h-1.5 rounded-full overflow-hidden flex bg-gray-100 border border-[#F3E8E8] transition-all" id="enemyDamageBarContainer">
+                            <div id="enemyPhysBar" class="bg-amber-500 h-full transition-all duration-300" style="width: 0%;"></div>
+                            <div id="enemyMagBar" class="bg-purple-600 h-full transition-all duration-300" style="width: 0%;"></div>
                         </div>
                     </div>
 
-                    <!-- POWER SPIKE TIMELINE TIM MUSUH -->
-                    <div class="pt-2 border-t border-dashed border-[#FAF0F1] flex items-center justify-between text-[9px] font-extrabold text-gray-600">
-                        <span class="text-gray-400 uppercase font-black tracking-wider" title="Korelasi durasi kemenangan empiris MPL ID Season 18 (<13m, 13-17m, >17m)">Power Spike (MPL S18):</span>
-                        <div class="flex items-center gap-2">
-                            <span id="enemyEarlySpike" class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">Early: 0</span>
-                            <span id="enemyMidSpike" class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">Mid: 0</span>
-                            <span id="enemyLateSpike" class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">Late: 0</span>
+                    <!-- POWER SPIKE 3-SEGMENT BAR & INTERPRETASI (TIM MUSUH) -->
+                    <div class="pt-2 border-t border-dashed border-[#FAF0F1] space-y-1.5" id="enemyPowerSpikeSection">
+                        <div class="flex items-center justify-between text-[9px] font-extrabold text-gray-600">
+                            <span class="text-gray-400 uppercase font-black tracking-wider" title="Fase Power Spike: Early (0–5m), Mid (5–12m), Late (12+m / Trinity Marksman)">Power Spike (MPL S18):</span>
+                            <div id="enemyPowerSpikeCounts" class="text-[9px] font-semibold text-gray-500 hidden"></div>
+                        </div>
+                        <div id="enemyPowerSpikeContent">
+                            <div class="text-[9.5px] text-gray-400 italic py-0.5">Belum ada data</div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL ALERT KOMPOSISI RULE-BASED (TIM MUSUH) -->
+                    <div class="pt-2 border-t border-[#FAF0F1] space-y-1.5">
+                        <div class="flex items-center justify-between text-[9px] font-extrabold text-gray-600">
+                            <span class="text-gray-400 uppercase font-black tracking-wider">Alert Komposisi Lawan:</span>
+                        </div>
+                        <div id="enemyCompositionAlerts" class="space-y-1.5">
+                            <div class="text-[9.5px] font-medium text-gray-400 italic py-0.5">
+                                Status: Belum ada hero terpilih.
+                            </div>
                         </div>
                     </div>
                 </div>
 
             </div>
 
+            <!-- PERBANDINGAN POWER SPIKE & TEMPO ANTAR TIM -->
+            <div id="powerSpikeComparisonBanner" class="card-custom p-3.5 bg-gradient-to-r from-[#FAF8F8] via-[#FCECEE]/40 to-[#FAF8F8] border border-[#F3E8E8] rounded-xl flex items-center justify-between gap-3 text-xs shadow-xs">
+                <div class="flex items-center gap-2.5">
+                    <span class="px-2 py-0.5 rounded-md bg-[#700B1A]/10 text-[#700B1A] flex items-center justify-center font-black text-[9px] shrink-0 tracking-wider">TEMPO</span>
+                    <div>
+                        <span class="text-[9.5px] font-black uppercase tracking-wider text-gray-400 block">Komparasi Kurva Power Spike & Tempo Pertandingan:</span>
+                        <p id="powerSpikeComparisonSummary" class="text-xs font-extrabold text-[#18181B] leading-snug mt-0.5">
+                            Menunggu pemilihan hero untuk membandingkan tempo dan kurva kekuatan kedua tim.
+                        </p>
+                    </div>
+                </div>
+                <div id="tempoAdvantageBadge" class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black bg-gray-100 text-gray-600 border border-gray-200 uppercase whitespace-nowrap shrink-0">
+                    Netral
+                </div>
+            </div>
+
             <!-- HERO SELECTION MATRIX & SEARCH (CARD) -->
-            <div class="card-custom p-5 space-y-4">
+            <div class="card-custom p-4 sm:p-5 space-y-3.5 scroll-mt-20" id="heroPickerCard">
                 
                 <!-- Target Team Mode Selector Tabs -->
                 <div class="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-[#FAF0F1]">
@@ -217,8 +321,8 @@
                         </div>
                     </div>
 
-                    <div class="text-[11px] font-semibold text-gray-400">
-                        Klik hero untuk memasukkan ke draft
+                    <div id="pickerStatusHint" class="text-[11px] font-bold text-gray-500">
+                        Target: <span class="text-[#700B1A]">Tim Sekutu (Slot 1)</span>
                     </div>
                 </div>
 
@@ -233,7 +337,7 @@
                            id="pickerSearchInput" 
                            oninput="filterHeroPicker()" 
                            placeholder="Cari hero berdasarkan nama atau role..." 
-                           class="w-full bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl py-2.5 pl-9 pr-3 text-xs font-medium text-[#18181B] placeholder-gray-400 focus:outline-none focus:border-[#700B1A] transition">
+                           class="w-full bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl py-2 pl-9 pr-3 text-xs font-medium text-[#18181B] placeholder-gray-400 focus:outline-none focus:border-[#700B1A] transition">
                 </div>
 
                 <!-- Lane Filter Tabs -->
@@ -247,7 +351,7 @@
                 </div>
 
                 <!-- Hero Grid Matrix (7 Columns) -->
-                <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-7 gap-2.5 pt-2 max-h-[380px] overflow-y-auto pr-1" id="heroPickerGrid">
+                <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-7 gap-2 pt-1 max-h-[360px] overflow-y-auto pr-1" id="heroPickerGrid">
                     <!-- Populated dynamically via JS -->
                 </div>
 
@@ -255,41 +359,61 @@
 
         </div>
 
-        <!-- ================= RIGHT COLUMN: ANALISIS TAKTIS (5 cols) ================= -->
-        <div class="lg:col-span-5 space-y-4">
+        <!-- ================= RIGHT COLUMN: ANALISIS TAKTIS (5 cols, STICKY) ================= -->
+        <div class="lg:col-span-5 space-y-4 lg:sticky lg:top-16 self-start">
             
             <div class="card-custom p-5 space-y-4">
                 <!-- Tactical Header (Live status) -->
-                <div class="flex items-center justify-between pb-3 border-b border-[#FAF0F1]">
-                    <div class="flex items-center gap-2">
-                        <span class="flex h-2.5 w-2.5 relative">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                        </span>
+                <div class="flex items-center justify-between pb-3 border-b border-[#FAF0F1] gap-2 flex-wrap">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-sm font-black text-[#18181B] tracking-tight">Rekomendasi Sistem Pakar</h3>
+                            <button type="button" 
+                                    onclick="openLegendModal()" 
+                                    title="Panduan Istilah & Legenda Rekomendasi" 
+                                    class="w-5 h-5 rounded-full bg-[#FAF0F1] hover:bg-[#FCECEE] text-[#700B1A] font-extrabold text-[11px] flex items-center justify-center border border-[#F8B4BD] transition cursor-pointer shadow-2xs font-serif italic">
+                                i
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-gray-500 font-medium mt-0.5" id="tacticalDraftStatus">
+                            Draft kosong: Menampilkan rekomendasi meta dasar turnamen MPL ID S18
+                        </p>
                     </div>
 
-                    <!-- Signal Icon -->
-                    <div class="text-gray-400 flex items-end gap-0.5 h-4">
-                        <span class="w-1 h-1.5 bg-[#700B1A] rounded-xs"></span>
-                        <span class="w-1 h-2.5 bg-[#700B1A] rounded-xs"></span>
-                        <span class="w-1 h-3.5 bg-[#700B1A] rounded-xs"></span>
-                        <span class="w-1 h-4 bg-[#700B1A] rounded-xs"></span>
+                    <!-- Header Actions: Jejak Inferensi & Engine RBR Status -->
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button type="button" 
+                                onclick="openInferenceTraceModal()" 
+                                title="Buka drawer jejak inferensi lengkap: Working Memory, Conflict Set, dan langkah kalkulasi skor" 
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FAF0F1] hover:bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD] rounded-xl text-xs font-black transition cursor-pointer shadow-2xs">
+                            <span>Jejak Inferensi</span>
+                        </button>
+                        <div class="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full shadow-2xs">
+                            <span class="flex h-2 w-2 relative">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            <span class="text-[10px] font-bold text-emerald-800 tracking-wide">Engine RBR: Aktif</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- SECTION 1: OP-01 PICKS (REKOMENDASI PICK TIM SEKUTU) -->
+                <!-- Thin Loading State Bar (Forward Chaining Sync Indicator) -->
+                <div id="recLoadingBar" class="h-0.5 w-full bg-[#700B1A] transition-all duration-300 opacity-0 rounded-full"></div>
+
+                <!-- SECTION 1: REKOMENDASI PICK -->
                 <div class="space-y-3">
                     <div class="flex items-center justify-between flex-wrap gap-2">
                         <div class="flex items-center gap-1.5">
-                            <span class="bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD] text-[10px] font-black px-2 py-0.5 rounded-md uppercase">
-                                OP-01 PICKS
+                            <span class="bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD] text-[10px] font-black px-2.5 py-0.5 rounded-md uppercase tracking-wider">
+                                Rekomendasi Pick
                             </span>
                             <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-500 text-[10px] font-bold px-1.5 py-0.5 rounded-md" id="picksCountBadge">
                                 14
                             </span>
                         </div>
 
-                        <!-- Mini Lane Filter Pills for OP-01 -->
+                        <!-- Mini Lane Filter Pills for Rekomendasi Pick -->
                         <div class="flex items-center gap-1 text-[10px]">
                             <button type="button" onclick="setRecLaneFilter('all', this)" class="rec-lane-btn px-2 py-0.5 rounded-full font-bold bg-[#700B1A] text-white">All</button>
                             <button type="button" onclick="setRecLaneFilter('roam', this)" class="rec-lane-btn px-2 py-0.5 rounded-full font-semibold bg-[#FAF8F8] text-gray-600 border border-[#F3E8E8] hover:bg-[#FCECEE]">Roam</button>
@@ -300,25 +424,25 @@
                         </div>
                     </div>
 
-                    <!-- Recommended Picks Cards List -->
-                    <div class="space-y-2.5 max-h-[380px] overflow-y-auto pr-1" id="recommendedPicksList">
-                        <!-- Populated dynamically via JS with RBR transparency details -->
+                    <!-- Recommended Picks Cards List (Compact Cards & Accordion Expand) -->
+                    <div class="space-y-2 max-h-[460px] overflow-y-auto pr-1" id="recommendedPicksList">
+                        <!-- Populated dynamically via JS with compact cards and accordion expand -->
                     </div>
                 </div>
 
-                <!-- SECTION 2: OP-02 BANS (REKOMENDASI BAN HERO LAWAN) -->
+                <!-- SECTION 2: REKOMENDASI BAN -->
                 <div class="space-y-3 pt-3 border-t border-[#FAF0F1]">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-1.5">
-                            <span class="bg-[#FEE2E2] text-[#991B1B] border border-[#FECACA] text-[10px] font-black px-2 py-0.5 rounded-md uppercase">
-                                OP-02 BANS
+                            <span class="bg-[#FEE2E2] text-[#991B1B] border border-[#FECACA] text-[10px] font-black px-2.5 py-0.5 rounded-md uppercase tracking-wider">
+                                Rekomendasi Ban
                             </span>
                             <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-500 text-[10px] font-bold px-1.5 py-0.5 rounded-md" id="bansCountBadge">
                                 8
                             </span>
                         </div>
                         <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-                            PRIORITAS BAN
+                            Prioritas Ban Musuh
                         </span>
                     </div>
 
@@ -326,6 +450,15 @@
                     <div class="space-y-2.5 max-h-[280px] overflow-y-auto pr-1" id="recommendedBansList">
                         <!-- Populated dynamically via JS -->
                     </div>
+                </div>
+
+                <!-- FOOTER PANEL BASIS DATA EMPIRIS NYATA (FASE 3 - PERSYARATAN 4) -->
+                <div class="pt-3 border-t border-[#FAF0F1] flex items-center justify-between text-[10px] text-gray-500 font-medium">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span>Basis data: <strong>MPL ID S18</strong> • <strong>{{ $datasetTotalGames ?? 304 }} game</strong> • Diperbarui <strong>{{ $datasetLastUpdated ?? '13 November 2026' }}</strong></span>
+                    </div>
+                    <span class="text-gray-400 font-mono text-[9px]">Patch 1.9.14</span>
                 </div>
 
             </div>
@@ -336,7 +469,7 @@
                     <div class="flex items-center gap-2">
                         <span class="w-2.5 h-2.5 rounded-full bg-[#700B1A]"></span>
                         <h4 class="text-xs font-black uppercase tracking-wider text-[#18181B]">
-                            🧠 EXPLAINABLE AI (XAI) • AUDIT LOG PENALARAN RBR
+                            EXPLAINABLE AI (XAI) • AUDIT LOG PENALARAN RBR
                         </h4>
                     </div>
                     <a href="{{ route('rules') }}" target="_blank" class="text-[10px] font-black text-[#700B1A] hover:underline flex items-center gap-1">
@@ -355,6 +488,130 @@
 
     </div>
 
+</div>
+
+<!-- ================= MODAL LEGENDA & PANDUAN ISTILAH RBR ================= -->
+<div id="legendModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none transition-all duration-300">
+    <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#F3E8E8]">
+        
+        <!-- Modal Header -->
+        <div class="px-6 py-4 bg-[#FAF8F8] border-b border-[#F3E8E8] flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-[#700B1A]"></span>
+                <div>
+                    <h3 class="font-black text-sm text-[#18181B] uppercase tracking-wider">Panduan Istilah & Legenda Rekomendasi</h3>
+                    <p class="text-[11px] text-gray-500 font-medium">Definisi metrik dan bobot penalaran sistem pakar MetaScout (MPL ID S18)</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeLegendModal()" class="w-8 h-8 rounded-full bg-white hover:bg-gray-100 border border-gray-200 text-gray-500 hover:text-gray-800 flex items-center justify-center transition cursor-pointer">
+                ✕
+            </button>
+        </div>
+
+        <!-- Modal Body (Scrollable) -->
+        <div class="p-6 space-y-4 overflow-y-auto text-xs text-gray-700 leading-relaxed">
+            
+            <!-- 1. Prioritas P1, P2, P3 -->
+            <div class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-2xl p-4 space-y-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-[#700B1A]"></span>
+                    <h4 class="font-black text-xs text-[#700B1A] uppercase tracking-wider">Tingkat Prioritas Rekomendasi (P1 / P2 / P3)</h4>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-1">
+                    <div class="bg-white p-3 rounded-xl border border-gray-100 space-y-1">
+                        <div class="flex items-center gap-1.5">
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-black bg-[#700B1A] text-white">P1</span>
+                            <span class="font-extrabold text-[#18181B] text-[11px]">Prioritas Utama</span>
+                        </div>
+                        <p class="text-[10px] text-gray-500 leading-snug">Skor &ge; 4.0. Direct counter lawan, sinergi kombo utama, atau pemenuhan aturan mutlak komposisi tim (misal: Mage Wajib).</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-gray-100 space-y-1">
+                        <div class="flex items-center gap-1.5">
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-black bg-[#991B1B] text-white">P2</span>
+                            <span class="font-extrabold text-[#18181B] text-[11px]">Prioritas Menengah</span>
+                        </div>
+                        <p class="text-[10px] text-gray-500 leading-snug">Skor 2.2 – 3.9. Sinergi sekunder yang solid, kestabilan laning, atau opsi adaptif fleksibel.</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-gray-100 space-y-1">
+                        <div class="flex items-center gap-1.5">
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-black bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD]">P3</span>
+                            <span class="font-extrabold text-[#18181B] text-[11px]">Pilihan Fleksibel</span>
+                        </div>
+                        <p class="text-[10px] text-gray-500 leading-snug">Skor &lt; 2.2. Rekomendasi cadangan/situasional berbasis rata-rata win rate meta umum.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Jenis Sinyal Taktis (THR, META, SYN, CTR) -->
+            <div class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-2xl p-4 space-y-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-[#700B1A]"></span>
+                    <h4 class="font-black text-xs text-[#700B1A] uppercase tracking-wider">Jenis Sinyal Rekomendasi (Badge Taktis)</h4>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                    <div class="bg-white p-3 rounded-xl border border-gray-100 space-y-1">
+                        <div class="flex items-center gap-1.5">
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-black bg-red-100 text-red-800">THR (Threat)</span>
+                            <span class="font-bold text-[#18181B] text-[11px]">Ancaman Lawan</span>
+                        </div>
+                        <p class="text-[10px] text-gray-500 leading-snug">Hero musuh yang terdeteksi sebagai ancaman terbesar bagi draft sekutu. Sangat disarankan untuk segera di-ban.</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-gray-100 space-y-1">
+                        <div class="flex items-center gap-1.5">
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-black bg-gray-100 text-gray-800">META</span>
+                            <span class="font-bold text-[#18181B] text-[11px]">Standar Turnamen</span>
+                        </div>
+                        <p class="text-[10px] text-gray-500 leading-snug">Hero dengan tingkat kontestasi tinggi dan performa stabil sepanjang turnamen profesional MPL ID Season 18.</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-gray-100 space-y-1">
+                        <div class="flex items-center gap-1.5">
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-100 text-emerald-800">SYN (Synergy)</span>
+                            <span class="font-bold text-[#18181B] text-[11px]">Sinergi Sekutu</span>
+                        </div>
+                        <p class="text-[10px] text-gray-500 leading-snug">Memiliki kombinasi skill komplementer (*wombo-combo* CC, proteksi, atau follow-up burst) dengan hero sekutu yang sudah dipilih.</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-gray-100 space-y-1">
+                        <div class="flex items-center gap-1.5">
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-black bg-[#FCECEE] text-[#700B1A]">CTR (Counter)</span>
+                            <span class="font-bold text-[#18181B] text-[11px]">Counter Musuh</span>
+                        </div>
+                        <p class="text-[10px] text-gray-500 leading-snug">Memiliki kit mekanik yang secara langsung melumpuhkan kemampuan inti atau mobilitas hero yang dipilih tim lawan.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Arti Skor & Angka Persen Ban -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-2xl p-4 space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-[#700B1A]"></span>
+                        <h4 class="font-black text-xs text-[#700B1A] uppercase tracking-wider">Arti Skor Rekomendasi (0.0 - 5.0)</h4>
+                    </div>
+                    <p class="text-[10px] text-gray-600 leading-relaxed">
+                        Nilai kalkulasi sistem pakar RBR (*Rule-Based Reasoning*) yang merefleksikan bobot kecocokan draft saat ini. Menggabungkan aturan wajib komposisi tim, efektivitas counter pick, penguatan sinergi rekan, dan win rate empiris data MPL ID S18.
+                    </p>
+                </div>
+                <div class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-2xl p-4 space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-[#700B1A]"></span>
+                        <h4 class="font-black text-xs text-[#700B1A] uppercase tracking-wider">Arti Angka Persen Ban (% Ban Rate)</h4>
+                    </div>
+                    <p class="text-[10px] text-gray-600 leading-relaxed">
+                        Persentase frekuensi suatu hero dilarang bermain (*banned*) oleh tim profesional selama seluruh ronde kompetisi MPL ID Season 18. Angka tinggi (misal &gt;70%) menandakan hero tersebut dianggap sangat berbahaya atau overpower dalam meta pro.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="px-6 py-3 bg-[#FAF8F8] border-t border-[#F3E8E8] flex justify-end">
+            <button type="button" onclick="closeLegendModal()" class="px-4 py-1.5 bg-[#700B1A] hover:bg-[#550713] text-white text-xs font-bold rounded-xl transition cursor-pointer">
+                Tutup Panduan
+            </button>
+        </div>
+
+    </div>
 </div>
 
 <!-- ================= MODAL EXPORT PDF CHEAT SHEET COACH ================= -->
@@ -437,7 +694,7 @@
                 <!-- Damage Breakdown -->
                 <div class="p-4 bg-[#FAF8F8] border border-[#F3E8E8] rounded-2xl space-y-2">
                     <h4 class="text-xs font-black uppercase tracking-wider text-[#18181B] flex items-center gap-1.5">
-                        <span>⚔️ 2. DAMAGE DISTRIBUTION COMPARISON</span>
+                        <span>2. DAMAGE DISTRIBUTION COMPARISON</span>
                     </h4>
                     <div class="space-y-1.5 text-xs">
                         <div class="flex justify-between font-bold">
@@ -457,12 +714,12 @@
                 <!-- Power Spike Timeline Curve -->
                 <div class="p-4 bg-[#FAF8F8] border border-[#F3E8E8] rounded-2xl space-y-2">
                     <h4 class="text-xs font-black uppercase tracking-wider text-[#18181B] flex items-center gap-1.5">
-                        <span>⚡ 3. POWER SPIKE & TIMELINE WIN CONDITION</span>
+                        <span>3. POWER SPIKE & TIMELINE WIN CONDITION</span>
                     </h4>
                     <div class="space-y-1 text-xs font-bold text-gray-700" id="csPowerSpikeBreakdown">
-                        <div>Early Tempo (< 13m): <span id="csEarlyCount" class="text-[#700B1A]">0 Hero</span></div>
-                        <div>Mid Peak (13–17m): <span id="csMidCount" class="text-emerald-700">0 Hero</span></div>
-                        <div>Late Scaling (> 17m): <span id="csLateCount" class="text-indigo-700">0 Hero</span></div>
+                        <div>Early Game (0–5m): <span id="csEarlyCount" class="text-[#700B1A]">0 Hero</span></div>
+                        <div>Mid Game (5–12m): <span id="csMidCount" class="text-emerald-700">0 Hero</span></div>
+                        <div>Late Game (12+m / Trinity MM): <span id="csLateCount" class="text-indigo-700">0 Hero</span></div>
                     </div>
                     <p class="text-[10px] text-gray-500 font-medium" id="csWinConditionNote">
                         Objektif utama: Eksekusi lord di menit 12:00 dan kontrol semi-river jungle.
@@ -505,6 +762,252 @@
     </div>
 </div>
 
+<!-- ================= MODAL JEJAK INFERENSI (FASE 3 - PERSYARATAN 3) ================= -->
+<div id="inferenceTraceModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none transition-all duration-300">
+    <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-[#F3E8E8]">
+        
+        <!-- Header -->
+        <div class="px-6 py-4 bg-[#FAF8F8] border-b border-[#F3E8E8] flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="w-3.5 h-3.5 rounded-full bg-[#700B1A]"></span>
+                <div>
+                    <h3 class="font-black text-sm text-[#18181B] uppercase tracking-wider">Jejak Inferensi Forward Chaining & State Penalaran AI</h3>
+                    <p class="text-[11px] text-gray-500 font-medium">Transparansi Sistem Pakar: Working Memory ➜ Conflict Set ➜ Rule Terpilih ➜ Kalkulasi Skor</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeInferenceTraceModal()" class="w-8 h-8 rounded-full bg-white hover:bg-gray-100 border border-gray-200 text-gray-500 hover:text-gray-800 flex items-center justify-center transition cursor-pointer">
+                ✕
+            </button>
+        </div>
+
+        <!-- 4-Stage Sequential Pipeline Tabs -->
+        <div class="px-6 py-2.5 bg-[#FAF0F1]/60 border-b border-[#F8B4BD]/40 flex items-center gap-2 flex-wrap">
+            <button type="button" id="traceTabBtn-wm" onclick="switchTraceTab('working_memory')" class="trace-tab-btn px-3 py-1 rounded-full text-xs font-black uppercase transition bg-[#700B1A] text-white shadow-2xs">
+                1. Working Memory (State)
+            </button>
+            <button type="button" id="traceTabBtn-cs" onclick="switchTraceTab('conflict_set')" class="trace-tab-btn px-3 py-1 rounded-full text-xs font-bold uppercase transition bg-white text-gray-600 border border-[#F3E8E8] hover:bg-[#FAF8F8]">
+                2. Conflict Set (Evaluasi Rule)
+            </button>
+            <button type="button" id="traceTabBtn-sr" onclick="switchTraceTab('selected_rules')" class="trace-tab-btn px-3 py-1 rounded-full text-xs font-bold uppercase transition bg-white text-gray-600 border border-[#F3E8E8] hover:bg-[#FAF8F8]">
+                3. Rule Terpilih & Prioritas
+            </button>
+            <button type="button" id="traceTabBtn-st" onclick="switchTraceTab('score_steps')" class="trace-tab-btn px-3 py-1 rounded-full text-xs font-bold uppercase transition bg-white text-gray-600 border border-[#F3E8E8] hover:bg-[#FAF8F8]">
+                4. Langkah Kalkulasi Skor
+            </button>
+        </div>
+
+        <!-- Modal Body Content -->
+        <div class="p-6 overflow-y-auto flex-1 space-y-4 text-xs text-gray-700 leading-relaxed">
+            
+            <!-- STAGE 1: WORKING MEMORY -->
+            <div id="traceContent-working_memory" class="space-y-4">
+                <div class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between border-b border-gray-200/60 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#700B1A]"></span>
+                            <h4 class="font-black text-xs text-[#700B1A] uppercase tracking-wider">Working Memory: State Draft Saat Ini</h4>
+                        </div>
+                        <span class="text-[10px] text-gray-400 font-mono" id="wmStatusTimestamp">Siklus Forward Chaining Aktif</span>
+                    </div>
+
+                    <!-- Teams Overview Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <!-- Ally State -->
+                        <div class="bg-white p-3 rounded-xl border border-[#F3E8E8] space-y-2">
+                            <div class="flex justify-between items-center text-[11px] font-black">
+                                <span class="text-[#700B1A] uppercase tracking-wider">Tim Sekutu</span>
+                                <span id="wmAllyCountBadge" class="bg-[#FAF8F8] px-2 py-0.5 rounded-full border border-[#F3E8E8] text-[10px]">0/5 Terpilih</span>
+                            </div>
+                            <div id="wmAllyList" class="text-[11px] space-y-1 text-gray-600">
+                                <em>Belum ada hero sekutu terpilih</em>
+                            </div>
+                            <div class="pt-2 border-t border-gray-100 flex justify-between text-[10px] font-bold">
+                                <span>Rasio Damage:</span>
+                                <span id="wmAllyDamageRatio">Phys 0% / Mag 0%</span>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-gray-500">
+                                <span>Distribusi Spike:</span>
+                                <span id="wmAllySpikes" class="font-mono">Belum ada data</span>
+                            </div>
+                        </div>
+
+                        <!-- Enemy State -->
+                        <div class="bg-white p-3 rounded-xl border border-[#F3E8E8] space-y-2">
+                            <div class="flex justify-between items-center text-[11px] font-black">
+                                <span class="text-red-700 uppercase tracking-wider">Tim Musuh</span>
+                                <span id="wmEnemyCountBadge" class="bg-[#FAF8F8] px-2 py-0.5 rounded-full border border-[#F3E8E8] text-[10px]">0/5 Terpilih</span>
+                            </div>
+                            <div id="wmEnemyList" class="text-[11px] space-y-1 text-gray-600">
+                                <em>Belum ada hero musuh terpilih</em>
+                            </div>
+                            <div class="pt-2 border-t border-gray-100 flex justify-between text-[10px] font-bold">
+                                <span>Rasio Damage:</span>
+                                <span id="wmEnemyDamageRatio">Phys 0% / Mag 0%</span>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-gray-500">
+                                <span>Distribusi Spike:</span>
+                                <span id="wmEnemySpikes" class="font-mono">Belum ada data</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Composition Facts & Needs -->
+                    <div class="bg-white p-3.5 rounded-xl border border-[#F3E8E8] space-y-2">
+                        <h5 class="font-black text-[11px] text-[#18181B] uppercase tracking-wider">Fakta Komposisi & Variabel Penalaran</h5>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px]" id="wmFactsGrid">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STAGE 2: CONFLICT SET (EVALUASI RULE) -->
+            <div id="traceContent-conflict_set" class="hidden space-y-4">
+                <div class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between border-b border-gray-200/60 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#700B1A]"></span>
+                            <h4 class="font-black text-xs text-[#700B1A] uppercase tracking-wider">Conflict Set: Evaluasi Seluruh Aturan Produksi RBR</h4>
+                        </div>
+                        <span class="text-[10px] text-gray-500 font-bold" id="conflictSetCountBadge">10 Rule Dievaluasi</span>
+                    </div>
+                    <p class="text-[11px] text-gray-500 leading-normal">
+                        Daftar seluruh aturan sistem pakar yang diproses oleh mesin inferensi forward chaining. Aturan dengan kondisi premis terpenuhi (Fired) dimasukkan ke Conflict Set untuk diperingkat.
+                    </p>
+
+                    <div class="overflow-x-auto rounded-xl border border-[#F3E8E8] bg-white">
+                        <table class="w-full text-left text-[11px] border-collapse">
+                            <thead>
+                                <tr class="bg-[#FAF8F8] border-b border-[#F3E8E8] text-[9.5px] font-black uppercase text-gray-600">
+                                    <th class="py-2.5 px-3">RULE ID & NAMA</th>
+                                    <th class="py-2.5 px-3">KONDISI PREMIS (NILAI AKTUAL)</th>
+                                    <th class="py-2.5 px-3 text-center">STATUS</th>
+                                    <th class="py-2.5 px-3 text-right">BOBOT</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-[#F3E8E8]" id="conflictSetTableBody">
+                                <!-- Populated dynamically via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STAGE 3: RULE TERPILIH & PRIORITAS -->
+            <div id="traceContent-selected_rules" class="hidden space-y-4">
+                <div class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between border-b border-gray-200/60 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#700B1A]"></span>
+                            <h4 class="font-black text-xs text-[#700B1A] uppercase tracking-wider">Rule Terpilih & Strategi Resolusi Konflik</h4>
+                        </div>
+                        <span class="text-[10px] text-emerald-700 font-bold font-mono">Expert Hierarchy Priority</span>
+                    </div>
+
+                    <div class="space-y-2.5" id="selectedRulesList">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- STAGE 4: LANGKAH PERHITUNGAN SKOR -->
+            <div id="traceContent-score_steps" class="hidden space-y-4">
+                <div class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between border-b border-gray-200/60 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#700B1A]"></span>
+                            <h4 class="font-black text-xs text-[#700B1A] uppercase tracking-wider">Langkah Perhitungan Skor Hybrid (Formula Transparan)</h4>
+                        </div>
+                        <span class="text-[10px] text-[#700B1A] font-bold">Audit Formula Skripsi</span>
+                    </div>
+
+                    <div class="space-y-3">
+                        <!-- Step 1 -->
+                        <div class="bg-white p-3.5 rounded-xl border border-[#F3E8E8] space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="font-black text-[11px] text-[#18181B] flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-full bg-[#700B1A] text-white flex items-center justify-center text-[10px] font-black">1</span>
+                                    <span>Smoothing Bayesian Win Rate (M-Estimate Shrinkage)</span>
+                                </span>
+                                <span class="text-[10px] font-mono text-gray-500">k = 10, Prior = 50%</span>
+                            </div>
+                            <p class="text-[10px] text-gray-600 leading-relaxed">
+                                Menghindari bias sampel kecil turnamen. Hero dengan 1 pick dan 1 kemenangan tidak dihitung 100%, melainkan disusutkan mendekati baseline prior:
+                            </p>
+                            <div class="p-2 bg-[#FAF8F8] rounded-lg font-mono text-[10.5px] text-[#700B1A] font-bold text-center">
+                                Smoothed WR = (Wins + 10 × 0.50 × 100) / (n + 10)
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="bg-white p-3.5 rounded-xl border border-[#F3E8E8] space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="font-black text-[11px] text-[#18181B] flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-full bg-blue-700 text-white flex items-center justify-center text-[10px] font-black">2</span>
+                                    <span>Skor Data-Driven Turnamen (0 - 100)</span>
+                                </span>
+                                <span class="text-[10px] font-mono text-blue-800">Liquipedia S18</span>
+                            </div>
+                            <p class="text-[10px] text-gray-600 leading-relaxed">
+                                Menggabungkan smoothed win rate dengan sinergi empiris rekan dan direct counter lawan:
+                            </p>
+                            <div class="p-2 bg-blue-50 text-blue-900 rounded-lg font-mono text-[10.5px] font-bold text-center">
+                                Data Score = min(100, Smoothed WR + min(25, Sinergi) + min(30, Counter))
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="bg-white p-3.5 rounded-xl border border-[#F3E8E8] space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="font-black text-[11px] text-[#18181B] flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-full bg-[#700B1A] text-white flex items-center justify-center text-[10px] font-black">3</span>
+                                    <span>Skor Sistem Pakar Rule-Based Reasoning (0 - 100)</span>
+                                </span>
+                                <span class="text-[10px] font-mono text-[#700B1A]">Forward Chaining</span>
+                            </div>
+                            <p class="text-[10px] text-gray-600 leading-relaxed">
+                                Normalisasi total kontribusi rule yang menyala (fired) dikalikan pengali kesesuaian role/kondisi draft:
+                            </p>
+                            <div class="p-2 bg-[#FAF8F8] text-[#700B1A] rounded-lg font-mono text-[10.5px] font-bold text-center">
+                                Rule Score = min(100, max(15, (Σ(Kontribusi Rule × Multiplier) / 85) × 100))
+                            </div>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="bg-white p-3.5 rounded-xl border border-[#F3E8E8] space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="font-black text-[11px] text-[#18181B] flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-full bg-emerald-700 text-white flex items-center justify-center text-[10px] font-black">4</span>
+                                    <span>Agregasi Total Skor Hybrid & Dinamis Confidence</span>
+                                </span>
+                                <span class="text-[10px] font-mono text-emerald-800">Final Aggregation</span>
+                            </div>
+                            <div class="p-2 bg-emerald-50 text-emerald-900 rounded-lg font-mono text-[10.5px] font-bold text-center">
+                                Total Score = (0.50 × Data Score) + (0.50 × Rule Score)<br>
+                                Reliability = n / (n + 10)<br>
+                                Confidence = 0.45 × Rule Strength + 0.55 × (0.55 + 0.45 × Reliability)
+                            </div>
+                            <p class="text-[9.5px] text-gray-500 italic pt-1">
+                                Jika n &lt; 10, sistem otomatis memberikan flag "Data terbatas (n&lt;10)" sehingga penguji dapat melihat transparansi statistik secara jujur.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 py-3 bg-[#FAF8F8] border-t border-[#F3E8E8] flex items-center justify-between text-[11px] text-gray-500">
+            <span>Verifikasi Akademik Sidang Skripsi • Forward Chaining Pipeline</span>
+            <button type="button" onclick="closeInferenceTraceModal()" class="px-4 py-1.5 bg-[#700B1A] hover:bg-[#550713] text-white text-xs font-bold rounded-xl transition cursor-pointer">
+                Tutup Jejak Inferensi
+            </button>
+        </div>
+
+    </div>
+</div>
+
 <!-- TOAST ALERT CONTAINER -->
 <div id="toastNotification" class="fixed bottom-6 right-6 bg-[#18181B] text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 text-xs font-bold transition-all duration-300 opacity-0 pointer-events-none transform translate-y-3 z-50">
     <span class="text-emerald-400 font-black">✓</span>
@@ -524,13 +1027,22 @@
     const specificRules = @json($specificRules ?? []);
     const rbrGenerated = @json($rbrGenerated ?? []);
     const powerSpikesMap = @json($powerSpikesMap ?? []);
+    const initialInferenceData = @json($initialInference ?? null);
 
-    // Draft state (Pre-populated sample awal agar rasio damage dinamis & aturan RBR langsung tampil aktif)
-    let allyTeam = ['Tigreal', 'Harith']; // Slot sekutu
-    let enemyTeam = ['Freya', 'Ling']; // Slot lawan
-    let allyLanes = ['ROAM', 'MID']; // Lane spesifik
-    let enemyLanes = ['EXP', 'JGL']; // Lane spesifik
-    let activeTeamMode = 'ally'; // 'ally' or 'enemy'
+    let latestInferenceData = initialInferenceData;
+    let currentRecommendations = @json($defaultPicks ?? []);
+    let expandedRecHeroId = null;
+    let currentTraceTab = 'working_memory';
+
+    // Draft state (Default kosong tanpa auto-pick hero)
+    let allyTeam = []; // Slot sekutu kosong
+    let enemyTeam = []; // Slot lawan kosong
+    let allyLanes = []; // Lane spesifik
+    let enemyLanes = []; // Lane spesifik
+    let allyBans = []; // 5 Ban hero sekutu
+    let enemyBans = []; // 5 Ban hero musuh
+    let activeTeamMode = 'ally'; // 'ally', 'enemy', or 'ban'
+    let activeTarget = { team: 'ally', index: 0, type: 'pick' }; // Target pengisian slot aktif
 
     let pickerLane = 'all';
     let recLaneFilter = 'all';
@@ -538,6 +1050,7 @@
     // Inisialisasi awal
     document.addEventListener('DOMContentLoaded', () => {
         renderSlots();
+        renderBanSlots();
         renderPickerGrid();
         updateDamageAndPowerSpikes();
         renderTacticalAnalysis();
@@ -566,35 +1079,65 @@
         syncServerDraft();
     }
 
+    // Pemilihan slot target secara langsung dengan visual highlight (FASE 5)
+    function selectSlotTarget(team, index) {
+        activeTarget = { team: team, index: index, type: 'pick' };
+        activeTeamMode = team;
+        updateTeamModeUI();
+        renderSlots();
+
+        const hintEl = document.getElementById('pickerStatusHint');
+        if (hintEl) {
+            hintEl.innerHTML = `Target: <span class="${team === 'ally' ? 'text-[#700B1A]' : 'text-red-700'} font-extrabold">${team === 'ally' ? 'Tim Sekutu' : 'Tim Musuh'} (Slot ${index + 1})</span>`;
+        }
+
+        const searchInput = document.getElementById('pickerSearchInput');
+        if (searchInput) searchInput.focus();
+        const pickerCard = document.getElementById('heroPickerCard');
+        if (pickerCard) pickerCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
     function setActiveTeamMode(mode) {
-        activeTeamMode = mode;
+        activeTeamMode = (mode === 'enemy') ? 'enemy' : 'ally';
+        activeTarget = { team: activeTeamMode, index: Math.min(4, activeTeamMode === 'ally' ? allyTeam.length : enemyTeam.length), type: 'pick' };
+        updateTeamModeUI();
+        renderSlots();
+
+        const hintEl = document.getElementById('pickerStatusHint');
+        if (hintEl) {
+            hintEl.innerHTML = `Target: <span class="${activeTeamMode === 'ally' ? 'text-[#700B1A]' : 'text-red-700'} font-extrabold">${activeTeamMode === 'ally' ? 'Tim Sekutu' : 'Tim Musuh'}</span>`;
+        }
+    }
+
+    function updateTeamModeUI() {
         const allyBtn = document.getElementById('selectModeAllyBtn');
         const enemyBtn = document.getElementById('selectModeEnemyBtn');
         const allyCard = document.getElementById('allyTeamCard');
         const enemyCard = document.getElementById('enemyTeamCard');
 
-        if (mode === 'ally') {
-            allyBtn.className = 'px-3.5 py-1 rounded-full text-xs font-extrabold uppercase transition bg-[#700B1A] text-white shadow-xs';
-            enemyBtn.className = 'px-3.5 py-1 rounded-full text-xs font-extrabold uppercase transition text-gray-600 hover:text-[#DC2626]';
-            allyCard.classList.add('border-2', 'border-[#700B1A]');
-            enemyCard.classList.remove('border-2', 'border-[#DC2626]');
+        if (activeTeamMode === 'ally') {
+            if (allyBtn) allyBtn.className = 'px-3.5 py-1 rounded-full text-xs font-extrabold uppercase transition bg-[#700B1A] text-white shadow-xs';
+            if (enemyBtn) enemyBtn.className = 'px-3.5 py-1 rounded-full text-xs font-extrabold uppercase transition text-gray-600 hover:text-[#DC2626]';
+            if (allyCard) allyCard.classList.add('border-2', 'border-[#700B1A]');
+            if (enemyCard) enemyCard.classList.remove('border-2', 'border-[#DC2626]');
         } else {
-            enemyBtn.className = 'px-3.5 py-1 rounded-full text-xs font-extrabold uppercase transition bg-[#DC2626] text-white shadow-xs';
-            allyBtn.className = 'px-3.5 py-1 rounded-full text-xs font-extrabold uppercase transition text-gray-600 hover:text-[#700B1A]';
-            enemyCard.classList.add('border-2', 'border-[#DC2626]');
-            allyCard.classList.remove('border-2', 'border-[#700B1A]');
+            if (enemyBtn) enemyBtn.className = 'px-3.5 py-1 rounded-full text-xs font-extrabold uppercase transition bg-[#DC2626] text-white shadow-xs';
+            if (allyBtn) allyBtn.className = 'px-3.5 py-1 rounded-full text-xs font-extrabold uppercase transition text-gray-600 hover:text-[#700B1A]';
+            if (enemyCard) enemyCard.classList.add('border-2', 'border-[#DC2626]');
+            if (allyCard) allyCard.classList.remove('border-2', 'border-[#700B1A]');
         }
     }
 
     function toggleSelectHero(heroName) {
+        const heroObj = pickerHeroes.find(h => h.name.toLowerCase() === heroName.toLowerCase());
         const inAlly = allyTeam.indexOf(heroName);
         const inEnemy = enemyTeam.indexOf(heroName);
-        const heroObj = pickerHeroes.find(h => h.name.toLowerCase() === heroName.toLowerCase());
 
         if (activeTeamMode === 'ally') {
             if (inAlly >= 0) {
                 allyTeam.splice(inAlly, 1);
                 allyLanes.splice(inAlly, 1);
+                activeTarget.index = Math.min(inAlly, allyTeam.length);
             } else {
                 if (inEnemy >= 0) {
                     showToast(`${heroName} sudah dipilih oleh Tim Musuh!`);
@@ -606,11 +1149,19 @@
                 }
                 allyTeam.push(heroName);
                 allyLanes.push(resolveDefaultLane(heroObj));
+                if (allyTeam.length < 5) {
+                    activeTarget.index = allyTeam.length;
+                } else {
+                    activeTeamMode = 'enemy';
+                    activeTarget = { team: 'enemy', index: Math.min(4, enemyTeam.length), type: 'pick' };
+                    updateTeamModeUI();
+                }
             }
         } else {
             if (inEnemy >= 0) {
                 enemyTeam.splice(inEnemy, 1);
                 enemyLanes.splice(inEnemy, 1);
+                activeTarget.index = Math.min(inEnemy, enemyTeam.length);
             } else {
                 if (inAlly >= 0) {
                     showToast(`${heroName} sudah dipilih oleh Tim Sekutu!`);
@@ -622,6 +1173,15 @@
                 }
                 enemyTeam.push(heroName);
                 enemyLanes.push(resolveDefaultLane(heroObj));
+                if (enemyTeam.length < 5) {
+                    activeTarget.index = enemyTeam.length;
+                } else {
+                    if (allyTeam.length < 5) {
+                        activeTeamMode = 'ally';
+                        activeTarget = { team: 'ally', index: allyTeam.length, type: 'pick' };
+                        updateTeamModeUI();
+                    }
+                }
             }
         }
 
@@ -636,6 +1196,9 @@
         if (index >= 0 && index < allyTeam.length) {
             allyTeam.splice(index, 1);
             allyLanes.splice(index, 1);
+            activeTarget = { team: 'ally', index: index, type: 'pick' };
+            activeTeamMode = 'ally';
+            updateTeamModeUI();
             renderSlots();
             renderPickerGrid();
             updateDamageAndPowerSpikes();
@@ -648,11 +1211,178 @@
         if (index >= 0 && index < enemyTeam.length) {
             enemyTeam.splice(index, 1);
             enemyLanes.splice(index, 1);
+            activeTarget = { team: 'enemy', index: index, type: 'pick' };
+            activeTeamMode = 'enemy';
+            updateTeamModeUI();
             renderSlots();
             renderPickerGrid();
             updateDamageAndPowerSpikes();
             renderTacticalAnalysis();
             syncServerDraft();
+        }
+    }
+
+    function removeAllyBan(index) {
+        if (index >= 0 && index < allyBans.length) {
+            allyBans.splice(index, 1);
+            renderBanSlots();
+            renderPickerGrid();
+            syncServerDraft();
+        }
+    }
+
+    function removeEnemyBan(index) {
+        if (index >= 0 && index < enemyBans.length) {
+            enemyBans.splice(index, 1);
+            renderBanSlots();
+            renderPickerGrid();
+            syncServerDraft();
+        }
+    }
+
+    // Render 5 Slot Ban MPL per tim (FASE 5)
+    function renderBanSlots() {}
+
+    function renderDraftIdentities() {
+        const identData = latestInferenceData?.draft_identity;
+        let allyIdent = identData?.ally;
+        let enemyIdent = identData?.enemy;
+
+        if (!allyIdent || allyTeam.length === 0) allyIdent = evaluateLocalDraftIdentity(allyTeam, 'ally');
+        if (!enemyIdent || enemyTeam.length === 0) enemyIdent = evaluateLocalDraftIdentity(enemyTeam, 'enemy');
+
+        const aBadge = document.getElementById('allyIdentityBadge');
+        const aBadgeText = document.getElementById('allyIdentityBadgeText');
+        const aWinText = document.getElementById('allyWinConditionText');
+        const aPlanText = document.getElementById('allyGamePlanText');
+
+        if (aBadgeText) aBadgeText.textContent = allyIdent.archetype;
+        if (aBadge) {
+            aBadge.className = `${allyIdent.badge_color || 'bg-gray-100 text-gray-700 border-gray-200'} border text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1`;
+        }
+        if (aWinText) aWinText.textContent = allyIdent.win_condition;
+        if (aPlanText) aPlanText.textContent = allyIdent.game_plan;
+
+        const eBadge = document.getElementById('enemyIdentityBadge');
+        const eBadgeText = document.getElementById('enemyIdentityBadgeText');
+        const eAdviceText = document.getElementById('enemyCounterAdviceText');
+        const eWeaknessText = document.getElementById('enemyWeaknessText');
+
+        if (eBadgeText) eBadgeText.textContent = enemyIdent.archetype;
+        if (eBadge) {
+            eBadge.className = `${enemyIdent.badge_color || 'bg-gray-100 text-gray-700 border-gray-200'} border text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1`;
+        }
+        if (eAdviceText) eAdviceText.textContent = enemyIdent.counter_advice;
+        if (eWeaknessText) {
+            eWeaknessText.textContent = (enemyIdent.key_weaknesses && enemyIdent.key_weaknesses.length > 0) ? 
+                enemyIdent.key_weaknesses.join(' • ') : (enemyTeam.length > 0 ? 'Komposisi relatif seimbang' : 'Menunggu pemilihan hero lawan.');
+        }
+    }
+
+    function evaluateLocalDraftIdentity(teamList, teamType) {
+        if (!teamList || teamList.length === 0) {
+            return {
+                archetype: teamType === 'ally' ? 'Draft Belum Terbentuk' : 'Draft Lawan Belum Terdeteksi',
+                badge_color: 'bg-gray-100 text-gray-700 border-gray-200',
+                icon: '',
+                win_condition: teamType === 'ally' ? 'Pilih hero sekutu untuk merumuskan win condition dan rencana permainan tim.' : 'Pilih hero musuh untuk menganalisis strategi mengalahkannya.',
+                game_plan: 'Kuasai lane dasar dan amankan objektif sungai.',
+                counter_advice: 'Pilih hero musuh untuk menganalisis titik lemah dan strategi mengalahkannya.',
+                key_weaknesses: []
+            };
+        }
+
+        const ccHeroes = ['tigreal', 'atlas', 'carmilla', 'akai', 'khufra', 'ruby', 'kaja', 'franco', 'chou', 'minotaur', 'lolita', 'gloo', 'fredrinn', 'arlott', 'belerick', 'gatotkaca'];
+        const aoeHeroes = ['yve', 'pharsa', 'xavier', 'vexana', 'cecilion', 'lylia', 'claude', 'hanabi', 'odette', 'aurora', 'gord', 'luoyi'];
+        const pickoffHeroes = ['saber', 'kaja', 'franco', 'chou', 'ling', 'fanny', 'hayabusa', 'helcurt', 'natalia', 'gusion', 'lancelot', 'suyou', 'harley', 'selena', 'nolan', 'yin', 'karina', 'aamon'];
+        const sustainHeroes = ['estes', 'floryn', 'angela', 'rafaela', 'minotaur', 'carmilla', 'baxia', 'hylos', 'barats', 'uranus', 'fredrinn', 'ruby', 'yuzhong', 'terizla', 'esmeralda', 'hilda'];
+        const pokeHeroes = ['pharsa', 'xavier', 'novaria', 'beatrix', 'brody', 'change', 'selena', 'valir', 'lesley', 'zhuxin'];
+        const earlyHeroes = ['martis', 'hilda', 'grock', 'jawhead', 'fanny', 'selena', 'dyrroth', 'terizla', 'thamuz', 'freya', 'paquito'];
+        const lateHeroes = ['claude', 'karrie', 'moskov', 'miya', 'layla', 'bruno', 'irithel', 'cecilion', 'aldous', 'natan', 'lesley'];
+
+        let ccCount = 0, aoeCount = 0, pickoffCount = 0, sustainCount = 0, pokeCount = 0, earlyCount = 0, lateCount = 0;
+
+        teamList.forEach(name => {
+            const low = (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (ccHeroes.includes(low)) ccCount++;
+            if (aoeHeroes.includes(low)) aoeCount++;
+            if (pickoffHeroes.includes(low)) pickoffCount++;
+            if (sustainHeroes.includes(low)) sustainCount++;
+            if (pokeHeroes.includes(low)) pokeCount++;
+            if (earlyHeroes.includes(low)) earlyCount++;
+            if (lateHeroes.includes(low)) lateCount++;
+        });
+
+        if (ccCount >= 2 && aoeCount >= 1) {
+            return {
+                archetype: 'AoE Teamfight (Wombo Combo)',
+                badge_color: 'bg-purple-100 text-purple-900 border-purple-200',
+                icon: '',
+                win_condition: 'Dominasi pertarungan 5v5 di ruang terbuka pada kontes Turtle & Lord menit 10+.',
+                game_plan: 'Buka inisiasi menggunakan CC area garis depan, lalu follow-up seluruh burst damage area serempak.',
+                counter_advice: 'Hindari berkumpul di lorong sempit. Gunakan spell Purify atau hero anti-CC (Diggie) dan pancing inisiasi mereka.',
+                key_weaknesses: ['Rentan split-push saat cooldown skill ultimate', 'Ketergantungan tinggi pada inisiasi tank']
+            };
+        } else if (pickoffCount >= 2 || (pickoffCount >= 1 && ccCount >= 1)) {
+            return {
+                archetype: 'Pick-Off & Single Target Ambush',
+                badge_color: 'bg-rose-100 text-rose-900 border-rose-200',
+                icon: '',
+                win_condition: 'Eliminasi instan carry/mage musuh di semi-river jungle sebelum objektif dimulai.',
+                game_plan: 'Kuasai vision semak-semak dan jalankan gank 2-3 pemain pada musuh yang overextend.',
+                counter_advice: 'Jaga jarak formasi dari semak tanpa vision. Beli Antique Cuirass dan jangan rotasi sendirian tanpa roamer.',
+                key_weaknesses: ['Lemah dalam 5v5 frontal jika target utama gagal di-burst instan']
+            };
+        } else if (sustainCount >= 2) {
+            return {
+                archetype: 'Sustain & Frontline Brawl',
+                badge_color: 'bg-emerald-100 text-emerald-900 border-emerald-200',
+                icon: '',
+                win_condition: 'Paksa pertempuran berkepanjangan (extended fight) hingga sumber daya lawan terkuras.',
+                game_plan: 'Bergerak rapat bersama healer/frontliner. Serap damage musuh sambil perlahan merebut area Lord.',
+                counter_advice: 'Wajib beli item anti-heal (Sea Halberd / Glowing Wand / Dominance Ice). Hindari trade damage lama.',
+                key_weaknesses: ['Rentan true damage (Karrie/Lesley) dan debuff anti-heal']
+            };
+        } else if (pokeCount >= 2) {
+            return {
+                archetype: 'Poke & High-Ground Siege',
+                badge_color: 'bg-amber-100 text-amber-900 border-amber-200',
+                icon: '',
+                win_condition: 'Kikis HP musuh dari jarak aman sebelum objektif dan hancurkan base turret tanpa kontak dekat.',
+                game_plan: 'Gunakan skill jarak jauh untuk membersihkan minion dan mencicil formasi musuh.',
+                counter_advice: 'Gunakan hero assassin atau inisiator penyelam (dive-in) seperti Ling, Joy, atau Chou untuk menutup jarak.',
+                key_weaknesses: ['Sangat rapuh bila didekati hero burst jarak dekat']
+            };
+        } else if (earlyCount >= 2) {
+            return {
+                archetype: 'Early Tempo & Jungle Snowball',
+                badge_color: 'bg-orange-100 text-orange-900 border-orange-200',
+                icon: '',
+                win_condition: 'Amankan keunggulan net worth di fase laning menit 0-5 dan runtuhkan turret sebelum Marksman musuh menyelesaikan Trinity core item.',
+                game_plan: 'Invasi buff jungle lawan sejak level 1-2, amankan seluruh turtle, dan hancurkan outer turret secepatnya.',
+                counter_advice: 'Bermain bertahan di bawah turret pada 5 menit awal (manfaatkan shield turret). Hindari kontes berisiko dan stall menuju fase late game menit 12+.',
+                key_weaknesses: ['Potensi power spike menurun jika pertandingan melewati menit 12 (fase Evolved Lord & Trinity MM)']
+            };
+        } else if (lateCount >= 2) {
+            return {
+                archetype: 'Late-Game Hypercarry Scaling',
+                badge_color: 'bg-indigo-100 text-indigo-900 border-indigo-200',
+                icon: '',
+                win_condition: 'Lindungi carry hingga menyelesaikan build Trinity (Corrosion, DHS, Golden Staff) untuk membalikkan teamfight menit 12+.',
+                game_plan: 'Farming aman, minimalkan kematian dini, dan hindari war yang tidak menguntungkan posisi.',
+                counter_advice: 'Gank carry musuh secara terus menerus di early game (0–5m). Rebut turret gold lane dan akhiri game sebelum item Trinity selesai.',
+                key_weaknesses: ['Early game sangat lemah dan bergantung pada ruang farming']
+            };
+        } else {
+            return {
+                archetype: 'Flex & Balanced Tournament Meta',
+                badge_color: 'bg-blue-100 text-blue-900 border-blue-200',
+                icon: '',
+                win_condition: 'Eksekusi rotasi lane standar, pertahankan keseimbangan map, dan menangkan war berbasis posisi.',
+                game_plan: 'Jalankan rotasi proaktif ke side lane, jaga formasi segitiga (tank di depan, dps di belakang).',
+                counter_advice: 'Eksploitasi hero musuh yang terpisah dari formasi atau serang saat skill escape mereka cooldown.',
+                key_weaknesses: ['Memerlukan koordinasi tim yang disiplin untuk fokus objektif']
+            };
         }
     }
 
@@ -705,12 +1435,14 @@
                     </div>
                 `;
             } else {
+                const isActive = (activeTarget.team === 'ally' && activeTarget.index === i && activeTarget.type === 'pick');
                 slotCol.innerHTML = `
-                    <div onclick="setActiveTeamMode('ally')" class="w-full aspect-square bg-[#FAF8F8] border-2 border-dashed border-[#F3E8E8] hover:border-[#700B1A] rounded-full flex items-center justify-center text-gray-300 hover:text-[#700B1A] cursor-pointer transition">
-                        <span class="text-sm font-bold">+</span>
+                    <div onclick="selectSlotTarget('ally', ${i}, 'pick')" 
+                         class="w-full aspect-square ${isActive ? 'bg-[#FCECEE] border-2 border-[#700B1A] ring-4 ring-[#700B1A]/30 scale-105 shadow-md' : 'bg-[#FAF8F8] border-2 border-dashed border-[#F3E8E8] hover:border-[#700B1A]'} rounded-full flex flex-col items-center justify-center text-gray-300 hover:text-[#700B1A] cursor-pointer transition">
+                        ${isActive ? '<span class="text-[8.5px] font-black text-[#700B1A] animate-pulse">PILIH</span>' : '<span class="text-sm font-bold">+</span>'}
                     </div>
-                    <span class="font-semibold text-[9px] text-gray-400 mt-1">Empty</span>
-                    <span class="text-[8px] font-bold text-gray-300 uppercase tracking-wider mt-0.5">SLOT ${i + 1}</span>
+                    <span class="font-semibold text-[9px] ${isActive ? 'text-[#700B1A] font-black' : 'text-gray-400'} mt-1">Empty</span>
+                    <span class="text-[8px] font-bold ${isActive ? 'text-[#700B1A]' : 'text-gray-300'} uppercase tracking-wider mt-0.5">SLOT ${i + 1}</span>
                 `;
             }
             allyContainer.appendChild(slotCol);
@@ -764,20 +1496,24 @@
                     </div>
                 `;
             } else {
+                const isActive = (activeTarget.team === 'enemy' && activeTarget.index === i && activeTarget.type === 'pick');
                 slotCol.innerHTML = `
-                    <div onclick="setActiveTeamMode('enemy')" class="w-full aspect-square bg-[#FAF8F8] border-2 border-dashed border-red-100 hover:border-[#DC2626] rounded-full flex items-center justify-center text-red-200 hover:text-[#DC2626] cursor-pointer transition">
-                        <span class="text-sm font-bold">+</span>
+                    <div onclick="selectSlotTarget('enemy', ${i}, 'pick')" 
+                         class="w-full aspect-square ${isActive ? 'bg-red-50 border-2 border-[#DC2626] ring-4 ring-[#DC2626]/30 scale-105 shadow-md' : 'bg-[#FAF8F8] border-2 border-dashed border-red-100 hover:border-[#DC2626]'} rounded-full flex flex-col items-center justify-center text-red-200 hover:text-[#DC2626] cursor-pointer transition">
+                        ${isActive ? '<span class="text-[8.5px] font-black text-[#DC2626] animate-pulse">PILIH</span>' : '<span class="text-sm font-bold">+</span>'}
                     </div>
-                    <span class="font-semibold text-[9px] text-gray-400 mt-1">Empty</span>
-                    <span class="text-[8px] font-bold text-gray-300 uppercase tracking-wider mt-0.5">SLOT ${i + 1}</span>
+                    <span class="font-semibold text-[9px] ${isActive ? 'text-red-700 font-black' : 'text-gray-400'} mt-1">Empty</span>
+                    <span class="text-[8px] font-bold ${isActive ? 'text-red-700' : 'text-gray-300'} uppercase tracking-wider mt-0.5">SLOT ${i + 1}</span>
                 `;
             }
             enemyContainer.appendChild(slotCol);
         }
 
         // Update Slot Badges
-        document.getElementById('allyCountBadge').textContent = `${allyTeam.length}/5`;
-        document.getElementById('enemyCountBadge').textContent = `${enemyTeam.length}/5`;
+        const allyBadge = document.getElementById('allyCountBadge');
+        if (allyBadge) allyBadge.textContent = `${allyTeam.length}/5`;
+        const enemyBadge = document.getElementById('enemyCountBadge');
+        if (enemyBadge) enemyBadge.textContent = `${enemyTeam.length}/5`;
 
         // Update Lane Fulfillment Status & Roles Needed
         updateLaneStatus();
@@ -840,68 +1576,391 @@
         }
     }
 
+    // Daftar inisiator Crowd Control (CC) area/lockdown
+    const HARD_CC_HEROES = [
+        'tigreal', 'atlas', 'carmilla', 'akai', 'khufra', 'ruby', 'terizla', 'kaja',
+        'franco', 'chou', 'gatotkaca', 'belerick', 'gloo', 'lolita', 'minotaur',
+        'badang', 'guinevere', 'jawhead', 'edith', 'hylos', 'mathilda', 'silvanna',
+        'valir', 'aurora', 'nana', 'vexana'
+    ];
+
+    function interpretTeamPowerSpike(spikes, totalCount) {
+        if (!totalCount || totalCount === 0) {
+            return { text: 'Belum ada data', dominant: null };
+        }
+        const early = spikes.early || 0;
+        const mid = spikes.mid || 0;
+        const late = spikes.late || 0;
+
+        if (mid > 0 && late === 0 && early <= mid) {
+            return { text: 'Unggul di Mid, lemah di Late.', dominant: 'Mid' };
+        } else if (early > 0 && late === 0 && mid === 0) {
+            return { text: 'Dominan di Early, lemah di Late.', dominant: 'Early' };
+        } else if (early > mid && early > late) {
+            return { text: 'Dominan di Early tempo (0–5m), prioritaskan invasi & snowball outer turret shield.', dominant: 'Early' };
+        } else if (mid > early && mid >= late) {
+            return { text: 'Unggul di Mid game (5–12m), puncak rotasi gank & perebutan objektif Turtle/Lord.', dominant: 'Mid' };
+        } else if (late > early && late >= mid) {
+            return { text: 'Unggul di Late game (12+m / Trinity MM), pertahankan wave untuk scaling penuh hingga item Trinity jadi.', dominant: 'Late' };
+        } else {
+            return { text: 'Kurva power spike stabil di seluruh fase permainan.', dominant: 'Balanced' };
+        }
+    }
+
+    function compareTeamsPowerSpike(allySpikes, allyCount, enemySpikes, enemyCount) {
+        if ((!allyCount || allyCount === 0) && (!enemyCount || enemyCount === 0)) {
+            return {
+                summary: 'Menunggu pemilihan hero untuk membandingkan tempo dan kurva kekuatan kedua tim.',
+                badge: 'Netral'
+            };
+        }
+        if (!allyCount || allyCount === 0) {
+            return {
+                summary: 'Menunggu pemilihan hero Tim Sekutu untuk analisis komparasi tempo pertandingan.',
+                badge: 'Netral'
+            };
+        }
+        if (!enemyCount || enemyCount === 0) {
+            return {
+                summary: 'Menunggu pemilihan hero Tim Musuh untuk analisis komparasi tempo pertandingan.',
+                badge: 'Netral'
+            };
+        }
+
+        const aEarly = allySpikes.early || 0;
+        const aMid = allySpikes.mid || 0;
+        const aLate = allySpikes.late || 0;
+
+        const eEarly = enemySpikes.early || 0;
+        const eMid = enemySpikes.mid || 0;
+        const eLate = enemySpikes.late || 0;
+
+        if (aEarly > eEarly && eLate > aLate) {
+            return {
+                summary: 'Kesimpulan: Tim Sekutu unggul di Early tempo (0–5m); Tim Musuh mendominasi Late scaling (12+m / Trinity MM). Sekutu wajib selesaikan game cepat sebelum carry musuh scaling!',
+                badge: 'Early Sekutu vs Late Musuh'
+            };
+        }
+        if (eEarly > aEarly && aLate > eLate) {
+            return {
+                summary: 'Kesimpulan: Tim Musuh menekan di Early game (0–5m); Tim Sekutu mendominasi Late scaling (12+m / Trinity MM). Bertahan di bawah turret hingga Marksman menyelesaikan Trinity build!',
+                badge: 'Late Scaling Sekutu'
+            };
+        }
+        if (aMid > eMid && eLate > aLate) {
+            return {
+                summary: 'Kesimpulan: Tim Sekutu unggul di Mid game peak (5–12m); waspadai lonjakan kekuatan Tim Musuh saat memasuki Late game (12+m / Trinity MM).',
+                badge: 'Mid Peak Sekutu'
+            };
+        }
+        if (eMid > aMid && aLate > eLate) {
+            return {
+                summary: 'Kesimpulan: Tim Musuh kuat di perebutan Lord menit 8–12; Tim Sekutu unggul saat game memasuki Late game (12+m / Trinity MM).',
+                badge: 'Late Advantage Sekutu'
+            };
+        }
+        if (aEarly > eEarly && aMid >= eMid) {
+            return {
+                summary: 'Kesimpulan: Tim Sekutu mendominasi tempo Early & Mid game, pegang kendali Turtle dan Lord pertama!',
+                badge: 'Dominasi Sekutu'
+            };
+        }
+        if (eEarly > aEarly && eMid >= aMid) {
+            return {
+                summary: 'Kesimpulan: Tim Musuh mendominasi tempo Early & Mid game, waspadai invasi agresif ke jungle sekutu.',
+                badge: 'Dominasi Musuh'
+            };
+        }
+        if (aLate > eLate) {
+            return {
+                summary: 'Kesimpulan: Tim Sekutu unggul di Late game (12+m / Trinity MM); formasi teamfight 5v5 sangat mematikan di fase akhir saat carry mencapai item optimal.',
+                badge: 'Late Sekutu'
+            };
+        }
+        if (eLate > aLate) {
+            return {
+                summary: 'Kesimpulan: Tim Musuh unggul di Late game (12+m / Trinity MM); hindari memperpanjang pertandingan setelah menit 12 jika objektif turret belum diamankan.',
+                badge: 'Late Musuh'
+            };
+        }
+
+        return {
+            summary: 'Kesimpulan: Kurva power spike kedua tim relatif seimbang; hasil laga ditentukan oleh eksekusi teamfight dan draft counter.',
+            badge: 'Seimbang'
+        };
+    }
+
+    function renderSingleTeamPowerSpike(teamKey, teamList, spikes) {
+        const countsEl = document.getElementById(teamKey + 'PowerSpikeCounts');
+        const contentEl = document.getElementById(teamKey + 'PowerSpikeContent');
+        if (!contentEl) return;
+
+        if (!teamList || teamList.length === 0) {
+            if (countsEl) countsEl.classList.add('hidden');
+            contentEl.innerHTML = '<div class="text-[9.5px] text-gray-400 italic py-0.5">Belum ada data</div>';
+            return;
+        }
+
+        const total = teamList.length;
+        const early = spikes.early || 0;
+        const mid = spikes.mid || 0;
+        const late = spikes.late || 0;
+
+        if (countsEl) {
+            countsEl.classList.remove('hidden');
+            countsEl.innerHTML = `<span class="text-teal-700 font-extrabold">E: ${early}</span> • <span class="text-blue-700 font-extrabold">M: ${mid}</span> • <span class="text-purple-700 font-extrabold">L: ${late}</span>`;
+        }
+
+        const earlyPct = Math.round((early / total) * 100);
+        const midPct = Math.round((mid / total) * 100);
+        const latePct = Math.max(0, 100 - earlyPct - midPct);
+
+        const interp = interpretTeamPowerSpike(spikes, total);
+
+        contentEl.innerHTML = `
+            <div class="w-full h-2 rounded-full overflow-hidden flex bg-gray-100 border border-[#F3E8E8]">
+                <div class="bg-teal-500 h-full transition-all duration-300" style="width: ${earlyPct}%;" title="Early: ${early} hero (${earlyPct}%)"></div>
+                <div class="bg-blue-500 h-full transition-all duration-300" style="width: ${midPct}%;" title="Mid: ${mid} hero (${midPct}%)"></div>
+                <div class="bg-purple-600 h-full transition-all duration-300" style="width: ${latePct}%;" title="Late: ${late} hero (${latePct}%)"></div>
+            </div>
+            <div class="text-[9.5px] font-bold text-[#18181B] leading-tight pt-1">
+                ${interp.text}
+            </div>
+        `;
+    }
+
+    function renderTeamCompositionAlerts(teamType, teamList, teamLanes, damageDist) {
+        const container = document.getElementById(teamType + 'CompositionAlerts');
+        if (!container) return;
+
+        if (!teamList || teamList.length === 0) {
+            container.innerHTML = '<div class="text-[9.5px] font-medium text-gray-400 italic py-0.5">Status: Belum ada hero terpilih.</div>';
+            return;
+        }
+
+        const count = teamList.length;
+        const alerts = [];
+        let frontlineCount = 0;
+        let ccCount = 0;
+        let hasMage = false;
+
+        teamList.forEach((name, idx) => {
+            const lane = (teamLanes[idx] || '').toUpperCase();
+            const h = pickerHeroes.find(item => item.name.toLowerCase() === name.toLowerCase());
+            const role = h && h.role ? h.role.toLowerCase() : '';
+            const dmg = h ? (h.damage_type || 'Physical') : 'Physical';
+
+            if (role.includes('mage') || lane === 'MID' || dmg === 'Magic') {
+                hasMage = true;
+            }
+            if (role.includes('tank') || role.includes('fighter') || lane === 'ROAM') {
+                frontlineCount++;
+            }
+            if (HARD_CC_HEROES.includes(name.toLowerCase())) {
+                ccCount++;
+            }
+        });
+
+        const targetLabel = (teamType === 'ally') ? 'Tim musuh' : 'Tim sekutu';
+
+        // 1. RBR-COMP-01 (Mage Wajib)
+        if (count >= 3 && (!hasMage || damageDist.mag < 15)) {
+            alerts.push({
+                rule_id: 'RBR-COMP-01',
+                severity: 'critical',
+                title: 'Defisit Magic Damage (Belum ada Mage)',
+                message: `Belum ada Mage / Magic Damage (${damageDist.mag}%): ${targetLabel} dapat menumpuk Physical Defense secara bebas.`
+            });
+        } else if (count >= 2 && damageDist.phys >= 100 && damageDist.mag === 0) {
+            alerts.push({
+                rule_id: 'RBR-COMP-01',
+                severity: 'warning',
+                title: 'Peringatan Komposisi Magic',
+                message: `Belum ada Magical Damage (${damageDist.mag}%): Rawan dicounter stack armor fisik.`
+            });
+        }
+
+        // 2. RBR-COMP-02 (Frontline Wajib)
+        if (count >= 3 && frontlineCount === 0) {
+            alerts.push({
+                rule_id: 'RBR-COMP-02',
+                severity: 'critical',
+                title: 'Tidak Ada Frontliner / Tank',
+                message: 'Tidak ada frontliner / Tank: Garis depan rentan ditembus dan kontes Lord berisiko tinggi.'
+            });
+        }
+
+        // 3. RBR-CC-01 (Crowd Control Wajib)
+        if (count >= 3 && ccCount === 0) {
+            alerts.push({
+                rule_id: 'RBR-CC-01',
+                severity: 'warning',
+                title: 'Minim Crowd Control (CC)',
+                message: 'Tidak ada inisiator Crowd Control (CC): Minim kemampuan penguncian target lincah.'
+            });
+        }
+
+        // 4. RBR-DMG-01 (100% Physical)
+        if (count >= 2 && damageDist.phys >= 100) {
+            alerts.push({
+                rule_id: 'RBR-DMG-01',
+                severity: 'warning',
+                title: 'Damage 100% Physical',
+                message: 'Damage 100% Physical: Mudah dilawan stack armor Antique Cuirass & Blade Armor.'
+            });
+        }
+
+        // 5. RBR-DMG-02 (100% Magic)
+        if (count >= 2 && damageDist.mag >= 100) {
+            alerts.push({
+                rule_id: 'RBR-DMG-02',
+                severity: 'warning',
+                title: 'Damage 100% Magic',
+                message: "Damage 100% Magic: Mudah dilawan stack magic defense Radiant Armor & Athena's Shield."
+            });
+        }
+
+        // 6. RBR-COMP-OK (Komposisi Seimbang)
+        if (count >= 3 && alerts.filter(a => a.severity === 'critical').length === 0) {
+            if (damageDist.phys > 0 && damageDist.mag > 0 && frontlineCount > 0) {
+                alerts.push({
+                    rule_id: 'RBR-COMP-OK',
+                    severity: 'info',
+                    title: 'Komposisi Seimbang',
+                    message: `Komposisi seimbang (${damageDist.phys}% Phys / ${damageDist.mag}% Mag) dengan frontliner & CC aktif.`
+                });
+            }
+        }
+
+        if (alerts.length === 0) {
+            container.innerHTML = `<div class="text-[9.5px] font-medium text-gray-500 italic py-0.5">Komposisi ${count} hero dalam evaluasi forward chaining.</div>`;
+            return;
+        }
+
+        let html = '';
+        alerts.forEach(alert => {
+            if (alert.severity === 'critical') {
+                html += `
+                    <div class="bg-red-50/90 border border-red-300 text-red-900 rounded-lg p-2 text-[9.5px] leading-tight flex items-start gap-1.5 shadow-xs">
+                        <span class="w-4 h-4 rounded-full bg-red-600 text-white flex items-center justify-center font-black text-[9px] shrink-0 mt-0.5">!</span>
+                        <div>
+                            <div class="flex items-center gap-1.5 mb-0.5">
+                                <span class="font-black text-[9px] bg-red-200/80 text-red-900 px-1.5 py-0.2 rounded uppercase">[${alert.rule_id}]</span>
+                                <span class="font-extrabold text-[8.5px] text-red-700 uppercase tracking-wider">CRITICAL ALERT</span>
+                            </div>
+                            <p class="font-bold">${alert.message}</p>
+                        </div>
+                    </div>
+                `;
+            } else if (alert.severity === 'warning') {
+                html += `
+                    <div class="bg-amber-50/90 border border-amber-300 text-amber-900 rounded-lg p-2 text-[9.5px] leading-tight flex items-start gap-1.5 shadow-xs">
+                        <span class="w-4 h-4 rounded-full bg-amber-600 text-white flex items-center justify-center font-black text-[9px] shrink-0 mt-0.5">!</span>
+                        <div>
+                            <div class="flex items-center gap-1.5 mb-0.5">
+                                <span class="font-black text-[9px] bg-amber-200/80 text-amber-900 px-1.5 py-0.2 rounded uppercase">[${alert.rule_id}]</span>
+                                <span class="font-extrabold text-[8.5px] text-amber-700 uppercase tracking-wider">WARNING</span>
+                            </div>
+                            <p class="font-bold">${alert.message}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="bg-emerald-50/90 border border-emerald-300 text-emerald-900 rounded-lg p-2 text-[9.5px] leading-tight flex items-start gap-1.5 shadow-xs">
+                        <span class="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black text-[9px] shrink-0 mt-0.5">✓</span>
+                        <div>
+                            <div class="flex items-center gap-1.5 mb-0.5">
+                                <span class="font-black text-[9px] bg-emerald-200/80 text-emerald-900 px-1.5 py-0.2 rounded uppercase">[${alert.rule_id}]</span>
+                                <span class="font-extrabold text-[8.5px] text-emerald-700 uppercase tracking-wider">KOMPOSISI STABIL</span>
+                            </div>
+                            <p class="font-bold">${alert.message}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        container.innerHTML = html;
+    }
+
     // Perhitungan Damage Distribution & Power Spike
     function updateDamageAndPowerSpikes() {
-        // Tim Sekutu
+        // Tim Sekutu Damage
         const allyDist = computeTeamDamage(allyTeam);
         const allyPhysEl = document.getElementById('allyPhysPct');
         const allyMagEl = document.getElementById('allyMagPct');
         const allyPhysBar = document.getElementById('allyPhysBar');
         const allyMagBar = document.getElementById('allyMagBar');
+        const allyBarContainer = document.getElementById('allyDamageBarContainer');
 
         if (allyTeam.length === 0) {
-            allyPhysEl.textContent = '0%';
-            allyMagEl.textContent = '0%';
-            allyPhysBar.style.width = '0%';
-            allyMagBar.style.width = '0%';
+            if (allyPhysEl) allyPhysEl.textContent = '0%';
+            if (allyMagEl) allyMagEl.textContent = '0%';
+            if (allyPhysBar) allyPhysBar.style.width = '0%';
+            if (allyMagBar) allyMagBar.style.width = '0%';
+            if (allyBarContainer) allyBarContainer.className = 'w-full h-1.5 rounded-full overflow-hidden flex bg-gray-100 border border-[#F3E8E8] transition-all';
         } else {
-            allyPhysEl.textContent = `${allyDist.phys}%`;
-            allyMagEl.textContent = `${allyDist.mag}%`;
-            allyPhysBar.style.width = `${allyDist.phys}%`;
-            allyMagBar.style.width = `${allyDist.mag}%`;
+            if (allyPhysEl) allyPhysEl.textContent = `${allyDist.phys}%`;
+            if (allyMagEl) allyMagEl.textContent = `${allyDist.mag}%`;
+            if (allyPhysBar) allyPhysBar.style.width = `${allyDist.phys}%`;
+            if (allyMagBar) allyMagBar.style.width = `${allyDist.mag}%`;
+            if (allyBarContainer) allyBarContainer.className = 'w-full h-2 rounded-full overflow-hidden flex bg-gray-100 border border-[#F3E8E8] transition-all';
         }
 
+        // Tim Sekutu Power Spike 3-Segment Bar & Counts
         const allySpikes = computeTeamPowerSpikes(allyTeam);
-        document.getElementById('allyEarlySpike').innerHTML = `<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-extrabold" title="Dominan fase early (<13m MPL ID S18)">Early: ${allySpikes.early}</span>`;
-        document.getElementById('allyMidSpike').innerHTML = `<span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200 font-extrabold" title="Dominan fase mid (13-17m MPL ID S18)">Mid: ${allySpikes.mid}</span>`;
-        document.getElementById('allyLateSpike').innerHTML = `<span class="px-1.5 py-0.5 rounded bg-purple-50 text-purple-800 border border-purple-200 font-extrabold" title="Dominan fase late (>17m MPL ID S18)">Late: ${allySpikes.late}</span>`;
+        renderSingleTeamPowerSpike('ally', allyTeam, allySpikes);
 
-        // Tim Musuh
+        // Tim Sekutu Alert Komposisi Rule-Based
+        renderTeamCompositionAlerts('ally', allyTeam, allyLanes, allyDist);
+
+        // Tim Musuh Damage
         const enemyDist = computeTeamDamage(enemyTeam);
         const enemyPhysEl = document.getElementById('enemyPhysPct');
         const enemyMagEl = document.getElementById('enemyMagPct');
         const enemyPhysBar = document.getElementById('enemyPhysBar');
         const enemyMagBar = document.getElementById('enemyMagBar');
+        const enemyBarContainer = document.getElementById('enemyDamageBarContainer');
 
         if (enemyTeam.length === 0) {
-            enemyPhysEl.textContent = '0%';
-            enemyMagEl.textContent = '0%';
-            enemyPhysBar.style.width = '0%';
-            enemyMagBar.style.width = '0%';
+            if (enemyPhysEl) enemyPhysEl.textContent = '0%';
+            if (enemyMagEl) enemyMagEl.textContent = '0%';
+            if (enemyPhysBar) enemyPhysBar.style.width = '0%';
+            if (enemyMagBar) enemyMagBar.style.width = '0%';
+            if (enemyBarContainer) enemyBarContainer.className = 'w-full h-1.5 rounded-full overflow-hidden flex bg-gray-100 border border-[#F3E8E8] transition-all';
         } else {
-            enemyPhysEl.textContent = `${enemyDist.phys}%`;
-            enemyMagEl.textContent = `${enemyDist.mag}%`;
-            enemyPhysBar.style.width = `${enemyDist.phys}%`;
-            enemyMagBar.style.width = `${enemyDist.mag}%`;
+            if (enemyPhysEl) enemyPhysEl.textContent = `${enemyDist.phys}%`;
+            if (enemyMagEl) enemyMagEl.textContent = `${enemyDist.mag}%`;
+            if (enemyPhysBar) enemyPhysBar.style.width = `${enemyDist.phys}%`;
+            if (enemyMagBar) enemyMagBar.style.width = `${enemyDist.mag}%`;
+            if (enemyBarContainer) enemyBarContainer.className = 'w-full h-2 rounded-full overflow-hidden flex bg-gray-100 border border-[#F3E8E8] transition-all';
         }
 
-        const enemyAlertEl = document.getElementById('enemyDamageAlert');
-        if (enemyAlertEl) {
-            if (enemyTeam.length === 0) {
-                enemyAlertEl.innerHTML = '<span class="text-gray-400 font-bold">Status: Belum ada hero terpilih.</span>';
-            } else if (enemyDist.phys >= 80) {
-                enemyAlertEl.innerHTML = `<span class="text-amber-700 font-extrabold">💡 Lawan dominan fisik (${enemyDist.phys}%): Siapkan Antique Cuirass & Blade Armor!</span>`;
-            } else if (enemyDist.mag >= 80) {
-                enemyAlertEl.innerHTML = `<span class="text-purple-700 font-extrabold">💡 Lawan dominan magic (${enemyDist.mag}%): Siapkan Radiant Armor & Athena Shield!</span>`;
+        // Tim Musuh Power Spike 3-Segment Bar & Counts
+        const enemySpikes = computeTeamPowerSpikes(enemyTeam);
+        renderSingleTeamPowerSpike('enemy', enemyTeam, enemySpikes);
+
+        // Tim Musuh Alert Komposisi Rule-Based
+        renderTeamCompositionAlerts('enemy', enemyTeam, enemyLanes, enemyDist);
+
+        // Komparasi Power Spike & Tempo Antar Tim
+        const comparison = compareTeamsPowerSpike(allySpikes, allyTeam.length, enemySpikes, enemyTeam.length);
+        const compSummaryEl = document.getElementById('powerSpikeComparisonSummary');
+        const tempoBadgeEl = document.getElementById('tempoAdvantageBadge');
+        if (compSummaryEl) {
+            compSummaryEl.textContent = comparison.summary;
+        }
+        if (tempoBadgeEl) {
+            tempoBadgeEl.textContent = comparison.badge;
+            if (comparison.badge.includes('Sekutu')) {
+                tempoBadgeEl.className = 'hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black bg-[#700B1A]/10 text-[#700B1A] border border-[#700B1A]/20 uppercase whitespace-nowrap shrink-0';
+            } else if (comparison.badge.includes('Musuh')) {
+                tempoBadgeEl.className = 'hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black bg-red-100 text-red-700 border border-red-200 uppercase whitespace-nowrap shrink-0';
             } else {
-                enemyAlertEl.innerHTML = `<span class="text-emerald-700 font-bold">✓ Lawan hybrid seimbang (${enemyDist.phys}% Phys / ${enemyDist.mag}% Mag).</span>`;
+                tempoBadgeEl.className = 'hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black bg-gray-100 text-gray-600 border border-gray-200 uppercase whitespace-nowrap shrink-0';
             }
         }
-
-        const enemySpikes = computeTeamPowerSpikes(enemyTeam);
-        document.getElementById('enemyEarlySpike').innerHTML = `<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-extrabold" title="Dominan fase early (<13m MPL ID S18)">Early: ${enemySpikes.early}</span>`;
-        document.getElementById('enemyMidSpike').innerHTML = `<span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200 font-extrabold" title="Dominan fase mid (13-17m MPL ID S18)">Mid: ${enemySpikes.mid}</span>`;
-        document.getElementById('enemyLateSpike').innerHTML = `<span class="px-1.5 py-0.5 rounded bg-purple-50 text-purple-800 border border-purple-200 font-extrabold" title="Dominan fase late (>17m MPL ID S18)">Late: ${enemySpikes.late}</span>`;
     }
 
     function computeTeamDamage(teamList) {
@@ -937,16 +1996,26 @@
 
     function renderPickerGrid() {
         const grid = document.getElementById('heroPickerGrid');
+        if (!grid) return;
         grid.innerHTML = '';
-        const search = (document.getElementById('pickerSearchInput').value || '').toLowerCase().trim();
+        const searchInput = document.getElementById('pickerSearchInput');
+        const search = (searchInput ? searchInput.value : '').toLowerCase().trim();
+        const allBans = [...allyBans, ...enemyBans];
 
         pickerHeroes.forEach(hero => {
-            const matchSearch = !search || hero.name.toLowerCase().includes(search) || hero.role.toLowerCase().includes(search);
-            const matchLane = pickerLane === 'all' || hero.lane.includes(pickerLane);
+            const hName = hero.name || '';
+            const hRole = hero.role || '';
+            const hLane = hero.lane || '';
+            const matchSearch = !search || hName.toLowerCase().includes(search) || hRole.toLowerCase().includes(search);
+            const matchLane = pickerLane === 'all' || hLane.includes(pickerLane);
 
             if (matchSearch && matchLane) {
-                const inAlly = allyTeam.some(h => h.toLowerCase() === hero.name.toLowerCase());
-                const inEnemy = enemyTeam.some(h => h.toLowerCase() === hero.name.toLowerCase());
+                const hNameLow = hName.toLowerCase();
+                const inAlly = allyTeam.some(h => (h || '').toLowerCase() === hNameLow);
+                const inEnemy = enemyTeam.some(h => (h || '').toLowerCase() === hNameLow);
+                const inAllyBan = allyBans.some(h => (h || '').toLowerCase() === hNameLow);
+                const inEnemyBan = enemyBans.some(h => (h || '').toLowerCase() === hNameLow);
+                const isBanned = inAllyBan || inEnemyBan;
 
                 const item = document.createElement('button');
                 item.type = 'button';
@@ -957,23 +2026,28 @@
                     cardClasses += 'bg-[#FCECEE] border-2 border-[#700B1A] shadow-xs';
                 } else if (inEnemy) {
                     cardClasses += 'bg-red-50 border-2 border-[#DC2626] shadow-xs';
+                } else if (isBanned) {
+                    cardClasses += 'bg-gray-100 border border-gray-300 opacity-60';
                 } else {
                     cardClasses += 'bg-[#FAF8F8] border border-[#F3E8E8] hover:bg-[#FAF0F1] hover:border-[#F8B4BD]';
                 }
 
                 item.className = cardClasses;
 
+                const spikeText = isBanned ? 'BANNED' : (hero.power_spike ? hero.power_spike.split(' ')[0] : 'Mid');
+
                 item.innerHTML = `
-                    <div class="relative w-9 h-9 rounded-full overflow-hidden ${inAlly ? 'border-2 border-[#700B1A]' : (inEnemy ? 'border-2 border-[#DC2626]' : 'border border-[#F3E8E8]')} flex items-center justify-center font-black text-xs bg-white">
+                    <div class="relative w-9 h-9 rounded-full overflow-hidden ${inAlly ? 'border-2 border-[#700B1A]' : (inEnemy ? 'border-2 border-[#DC2626]' : (isBanned ? 'border-2 border-red-700' : 'border border-[#F3E8E8]'))} flex items-center justify-center font-black text-xs bg-white">
                         <img src="${hero.portrait}" 
                              alt="${hero.name}" 
-                             class="w-full h-full object-cover rounded-full"
+                             class="w-full h-full object-cover rounded-full ${isBanned ? 'grayscale' : ''}"
                              onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(hero.name)}&background=700B1A&color=fff';">
                         ${inAlly ? `<span class="absolute inset-0 bg-[#700B1A]/85 text-white flex items-center justify-center font-black text-xs">✓</span>` : ''}
                         ${inEnemy ? `<span class="absolute inset-0 bg-[#DC2626]/85 text-white flex items-center justify-center font-black text-xs">✕</span>` : ''}
+                        ${isBanned ? `<span class="absolute inset-0 bg-red-950/80 text-white flex items-center justify-center font-black text-[9px] uppercase tracking-wider" title="Hero di-ban">BAN</span>` : ''}
                     </div>
-                    <span class="font-bold text-[10px] text-gray-800 mt-1 truncate max-w-full text-center">${hero.name}</span>
-                    <span class="text-[8px] text-gray-400 font-semibold truncate">${hero.power_spike.split(' ')[0]}</span>
+                    <span class="font-bold text-[10px] text-gray-800 mt-1 truncate max-w-full text-center ${isBanned ? 'line-through text-gray-400' : ''}">${hero.name}</span>
+                    <span class="text-[8px] text-gray-400 font-semibold truncate">${spikeText}</span>
                 `;
                 grid.appendChild(item);
             }
@@ -981,6 +2055,19 @@
     }
 
     function renderTacticalAnalysis() {
+        // Update Tactical Draft Status Subtitle di Header Panel
+        const draftStatusEl = document.getElementById('tacticalDraftStatus');
+        if (draftStatusEl) {
+            if (allyTeam.length === 0 && enemyTeam.length === 0) {
+                draftStatusEl.textContent = 'Draft kosong: Menampilkan rekomendasi meta dasar turnamen MPL ID S18';
+            } else {
+                draftStatusEl.textContent = `Berdasarkan ${allyTeam.length} hero sekutu, ${enemyTeam.length} hero musuh`;
+            }
+        }
+
+        // Render Identitas Draft & Cara Bermain Tim/Lawan
+        renderDraftIdentities();
+
         // PICKS CALCULATION DENGAN TRANSPARANSI ATURAN RBR & CONSTRAINT MUTLAK
         const picksContainer = document.getElementById('recommendedPicksList');
         picksContainer.innerHTML = '';
@@ -1008,29 +2095,9 @@
         });
         const needsFrontlineMandatory = (allyTeam.length >= 3 && !allyHasFrontline);
 
-        // Update Dynamic UI Alert Banner
-        const allyAlertEl = document.getElementById('allyDamageAlert');
-        if (allyAlertEl) {
-            if (allyTeam.length === 0) {
-                allyAlertEl.textContent = 'Status: Belum ada hero terpilih.';
-                allyAlertEl.className = 'text-[9px] font-bold text-gray-400';
-            } else if (needsMageMandatory) {
-                allyAlertEl.innerHTML = `<div class="bg-amber-50 border border-amber-300 text-amber-900 rounded-lg p-2 font-bold text-[9.5px] flex items-center gap-1.5"><span class="text-sm">⚠️</span><span><strong>Peringatan: Tim kekurangan Magical Damage / Midlaner!</strong> Musuh dapat menumpuk Physical Defense secara bebas.</span></div>`;
-                allyAlertEl.className = '';
-            } else if (needsFrontlineMandatory) {
-                allyAlertEl.innerHTML = `<div class="bg-amber-50 border border-amber-300 text-amber-900 rounded-lg p-2 font-bold text-[9.5px] flex items-center gap-1.5"><span class="text-sm">🛡️</span><span><strong>Peringatan: Tim kekurangan Frontline / Durabilitas!</strong> Diperlukan Tank atau Fighter pelindung.</span></div>`;
-                allyAlertEl.className = '';
-            } else if (allyDamage.phys >= 80) {
-                allyAlertEl.innerHTML = `<span class="text-amber-700 font-extrabold">⚠️ Monotype Fisik (${allyDamage.phys}%): Rawan dicounter Antique Cuirass & Blade Armor!</span>`;
-                allyAlertEl.className = 'text-[9px] font-bold';
-            } else if (allyDamage.mag >= 80) {
-                allyAlertEl.innerHTML = `<span class="text-purple-700 font-extrabold">⚠️ Monotype Magic (${allyDamage.mag}%): Rawan dicounter Radiant Armor & Athena!</span>`;
-                allyAlertEl.className = 'text-[9px] font-bold';
-            } else {
-                allyAlertEl.innerHTML = `<span class="text-emerald-700 font-extrabold">✓ Rasio Hybrid Seimbang (${allyDamage.phys}% Phys / ${allyDamage.mag}% Mag) - Penetrasi Armor Maksimal.</span>`;
-                allyAlertEl.className = 'text-[9px] font-bold';
-            }
-        }
+        // Evaluasi dan render alert komposisi untuk kedua tim
+        renderTeamCompositionAlerts('ally', allyTeam, allyLanes, allyDamage);
+        renderTeamCompositionAlerts('enemy', enemyTeam, enemyLanes, computeTeamDamage(enemyTeam));
 
         // Catat Aturan Komposisi ke Rule Traces jika aktif
         if (needsMageMandatory) {
@@ -1056,201 +2123,388 @@
 
         let picks = [];
 
-        if (allyTeam.length === 0 && enemyTeam.length === 0) {
-            picks = defaultPicks;
-        } else {
-            const pickScoreMap = new Map();
-
-            pickerHeroes.forEach(hero => {
-                const name = hero.name;
-                if (allyTeam.includes(name) || enemyTeam.includes(name)) return;
-
-                let score = 2.0;
-                let priority = 'P3';
-                let subType = 'META';
-                let subHero = 'Meta Standar';
-                let rbrId = 'RBR-GEN-01';
-                let rbrRationale = 'Prioritas meta umum berdasarkan statistik win rate turnamen MPL.';
-                let rbrConfidence = '91.0%';
-
-                // 1. ATURAN KOMPOSISI WAJIB (MAGE WAJIB) - Prioritas Tertinggi
-                const isMage = (hero.role && hero.role.toLowerCase() === 'mage') || 
-                               hero.damage_type === 'Magic' || 
-                               (hero.lane && hero.lane.toLowerCase().includes('mid'));
-
-                if (needsMageMandatory && isMage) {
-                    score += 45.0; // Boost ke puncak klasemen rekomendasi #1-4
-                    priority = 'P1';
-                    subType = 'MAGE WAJIB';
-                    subHero = 'Kekurangan Magic';
-                    rbrId = 'RBR-COMP-01';
-                    rbrRationale = 'Aturan Komposisi Mutlak: Tim sekutu belum memiliki Mage/Magic Damage. Mesin RBR mewajibkan pick Mage ke posisi teratas dengan Confidence 98% untuk mencegah musuh menumpuk Physical Defense.';
-                    rbrConfidence = '98.0%';
-                }
-
-                // 2. Check Counter terhadap Enemy (Prioritas Tinggi jika bukan kondisi darurat Mage)
-                let counterCount = 0;
-                let counterTarget = '';
-                enemyTeam.forEach(enemyName => {
-                    const countersOfEnemy = heroCounterMap[enemyName] || [];
-                    if (countersOfEnemy.some(c => c.toLowerCase() === name.toLowerCase())) {
-                        counterCount++;
-                        counterTarget = enemyName;
-                    }
-                });
-
-                if (counterCount > 0 && !needsMageMandatory) {
-                    score += counterCount * 1.8;
-                    subType = 'CTR';
-                    subHero = counterTarget;
-                    priority = 'P1';
-                    rbrId = `RBR-CTR-${(counterTarget.length % 9) + 1}`;
-                    rbrRationale = `Direct Counter terhadap ${counterTarget}: Kit keahlian melumpuhkan mobilitas/mekanisme inti ${counterTarget}.`;
-                    rbrConfidence = '96.2%';
-                }
-
-                // 3. Check Sinergi dengan Ally
-                let synergyCount = 0;
-                let synergyPartner = '';
-                allyTeam.forEach(allyName => {
-                    const synList = heroSynergyMap[allyName] || [];
-                    if (synList.some(s => s.toLowerCase() === name.toLowerCase())) {
-                        synergyCount++;
-                        synergyPartner = allyName;
-                    }
-                });
-
-                if (synergyCount > 0 && !needsMageMandatory && counterCount === 0) {
-                    score += synergyCount * 1.5;
-                    subType = 'SYN';
-                    subHero = synergyPartner;
-                    priority = 'P2';
-                    rbrId = `RBR-SYN-${(synergyPartner.length % 9) + 1}`;
-                    rbrRationale = `Sinergi kuat dengan ${synergyPartner}: Kombinasi follow-up crowd control & burst damage area terbukti efektif di turnamen.`;
-                    rbrConfidence = '94.5%';
-                }
-
-                // Cek Aturan Spesifik Knowledge Base RBR
-                if (subType === 'CTR' && specificRules[counterTarget] && specificRules[counterTarget][name]) {
-                    const spec = specificRules[counterTarget][name];
-                    rbrRationale = spec.rule || rbrRationale;
-                    score += (spec.impact || 4.2) * 0.3;
-                }
-
-                // Tournament stat boost
-                const stat = heroStatsLookup[name];
-                if (stat) {
-                    const wr = parseFloat(stat.win_rate) || 50;
-                    score += (wr - 50) / 25;
-                }
-
-                pickScoreMap.set(name, {
-                    hero: name,
-                    role: (hero.role || 'Hero').charAt(0).toUpperCase() + (hero.role || 'Hero').slice(1),
-                    lane: (hero.lane || 'flex').toLowerCase(),
-                    score: Math.max(0.6, score).toFixed(1),
-                    priority: score >= 4.0 ? 'P1' : (score >= 2.2 ? 'P2' : 'P3'),
-                    progress: Math.min(98, Math.max(25, Math.round(score * 20))),
-                    portrait: hero.portrait,
-                    subtitle_type: subType,
-                    subtitle_hero: subHero,
-                    damage_type: hero.damage_type || 'Physical',
-                    power_spike: hero.power_spike || 'Mid Game',
-                    rbr_id: rbrId,
-                    rbr_rationale: rbrRationale,
-                    rbr_confidence: rbrConfidence,
-                });
+        // Prioritaskan hasil evaluasi forward chaining dari engine (DraftInferenceService)
+        if (currentRecommendations && currentRecommendations.length > 0) {
+            const allBans = [...allyBans, ...enemyBans];
+            picks = currentRecommendations.filter(rec => {
+                const n = (rec.nama || rec.hero || '').toLowerCase();
+                const inAlly = allyTeam.some(a => a.toLowerCase() === n);
+                const inEnemy = enemyTeam.some(e => e.toLowerCase() === n);
+                const isBan = allBans.some(b => b.toLowerCase() === n);
+                return !inAlly && !inEnemy && !isBan;
             });
-
-            picks = Array.from(pickScoreMap.values()).sort((a, b) => parseFloat(b.score) - parseFloat(a.score));
         }
 
-        const filteredPicks = picks.filter(p => recLaneFilter === 'all' || p.lane.includes(recLaneFilter));
-        document.getElementById('picksCountBadge').textContent = filteredPicks.length;
+        // Fallback jika belum menerima data dari server
+        if (picks.length === 0) {
+            if (allyTeam.length === 0 && enemyTeam.length === 0) {
+                picks = defaultPicks;
+            } else {
+                const pickScoreMap = new Map();
 
-        // Render TOP REKOMENDASI dengan RBR Badges
-        filteredPicks.slice(0, 14).forEach((p, idx) => {
-            const card = document.createElement('div');
-            card.className = 'rec-pick-item bg-white border border-[#F3E8E8] hover:border-[#700B1A] rounded-2xl p-3 shadow-2xs hover:shadow-xs transition space-y-2 cursor-pointer';
-            card.onclick = () => {
-                setActiveTeamMode('ally');
-                toggleSelectHero(p.hero);
-            };
+                pickerHeroes.forEach(hero => {
+                    const name = hero.name;
+                    if (allyTeam.includes(name) || enemyTeam.includes(name)) return;
 
-            const pBadgeColor = p.subtitle_type === 'MAGE WAJIB' ? 'bg-amber-600 text-white' : (p.priority === 'P1' ? 'bg-[#700B1A] text-white' : (p.priority === 'P2' ? 'bg-[#991B1B] text-white' : 'bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD]'));
-            const synColor = p.subtitle_type === 'SYN' ? 'text-emerald-700' : (p.subtitle_type === 'CTR' ? 'text-[#700B1A]' : (p.subtitle_type === 'MAGE WAJIB' ? 'text-amber-700' : 'text-gray-500'));
+                    let score = 2.0;
+                    let priority = 'P3';
+                    let subType = 'META';
+                    let subHero = 'Meta Standar';
+                    let rbrId = 'RBR-GEN-01';
+                    let rbrRationale = 'Prioritas meta umum berdasarkan statistik win rate turnamen MPL.';
+                    let rbrConfidence = '91.0%';
 
-            const dmgBadge = p.damage_type === 'Magic' ? 'bg-purple-100 text-purple-800' : 'bg-amber-100 text-amber-800';
+                    // 1. ATURAN KOMPOSISI WAJIB (MAGE WAJIB) - Prioritas Tertinggi
+                    const isMage = (hero.role && hero.role.toLowerCase() === 'mage') || 
+                                   hero.damage_type === 'Magic' || 
+                                   (hero.lane && hero.lane.toLowerCase().includes('mid'));
 
-            // Catat ke rule traces untuk top recommendations
-            if (idx < 3 && p.subtitle_type !== 'META') {
-                ruleTraces.push({
-                    code: p.rbr_id,
-                    badge: p.subtitle_type === 'MAGE WAJIB' ? 'KOMPOSISI MUTLAK' : (p.subtitle_type === 'CTR' ? 'DIRECT COUNTER' : 'TEAM SYNERGY'),
-                    condition: p.subtitle_type === 'CTR' ? `Lawan memilih '${p.subtitle_hero}'` : (p.subtitle_type === 'SYN' ? `Sekutu memilih '${p.subtitle_hero}'` : 'Komposisi Tim Kurang Magic'),
-                    rec: `Pilih '${p.hero}' (${p.role})`,
-                    confidence: p.rbr_confidence,
-                    desc: p.rbr_rationale
+                    if (needsMageMandatory && isMage) {
+                        score += 45.0;
+                        priority = 'P1';
+                        subType = 'MAGE WAJIB';
+                        subHero = 'Kekurangan Magic';
+                        rbrId = 'RBR-COMP-01';
+                        rbrRationale = 'Aturan Komposisi Mutlak: Tim sekutu belum memiliki Mage/Magic Damage.';
+                        rbrConfidence = '98.0%';
+                    }
+
+                    // 2. Check Counter terhadap Enemy
+                    let counterCount = 0;
+                    let counterTarget = '';
+                    enemyTeam.forEach(enemyName => {
+                        const countersOfEnemy = heroCounterMap[enemyName] || [];
+                        if (countersOfEnemy.some(c => c.toLowerCase() === name.toLowerCase())) {
+                            counterCount++;
+                            counterTarget = enemyName;
+                        }
+                    });
+
+                    if (counterCount > 0 && !needsMageMandatory) {
+                        score += counterCount * 1.8;
+                        subType = 'CTR';
+                        subHero = counterTarget;
+                        priority = 'P1';
+                        rbrId = `RBR-CTR-${(counterTarget.length % 9) + 1}`;
+                        rbrRationale = `Direct Counter terhadap ${counterTarget}.`;
+                        rbrConfidence = '96.2%';
+                    }
+
+                    // 3. Check Sinergi dengan Ally
+                    let synergyCount = 0;
+                    let synergyPartner = '';
+                    allyTeam.forEach(allyName => {
+                        const synList = heroSynergyMap[allyName] || [];
+                        if (synList.some(s => s.toLowerCase() === name.toLowerCase())) {
+                            synergyCount++;
+                            synergyPartner = allyName;
+                        }
+                    });
+
+                    if (synergyCount > 0 && !needsMageMandatory && counterCount === 0) {
+                        score += synergyCount * 1.5;
+                        subType = 'SYN';
+                        subHero = synergyPartner;
+                        priority = 'P2';
+                        rbrId = `RBR-SYN-${(synergyPartner.length % 9) + 1}`;
+                        rbrRationale = `Sinergi kuat dengan ${synergyPartner}.`;
+                        rbrConfidence = '94.5%';
+                    }
+
+                    // Tournament stat boost
+                    const stat = heroStatsLookup[name];
+                    let rawWrVal = 50;
+                    if (stat) {
+                        rawWrVal = parseFloat(stat.win_rate) || 50;
+                        score += (rawWrVal - 50) / 25;
+                    }
+
+                    const totalSc = Math.round(Math.max(10, Math.min(100, score * 18)));
+                    pickScoreMap.set(name, {
+                        hero: name,
+                        nama: name,
+                        hero_id: hero.clean_key || name.toLowerCase(),
+                        role: (hero.role || 'Hero').charAt(0).toUpperCase() + (hero.role || 'Hero').slice(1),
+                        lane: (hero.lane || 'flex').toLowerCase(),
+                        lane_flex: [hero.lane || 'Flex'],
+                        score: (totalSc / 20.0).toFixed(1),
+                        total_score: totalSc,
+                        priority: totalSc >= 75 ? 'P1' : (totalSc >= 50 ? 'P2' : 'P3'),
+                        progress: totalSc,
+                        portrait: hero.portrait,
+                        subtitle_type: subType,
+                        subtitle_hero: subHero,
+                        damage_type: hero.damage_type || 'Physical',
+                        power_spike: hero.power_spike || 'Mid Game',
+                        confidence: rbrConfidence,
+                        sample_size: 20,
+                        low_data: false,
+                        alasan_ringkas: rbrRationale,
+                        breakdown: {
+                            data: {
+                                score: Math.round(rawWrVal),
+                                win_rate: rawWrVal,
+                                n: 20,
+                                synergy: synergyCount > 0 ? [{ dengan: synergyPartner, nilai: 12.0 }] : [],
+                                counter: counterCount > 0 ? [{ vs: counterTarget, nilai: 14.0 }] : []
+                            },
+                            rule: {
+                                score: totalSc,
+                                fired: [{ rule_id: rbrId, nama: subType, kondisi: rbrRationale, kontribusi_skor: 30.0 }],
+                                not_fired: []
+                            }
+                        }
+                    });
                 });
+
+                picks = Array.from(pickScoreMap.values()).sort((a, b) => parseFloat(b.total_score || b.score) - parseFloat(a.total_score || a.score));
             }
+        }
+
+        const filteredPicks = picks.filter(p => {
+            if (recLaneFilter === 'all') return true;
+            const lFilter = recLaneFilter.toLowerCase();
+            const flex = p.lane_flex || [p.lane || 'flex'];
+            const matchFlex = flex.some(l => (l || '').toLowerCase().includes(lFilter));
+            const matchLane = (p.lane || '').toLowerCase().includes(lFilter);
+            const matchRole = (p.role || '').toLowerCase().includes(lFilter);
+            return matchFlex || matchLane || matchRole;
+        });
+
+        const picksBadge = document.getElementById('picksCountBadge');
+        if (picksBadge) picksBadge.textContent = filteredPicks.length;
+
+        // FASE 3: RENDER KARTU REKOMENDASI COMPACT (64-72px) DENGAN ACCORDION EXPAND
+        filteredPicks.slice(0, 14).forEach((p, idx) => {
+            const pHeroName = p.nama || p.hero;
+            const cardKey = p.hero_id || pHeroName;
+            const isExpanded = (expandedRecHeroId === cardKey || expandedRecHeroId === pHeroName);
+
+            const totalScoreVal = (p.total_score != null) ? 
+                parseFloat(p.total_score) : (p.score ? parseFloat(p.score) * 20.0 : 50.0);
+            const scoreFormatted = totalScoreVal.toFixed(1);
+            const progressPct = Math.min(100, Math.max(10, Math.round(totalScoreVal)));
+            const pConfidence = p.confidence || (p.rbr_confidence || '88.5%');
+
+            const pPriority = totalScoreVal >= 75.0 ? 'P1' : (totalScoreVal >= 50.0 ? 'P2' : 'P3');
+            const pBadgeColor = pPriority === 'P1' ? 'bg-[#700B1A] text-white' : (pPriority === 'P2' ? 'bg-[#991B1B] text-white' : 'bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD]');
+            const pTitle = pPriority === 'P1' ? 'Prioritas Utama (Skor >= 75): Direct counter, combo sinergi, atau aturan wajib' : (pPriority === 'P2' ? 'Prioritas Menengah (Skor 50-74): Sinergi sekunder yang solid' : 'Pilihan Fleksibel (Skor < 50): Opsi situasional meta umum');
+
+            const flexLanes = p.lane_flex || [p.lane || 'flex'];
+            const primaryLane = (flexLanes[0] || 'Flex').toUpperCase();
+
+            // Null-check badges
+            const dmgBadgeHtml = (p.damage_type && p.damage_type !== '—') ? 
+                `<span class="${p.damage_type === 'Magic' ? 'bg-purple-100 text-purple-800' : (p.damage_type === 'Mixed' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800')} text-[7.5px] font-bold px-1 rounded" title="Tipe Serangan: ${p.damage_type}">${p.damage_type === 'Magic' ? 'MG' : (p.damage_type === 'Mixed' ? 'MX' : 'PH')}</span>` : '';
+
+            // Data extraction for accordion
+            const dataScoreVal = (p.breakdown && p.breakdown.data && p.breakdown.data.score != null) ? parseFloat(p.breakdown.data.score) : 50.0;
+            const ruleScoreVal = (p.breakdown && p.breakdown.rule && p.breakdown.rule.score != null) ? parseFloat(p.breakdown.rule.score) : 50.0;
+            const winRateVal = (p.breakdown && p.breakdown.data && p.breakdown.data.win_rate != null) ? p.breakdown.data.win_rate : (parseFloat(p.win_rate) || 50.0);
+            const nGamesVal = (p.breakdown && p.breakdown.data && p.breakdown.data.n != null) ? p.breakdown.data.n : (p.sample_size != null ? p.sample_size : 20);
+            const isLowData = Boolean(p.low_data || nGamesVal < 10);
+            const synergyList = p.breakdown?.data?.synergy || [];
+            const counterList = p.breakdown?.data?.counter || [];
+            const firedRulesList = p.breakdown?.rule?.fired || [];
+            const notFiredRulesList = p.breakdown?.rule?.not_fired || [];
+            const pAlasan = p.alasan_ringkas || p.rbr_rationale || 'Prioritas meta turnamen MPL ID S18';
+
+            const reasonChip = resolvePrimaryReasonChip(p, counterList, synergyList, firedRulesList, needsMageMandatory, needsFrontlineMandatory);
+
+            const card = document.createElement('div');
+            card.className = `rec-pick-item bg-white border ${isExpanded ? 'border-[#700B1A] ring-1 ring-[#700B1A]/20 shadow-xs' : 'border-[#F3E8E8] hover:border-[#700B1A] shadow-2xs'} rounded-2xl overflow-hidden transition-all duration-200`;
 
             card.innerHTML = `
-                <div class="flex items-center justify-between gap-3">
-                    <div class="flex items-center gap-2.5 min-w-0">
-                        <span class="text-[9px] font-black px-1.5 py-0.5 rounded ${pBadgeColor}">
-                            ${p.priority}
+                <!-- 1. COMPACT HERO ROW (Default Height ~64-72px) -->
+                <div class="px-3 py-2 flex items-center justify-between gap-2.5 cursor-pointer select-none" onclick="toggleRecCard('${cardKey}')">
+                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                        <span class="text-[9px] font-black px-1.5 py-0.5 rounded flex-shrink-0 ${pBadgeColor}" title="${pTitle}">
+                            ${pPriority}
                         </span>
-                        <img src="${p.portrait}" 
-                             alt="${p.hero}" 
-                             class="w-9 h-9 rounded-full object-cover border border-[#F3E8E8] bg-gray-50 flex-shrink-0"
-                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(p.hero)}&background=700B1A&color=fff';">
-                        <div class="min-w-0">
+                        <div class="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-[#F3E8E8] bg-gray-50 shadow-2xs">
+                            <img src="${p.portrait}" 
+                                 alt="${pHeroName}" 
+                                 class="w-full h-full object-cover rounded-full"
+                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(pHeroName)}&background=700B1A&color=fff';">
+                        </div>
+                        <div class="min-w-0 flex-1">
                             <div class="flex items-center gap-1.5 flex-wrap">
-                                <h4 class="font-black text-xs text-[#18181B] truncate">${p.hero}</h4>
-                                <span class="text-[9px] text-gray-400 font-semibold">${p.role}</span>
-                                <span class="${dmgBadge} text-[8px] font-bold px-1.5 py-0.2 rounded">${p.damage_type}</span>
-                                <span class="bg-gray-100 text-gray-600 text-[8px] font-bold px-1 py-0.2 rounded">${p.power_spike}</span>
+                                <h4 class="font-black text-xs text-[#18181B] truncate">${pHeroName}</h4>
+                                <span class="text-[9.5px] text-gray-500 font-semibold truncate">${p.role || 'Hero'}</span>
+                                <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-600 text-[8px] font-bold px-1.5 py-0.2 rounded" title="Lane: ${flexLanes.join(', ')}">
+                                    ${primaryLane}
+                                </span>
+                                ${dmgBadgeHtml}
                             </div>
-                            <div class="text-[10px] font-bold ${synColor} truncate mt-0.5">
-                                ${p.subtitle_type} <span class="font-semibold text-gray-700">${p.subtitle_hero}</span>
+                            <!-- SATU chip alasan utama (Compact) -->
+                            <div class="flex items-center gap-1 mt-0.5">
+                                <span class="${reasonChip.class} text-[8.5px] font-bold px-2 py-0.2 rounded-full truncate max-w-[200px] sm:max-w-[260px]" title="${pAlasan}">
+                                    ${reasonChip.text}
+                                </span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="w-24 text-right flex-shrink-0">
-                        <div class="font-mono font-black text-xs text-[#700B1A] mb-1">
-                            ${p.score}
+                    <!-- Right side: Score, progress bar, confidence, accordion chevron -->
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <div class="w-20 text-right">
+                            <div class="flex items-center justify-end gap-1">
+                                <span class="font-mono font-black text-xs text-[#700B1A]" title="Total Skor Hybrid">${scoreFormatted}</span>
+                                <span class="text-[8px] text-gray-400 font-bold">/100</span>
+                            </div>
+                            <div class="w-full bg-[#FAF0F1] h-1.5 rounded-full overflow-hidden mt-0.5">
+                                <div class="bg-[#700B1A] h-full rounded-full transition-all duration-300" style="width: ${progressPct}%"></div>
+                            </div>
+                            <div class="text-[8.5px] font-mono font-extrabold text-emerald-700 mt-0.5 text-right flex items-center justify-end gap-0.5" title="Confidence: weighted average kekuatan rule & reliabilitas data">
+                                <span>${pConfidence}</span>
+                                <span class="text-emerald-500 text-[7.5px]">conf</span>
+                            </div>
                         </div>
-                        <div class="w-full bg-[#FAF0F1] h-1.5 rounded-full overflow-hidden">
-                            <div class="bg-[#700B1A] h-full rounded-full" style="width: ${p.progress}%"></div>
-                        </div>
+                        <button type="button" class="w-6 h-6 rounded-full bg-gray-50 hover:bg-[#FCECEE] text-gray-400 hover:text-[#700B1A] flex items-center justify-center transition cursor-pointer">
+                            <svg class="w-3 h-3 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-[#700B1A]' : ''}" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
-                <!-- KOTAK TRANSPARANSI ATURAN RBR (IF - THEN LOGIC) -->
-                <div class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl p-2 text-[10px] space-y-1">
-                    <div class="flex items-center justify-between font-black">
-                        <span class="text-[#700B1A] flex items-center gap-1">
-                            <span>🧠</span>
-                            <span>ATURAN RBR: ${p.rbr_id || 'RBR-SYN-01'}</span>
-                        </span>
-                        <span class="text-emerald-700 font-extrabold">${p.rbr_confidence || '94.2%'} Confidence</span>
+                <!-- 2. ACCORDION EXPANDED BODY (FASE 3 - PERSYARATAN 2) -->
+                ${isExpanded ? `
+                <div class="border-t border-[#FAF0F1] bg-[#FAF8F8]/70 p-3 space-y-3 text-xs">
+                    <!-- a. Breakdown skor dua warna: Data-Driven vs Expert Rules -->
+                    <div class="bg-white border border-[#F3E8E8] rounded-xl p-2.5 space-y-2 shadow-2xs">
+                        <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-wider">
+                            <span class="text-[#18181B] flex items-center gap-1.5">
+                                <span>Breakdown Skor Hybrid (50% Data + 50% Rule)</span>
+                            </span>
+                            <span class="font-mono text-[#700B1A] font-extrabold">${scoreFormatted} / 100</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-[10px]">
+                            <div class="space-y-1">
+                                <div class="flex justify-between font-bold text-blue-900">
+                                    <span>Data Turnamen (50%):</span>
+                                    <span class="font-mono">${dataScoreVal.toFixed(1)}</span>
+                                </div>
+                                <div class="w-full bg-blue-100 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-blue-600 h-full rounded-full" style="width: ${Math.min(100, dataScoreVal)}%"></div>
+                                </div>
+                                <div class="text-[8.5px] text-gray-500">
+                                    Kontribusi: <strong>+${(dataScoreVal * 0.50).toFixed(1)}</strong> poin
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex justify-between font-bold text-[#700B1A]">
+                                    <span>Expert RBR (50%):</span>
+                                    <span class="font-mono">${ruleScoreVal.toFixed(1)}</span>
+                                </div>
+                                <div class="w-full bg-[#FAF0F1] h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-[#700B1A] h-full rounded-full" style="width: ${Math.min(100, ruleScoreVal)}%"></div>
+                                </div>
+                                <div class="text-[8.5px] text-gray-500">
+                                    Kontribusi: <strong>+${(ruleScoreVal * 0.50).toFixed(1)}</strong> poin
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-[9px] text-gray-500 italic pt-1 border-t border-gray-100 text-center">
+                            Formula: Total = (0.50 × ${dataScoreVal.toFixed(1)}) + (0.50 × ${ruleScoreVal.toFixed(1)}) = ${scoreFormatted}
+                        </div>
                     </div>
-                    <div class="text-gray-600 text-[9.5px] leading-tight">
-                        <strong>IF:</strong> ${p.subtitle_type === 'CTR' ? `Enemy Pick '${p.subtitle_hero}'` : (p.subtitle_type === 'SYN' ? `Ally Pick '${p.subtitle_hero}'` : (p.subtitle_type === 'MAGE WAJIB' ? 'Slot Ally >= 3 Tanpa Mage/Mid' : 'Meta Tournament'))} 
-                        ➜ <strong>THEN:</strong> Pick '${p.hero}'
+
+                    <!-- b. Data: win rate S18, n game, sinergi per sekutu, counter per musuh -->
+                    <div class="bg-white border border-[#F3E8E8] rounded-xl p-2.5 space-y-2 shadow-2xs">
+                        <div class="text-[10px] font-black uppercase tracking-wider text-gray-700 flex items-center justify-between">
+                            <span>Bukti Empiris Turnamen (MPL ID S18)</span>
+                            <span class="text-gray-400 font-medium lowercase">k = 10 (Bayesian Smoothing)</span>
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap text-[10px]">
+                            <span class="bg-gray-100 text-gray-800 font-bold px-2 py-0.5 rounded-md">
+                                Win Rate: <strong>${winRateVal}%</strong>
+                            </span>
+                            <span class="bg-gray-100 text-gray-700 font-semibold px-2 py-0.5 rounded-md">
+                                Sampel: <strong>${nGamesVal} game</strong>
+                            </span>
+                            ${isLowData ? `
+                                <span class="bg-amber-100 text-amber-800 border border-amber-300 font-bold px-2 py-0.5 rounded-md" title="Sampel kecil (<10 game) sehingga win rate disusutkan mendekati prior 50% melalui Bayesian shrinkage">
+                                    [Perhatian] Data terbatas (n &lt; 10)
+                                </span>
+                            ` : ''}
+                        </div>
+
+                        <!-- Synergy list -->
+                        <div class="text-[10px] space-y-1 pt-1 border-t border-gray-100">
+                            <span class="font-bold text-gray-600">Sinergi dengan Sekutu:</span>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                ${renderSynergyBadges(synergyList)}
+                            </div>
+                        </div>
+
+                        <!-- Counter list -->
+                        <div class="text-[10px] space-y-1 pt-1 border-t border-gray-100">
+                            <span class="font-bold text-gray-600">Counter terhadap Musuh:</span>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                ${renderCounterBadges(counterList)}
+                            </div>
+                        </div>
                     </div>
-                    <div class="text-gray-500 text-[9px] italic border-t border-[#F3E8E8] pt-1">
-                        "${p.rbr_rationale || 'Prioritas komposisi taktis turnamen pro MPL.'}"
+
+                    <!-- c. Rule Menyala (Fired Rules) with links & actual conditions -->
+                    <div class="bg-white border border-[#F3E8E8] rounded-xl p-2.5 space-y-1.5 shadow-2xs">
+                        <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-[#700B1A]">
+                            <span>Aturan RBR Menyala (Fired)</span>
+                            <span class="text-emerald-700 font-mono">${firedRulesList.length} Rule Aktif</span>
+                        </div>
+                        <div class="space-y-1.5">
+                            ${renderFiredRulesList(firedRulesList)}
+                        </div>
+                    </div>
+
+                    <!-- d. Rule Dievaluasi tapi TIDAK Menyala -->
+                    <div class="bg-white border border-[#F3E8E8] rounded-xl p-2.5 space-y-1.5 shadow-2xs">
+                        <div class="text-[10px] font-black uppercase tracking-wider text-gray-500">
+                            <span>Aturan Dievaluasi Tidak Menyala / Tidak Cocok</span>
+                        </div>
+                        <div class="space-y-1 max-h-28 overflow-y-auto pr-1">
+                            ${renderUnfiredRulesList(notFiredRulesList)}
+                        </div>
+                    </div>
+
+                    <!-- e. Confidence definition & action button -->
+                    <div class="flex items-center justify-between pt-1 flex-wrap gap-2">
+                        <div class="text-[9.5px] text-gray-500 flex items-center gap-1" title="Confidence dihitung dari weighted average kekuatan rule (45%) dan reliabilitas data n/(n+10) (55%). Variasi dinamis sesuai sample size.">
+                            <span>Confidence: <strong class="text-emerald-700 font-mono font-bold">${pConfidence}</strong></span>
+                            <span class="text-gray-400">(Rule strength × Data reliability)</span>
+                        </div>
+                        <button type="button" onclick="event.stopPropagation(); selectRecommendedHero('${pHeroName}')" class="px-3.5 py-1.5 bg-[#700B1A] hover:bg-[#550713] text-white rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer shadow-xs">
+                            + Masukkan ke Slot Sekutu
+                        </button>
                     </div>
                 </div>
+                ` : ''}
             `;
             picksContainer.appendChild(card);
         });
 
         // RENDER KOTAK EXPLAINABLE AI (XAI) / RULE TRACE AUDIT LOG UNTUK DOSEN
         if (traceContainer) {
-            if (ruleTraces.length === 0) {
+            const firedRulesFromData = latestInferenceData?.rule_evaluations ? 
+                Object.values(latestInferenceData.rule_evaluations).filter(r => r.fired) : [];
+
+            if (firedRulesFromData.length > 0) {
+                traceContainer.innerHTML = firedRulesFromData.map(r => `
+                    <div class="bg-white border border-[#F3E8E8] rounded-xl p-2.5 shadow-2xs space-y-1">
+                        <div class="flex items-center justify-between text-[10px] font-black">
+                            <span class="text-[#700B1A] flex items-center gap-1">
+                                <span class="bg-[#FCECEE] text-[#700B1A] px-1.5 py-0.5 rounded text-[8.5px] font-black">${r.rule_id}</span>
+                                <span class="text-gray-800 uppercase tracking-wider">${r.nama}</span>
+                            </span>
+                            <span class="text-emerald-700 font-bold font-mono">${r.bobot} Weight</span>
+                        </div>
+                        <div class="text-[10px] text-gray-700 leading-snug">
+                            <span class="text-gray-400 font-bold">IF:</span> <span class="font-medium">${r.kondisi}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } else if (ruleTraces.length === 0) {
                 traceContainer.innerHTML = `
                     <div class="p-3 bg-white border border-dashed border-[#F3E8E8] rounded-xl text-center text-gray-400 text-xs">
                         Pilih minimal 1 hero sekutu atau musuh untuk memicu inferensi forward-chaining rules.
@@ -1320,9 +2574,15 @@
                 }
 
                 const stat = heroStatsLookup[name];
+                let banRateStr = '—';
                 if (stat) {
                     const br = parseFloat(stat.ban_rate) || 0;
                     score += (br / 15);
+                    banRateStr = br > 0 ? `${br.toFixed(1)}%` : '—';
+                }
+
+                if (threatCount === 0) {
+                    subHero = banRateStr !== '—' ? `Turnamen Ban (${banRateStr})` : 'Prioritas Turnamen';
                 }
 
                 banScoreMap.set(name, {
@@ -1334,6 +2594,7 @@
                     portrait: hero.portrait,
                     subtitle_type: 'THR',
                     subtitle_hero: subHero,
+                    ban_rate: banRateStr,
                     rbr_id: rbrId,
                     rbr_rationale: rbrRationale
                 });
@@ -1342,7 +2603,8 @@
             bans = Array.from(banScoreMap.values()).sort((a, b) => parseFloat(b.score) - parseFloat(a.score));
         }
 
-        document.getElementById('bansCountBadge').textContent = Math.min(8, bans.length);
+        const bansBadge = document.getElementById('bansCountBadge');
+        if (bansBadge) bansBadge.textContent = Math.min(8, bans.length);
 
         bans.slice(0, 8).forEach(b => {
             const card = document.createElement('div');
@@ -1353,11 +2615,20 @@
             };
 
             const pColor = b.priority === 'P1' ? 'bg-[#DC2626] text-white' : 'bg-red-100 text-red-800';
+            const pTitle = b.priority === 'P1' ? 'Prioritas Utama Ban: Ancaman counter langsung atau ban rate tinggi' : 'Prioritas Sekunder Ban';
+
+            const banRoleHtml = (b.role) ? 
+                `<span class="text-[9px] text-gray-400 font-medium">${b.role}</span>` : '';
+
+            const banRateHtml = (b.ban_rate && b.ban_rate !== '—') ?
+                `<span class="bg-red-50 text-red-700 border border-red-200 text-[8px] font-extrabold px-1.5 py-0.2 rounded" title="Persentase Ban Turnamen MPL ID S18">Ban: ${b.ban_rate}</span>` : '';
+
+            const subHeroText = b.subtitle_hero || '';
 
             card.innerHTML = `
                 <div class="flex items-center justify-between gap-3">
                     <div class="flex items-center gap-2.5 min-w-0">
-                        <span class="text-[9px] font-black px-1.5 py-0.5 rounded ${pColor}">
+                        <span class="text-[9px] font-black px-1.5 py-0.5 rounded ${pColor}" title="${pTitle}">
                             ${b.priority}
                         </span>
                         <img src="${b.portrait}" 
@@ -1365,18 +2636,19 @@
                              class="w-9 h-9 rounded-full object-cover border border-[#F3E8E8] bg-gray-50 flex-shrink-0"
                              onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(b.hero)}&background=DC2626&color=fff';">
                         <div class="min-w-0">
-                            <div class="flex items-center gap-1.5">
+                            <div class="flex items-center gap-1.5 flex-wrap">
                                 <h4 class="font-black text-xs text-[#18181B] truncate">${b.hero}</h4>
-                                <span class="text-[9px] text-gray-400 font-medium">${b.role}</span>
+                                ${banRoleHtml}
+                                ${banRateHtml}
                             </div>
                             <div class="text-[10px] font-bold text-red-700 truncate mt-0.5">
-                                ${b.subtitle_type} <span class="font-semibold text-gray-700">${b.subtitle_hero}</span>
+                                <span title="Jenis Sinyal">${b.subtitle_type || 'THR'}</span> ${subHeroText ? `<span class="font-semibold text-gray-700">${subHeroText}</span>` : ''}
                             </div>
                         </div>
                     </div>
 
                     <div class="w-24 text-right flex-shrink-0">
-                        <div class="font-mono font-black text-xs text-red-700 mb-1">
+                        <div class="font-mono font-black text-xs text-red-700 mb-1" title="Skor Ancaman Ban">
                             ${b.score}
                         </div>
                         <div class="w-full bg-red-100 h-1.5 rounded-full overflow-hidden">
@@ -1386,14 +2658,17 @@
                 </div>
 
                 <div class="bg-red-50/70 border border-red-100 rounded-lg p-1.5 text-[9px] text-red-800 font-medium leading-tight">
-                    <strong>RBR THREAT:</strong> ${b.rbr_rationale || 'High tournament priority ban.'}
+                    <strong>RBR THREAT:</strong> ${b.rbr_rationale || 'High tournament priority ban berdasarkan kontestasi pro player MPL ID S18.'}
                 </div>
             `;
             bansContainer.appendChild(card);
         });
 
-        const conf = 90.0 + (allyTeam.length * 1.2) + (enemyTeam.length * 0.8);
-        document.getElementById('confidenceScore').textContent = `${Math.min(99.4, conf.toFixed(1))}%`;
+        const confEl = document.getElementById('confidenceScore');
+        if (confEl) {
+            const conf = 90.0 + (allyTeam.length * 1.2) + (enemyTeam.length * 0.8);
+            confEl.textContent = `${Math.min(99.4, conf.toFixed(1))}%`;
+        }
     }
 
     // Modal Export PDF Cheat Sheet Coach
@@ -1446,44 +2721,70 @@
 
         // Damage Stats in Modal
         const allyDist = computeTeamDamage(allyTeam);
-        document.getElementById('csAllyPhys').textContent = `${allyDist.phys}%`;
-        document.getElementById('csAllyMag').textContent = `${allyDist.mag}%`;
-        document.getElementById('csAllyPhysBar').style.width = `${allyDist.phys}%`;
-        document.getElementById('csAllyMagBar').style.width = `${allyDist.mag}%`;
+        const elPhys = document.getElementById('csAllyPhys');
+        const elMag = document.getElementById('csAllyMag');
+        const elPhysBar = document.getElementById('csAllyPhysBar');
+        const elMagBar = document.getElementById('csAllyMagBar');
+        if (elPhys) elPhys.textContent = `${allyDist.phys}%`;
+        if (elMag) elMag.textContent = `${allyDist.mag}%`;
+        if (elPhysBar) elPhysBar.style.width = `${allyDist.phys}%`;
+        if (elMagBar) elMagBar.style.width = `${allyDist.mag}%`;
 
         // Power Spike in Modal
         const allySpikes = computeTeamPowerSpikes(allyTeam);
-        document.getElementById('csEarlyCount').textContent = `${allySpikes.early} Hero`;
-        document.getElementById('csMidCount').textContent = `${allySpikes.mid} Hero`;
-        document.getElementById('csLateCount').textContent = `${allySpikes.late} Hero`;
+        const elEarly = document.getElementById('csEarlyCount');
+        const elMid = document.getElementById('csMidCount');
+        const elLate = document.getElementById('csLateCount');
+        if (elEarly) elEarly.textContent = `${allySpikes.early} Hero`;
+        if (elMid) elMid.textContent = `${allySpikes.mid} Hero`;
+        if (elLate) elLate.textContent = `${allySpikes.late} Hero`;
 
         // Active Rules in Modal
         const rulesList = document.getElementById('csActiveRulesList');
-        rulesList.innerHTML = '';
-        const rulesToDisplay = rbrGenerated.length > 0 ? rbrGenerated.slice(0, 4) : [
-            { rule_id: 'RBR-CTR-01', antecedent: "Enemy Pick 'Ling'", consequent: "Pick 'Khufra' (Anti-Dash CC)", confidence: '96.4%', rationale: 'Bouncing ball membatalkan lintasan kabel baja Ling.' },
-            { rule_id: 'RBR-SYN-01', antecedent: "Ally Pick 'Tigreal'", consequent: "Pick 'Yve' (Area Combo)", confidence: '94.5%', rationale: 'Implosion grouping dilanjutkan Real World Manipulation.' },
-            { rule_id: 'RBR-DMG-01', antecedent: "Physical Ratio >= 80%", consequent: "Prioritaskan Magic Core", confidence: '97.5%', rationale: 'Menghindari counter Antique Cuirass dan Blade Armor.' },
-        ];
+        if (rulesList) {
+            rulesList.innerHTML = '';
+            const rulesToDisplay = rbrGenerated.length > 0 ? rbrGenerated.slice(0, 4) : [
+                { rule_id: 'RBR-CTR-01', antecedent: "Enemy Pick 'Ling'", consequent: "Pick 'Khufra' (Anti-Dash CC)", confidence: '96.4%', rationale: 'Bouncing ball membatalkan lintasan kabel baja Ling.' },
+                { rule_id: 'RBR-SYN-01', antecedent: "Ally Pick 'Tigreal'", consequent: "Pick 'Yve' (Area Combo)", confidence: '94.5%', rationale: 'Implosion grouping dilanjutkan Real World Manipulation.' },
+                { rule_id: 'RBR-DMG-01', antecedent: "Physical Ratio >= 80%", consequent: "Prioritaskan Magic Core", confidence: '97.5%', rationale: 'Menghindari counter Antique Cuirass dan Blade Armor.' },
+            ];
 
-        rulesToDisplay.forEach(r => {
-            const rDiv = document.createElement('div');
-            rDiv.className = 'p-2.5 bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl text-[10px] space-y-0.5';
-            rDiv.innerHTML = `
-                <div class="flex justify-between font-black text-[#700B1A]">
-                    <span>[${r.rule_id}] IF ${r.antecedent} ➜ THEN ${r.consequent}</span>
-                    <span class="text-emerald-700">${r.confidence}</span>
-                </div>
-                <div class="text-gray-500 font-medium text-[9px]">${r.rationale}</div>
-            `;
-            rulesList.appendChild(rDiv);
-        });
+            rulesToDisplay.forEach(r => {
+                const rDiv = document.createElement('div');
+                rDiv.className = 'p-2.5 bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl text-[10px] space-y-0.5';
+                rDiv.innerHTML = `
+                    <div class="flex justify-between font-black text-[#700B1A]">
+                        <span>[${r.rule_id}] IF ${r.antecedent} ➜ THEN ${r.consequent}</span>
+                        <span class="text-emerald-700">${r.confidence}</span>
+                    </div>
+                    <div class="text-gray-500 font-medium text-[9px]">${r.rationale}</div>
+                `;
+                rulesList.appendChild(rDiv);
+            });
+        }
     }
 
     function closeCoachCheatSheetModal() {
         const modal = document.getElementById('coachCheatSheetModal');
         modal.classList.remove('opacity-100');
         modal.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    // Modal Panduan Istilah & Legenda RBR
+    function openLegendModal() {
+        const modal = document.getElementById('legendModal');
+        if (modal) {
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.classList.add('opacity-100');
+        }
+    }
+
+    function closeLegendModal() {
+        const modal = document.getElementById('legendModal');
+        if (modal) {
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
     }
 
     function triggerPrintPdf() {
@@ -1512,20 +2813,334 @@
         renderPickerGrid();
     }
 
+    function toggleRecCard(heroId) {
+        if (expandedRecHeroId === heroId) {
+            expandedRecHeroId = null;
+        } else {
+            expandedRecHeroId = heroId;
+        }
+        renderTacticalAnalysis();
+    }
+
+    function selectRecommendedHero(heroName) {
+        setActiveTeamMode('ally');
+        toggleSelectHero(heroName);
+    }
+
+    function resolvePrimaryReasonChip(p, counters, synergies, firedRules, needsMage, needsFrontline) {
+        if (needsMage && (p.damage_type === 'Magic' || (p.role && p.role.toLowerCase().includes('mage')))) {
+            return { text: 'MAGE WAJIB', class: 'bg-amber-100 text-amber-900 border border-amber-300' };
+        }
+        if (counters && counters.length > 0) {
+            return { text: 'CTR vs ' + counters[0].vs, class: 'bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD]' };
+        }
+        if (synergies && synergies.length > 0) {
+            return { text: 'SYN + ' + synergies[0].dengan, class: 'bg-emerald-50 text-emerald-800 border border-emerald-200' };
+        }
+        if (firedRules && firedRules.some(r => r.rule_id === 'RBR-COMP-02')) {
+            return { text: 'FRONTLINE', class: 'bg-blue-50 text-blue-800 border border-blue-200' };
+        }
+        if (firedRules && firedRules.some(r => r.rule_id === 'RBR-POW-01')) {
+            return { text: 'EARLY TEMPO', class: 'bg-teal-50 text-teal-800 border border-teal-200' };
+        }
+        if (firedRules && firedRules.some(r => r.rule_id === 'RBR-POW-02')) {
+            return { text: 'LATE SCALE', class: 'bg-purple-50 text-purple-800 border border-purple-200' };
+        }
+        return { text: 'META S18', class: 'bg-gray-100 text-gray-700 border border-gray-200' };
+    }
+
+    function renderSynergyBadges(synList) {
+        if (!synList || synList.length === 0) {
+            return '<span class="text-gray-400 italic text-[9.5px]">Belum ada sinergi spesifik dengan hero sekutu saat ini</span>';
+        }
+        return synList.map(s => `
+            <span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded font-black text-[9px]">
+                +${(s.nilai || 12).toFixed(1)} dgn ${s.dengan}
+            </span>
+        `).join(' ');
+    }
+
+    function renderCounterBadges(ctrList) {
+        if (!ctrList || ctrList.length === 0) {
+            return '<span class="text-gray-400 italic text-[9.5px]">Belum ada target counter langsung terhadap hero musuh saat ini</span>';
+        }
+        return ctrList.map(c => `
+            <span class="bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD] px-1.5 py-0.5 rounded font-black text-[9px]">
+                +${(c.nilai || 14).toFixed(1)} vs ${c.vs}
+            </span>
+        `).join(' ');
+    }
+
+    function renderFiredRulesList(rules) {
+        if (!rules || rules.length === 0) {
+            return '<div class="text-[9.5px] text-gray-400 italic">Tidak ada aturan spesifik yang menyala untuk hero ini</div>';
+        }
+        return rules.map(r => `
+            <div class="p-2 bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl text-[9.5px] space-y-1">
+                <div class="flex items-center justify-between font-black">
+                    <a href="{{ route('rules') }}#${r.rule_id}" target="_blank" class="text-[#700B1A] hover:underline flex items-center gap-1" title="Lihat di Knowledge Base Rules RBR">
+                        <span class="bg-[#FCECEE] text-[#700B1A] px-1.5 py-0.2 rounded text-[8.5px] font-black">${r.rule_id}</span>
+                        <span class="text-gray-800">${r.nama}</span>
+                        <span class="text-[9px] text-gray-400">↗</span>
+                    </a>
+                    <span class="text-emerald-700 font-mono font-bold">+${(r.kontribusi_skor || 0).toFixed(1)} Poin</span>
+                </div>
+                <div class="text-gray-600 leading-tight">
+                    <strong>Kondisi Aktual:</strong> ${r.kondisi || 'Kondisi premis terpenuhi'}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderUnfiredRulesList(rules) {
+        if (!rules || rules.length === 0) {
+            return '<div class="text-[9px] text-gray-400 italic">Semua aturan relevan telah menyala</div>';
+        }
+        return rules.slice(0, 4).map(r => `
+            <div class="text-[9px] text-gray-500 bg-gray-50 p-1.5 rounded-lg border border-gray-100 flex items-start justify-between gap-1.5">
+                <span class="font-bold text-gray-700">[${r.rule_id}] ${r.nama}:</span>
+                <span class="italic text-gray-400 text-right">${r.alasan_tidak_menyala || 'Kondisi draft belum terpenuhi'}</span>
+            </div>
+        `).join('');
+    }
+
+    function openInferenceTraceModal() {
+        const modal = document.getElementById('inferenceTraceModal');
+        if (modal) {
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.classList.add('opacity-100');
+            updateInferenceModalContent();
+        }
+    }
+
+    function closeInferenceTraceModal() {
+        const modal = document.getElementById('inferenceTraceModal');
+        if (modal) {
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+    }
+
+    function switchTraceTab(tabId) {
+        currentTraceTab = tabId;
+        const tabs = ['working_memory', 'conflict_set', 'selected_rules', 'score_steps'];
+        const btnIds = {
+            working_memory: 'traceTabBtn-wm',
+            conflict_set: 'traceTabBtn-cs',
+            selected_rules: 'traceTabBtn-sr',
+            score_steps: 'traceTabBtn-st'
+        };
+
+        tabs.forEach(t => {
+            const contentEl = document.getElementById(`traceContent-${t}`);
+            const btnEl = document.getElementById(btnIds[t]);
+            if (contentEl) {
+                if (t === tabId) {
+                    contentEl.classList.remove('hidden');
+                } else {
+                    contentEl.classList.add('hidden');
+                }
+            }
+            if (btnEl) {
+                if (t === tabId) {
+                    btnEl.className = 'trace-tab-btn px-3 py-1 rounded-full text-xs font-black uppercase transition bg-[#700B1A] text-white shadow-2xs';
+                } else {
+                    btnEl.className = 'trace-tab-btn px-3 py-1 rounded-full text-xs font-bold uppercase transition bg-white text-gray-600 border border-[#F3E8E8] hover:bg-[#FAF8F8]';
+                }
+            }
+        });
+    }
+
+    function updateInferenceModalContent() {
+        const wm = (latestInferenceData && latestInferenceData.working_memory) ? latestInferenceData.working_memory : {
+            ally_count: allyTeam.length,
+            enemy_count: enemyTeam.length,
+            ally_heroes: allyTeam.map((h, i) => ({ name: h, role: 'Hero', lane: allyLanes[i] || 'EXP' })),
+            enemy_heroes: enemyTeam.map((h, i) => ({ name: h, role: 'Hero', lane: enemyLanes[i] || 'EXP' })),
+            ally_damage: computeTeamDamage(allyTeam),
+            enemy_damage: computeTeamDamage(enemyTeam),
+            ally_power_spikes: computeTeamPowerSpikes(allyTeam),
+            enemy_power_spikes: computeTeamPowerSpikes(enemyTeam),
+            ally_lanes_filled: allyLanes,
+            enemy_lanes_filled: enemyLanes,
+            ally_has_frontline: allyTeam.length > 0,
+            ally_has_cc: allyTeam.length > 0,
+            magic_deficit: false,
+            frontline_deficit: false,
+            excluded_heroes: [...allyTeam, ...enemyTeam],
+            map_variant: 'Standar'
+        };
+
+        // 1. Working Memory Tab
+        const wmAllyBadge = document.getElementById('wmAllyCountBadge');
+        if (wmAllyBadge) wmAllyBadge.textContent = `${wm.ally_count}/5 Terpilih`;
+        const wmEnemyBadge = document.getElementById('wmEnemyCountBadge');
+        if (wmEnemyBadge) wmEnemyBadge.textContent = `${wm.enemy_count}/5 Terpilih`;
+
+        const wmAllyList = document.getElementById('wmAllyList');
+        if (wmAllyList) {
+            if (!wm.ally_heroes || wm.ally_heroes.length === 0) {
+                wmAllyList.innerHTML = '<span class="text-gray-400 italic">Belum ada hero sekutu terpilih</span>';
+            } else {
+                wmAllyList.innerHTML = wm.ally_heroes.map(h => `
+                    <div class="flex items-center justify-between py-1 border-b border-gray-50">
+                        <span class="font-black text-[#18181B]">${h.name}</span>
+                        <span class="text-gray-500 font-mono text-[9.5px]">${h.lane || 'Flex'} • ${h.role || 'Hero'}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        const wmEnemyList = document.getElementById('wmEnemyList');
+        if (wmEnemyList) {
+            if (!wm.enemy_heroes || wm.enemy_heroes.length === 0) {
+                wmEnemyList.innerHTML = '<span class="text-gray-400 italic">Belum ada hero musuh terpilih</span>';
+            } else {
+                wmEnemyList.innerHTML = wm.enemy_heroes.map(h => `
+                    <div class="flex items-center justify-between py-1 border-b border-gray-50">
+                        <span class="font-black text-red-700">${h.name}</span>
+                        <span class="text-gray-500 font-mono text-[9.5px]">${h.lane || 'Flex'} • ${h.role || 'Hero'}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        const wmAllyDmg = document.getElementById('wmAllyDamageRatio');
+        if (wmAllyDmg) wmAllyDmg.textContent = `Phys ${wm.ally_damage?.phys || 0}% / Mag ${wm.ally_damage?.mag || 0}%`;
+        const wmEnemyDmg = document.getElementById('wmEnemyDamageRatio');
+        if (wmEnemyDmg) wmEnemyDmg.textContent = `Phys ${wm.enemy_damage?.phys || 0}% / Mag ${wm.enemy_damage?.mag || 0}%`;
+
+        const wmAllySpikes = document.getElementById('wmAllySpikes');
+        if (wmAllySpikes) {
+            wmAllySpikes.textContent = (allyTeam.length === 0) ? 'Belum ada data' : `Early: ${wm.ally_power_spikes?.early || 0} | Mid: ${wm.ally_power_spikes?.mid || 0} | Late: ${wm.ally_power_spikes?.late || 0}`;
+        }
+        const wmEnemySpikes = document.getElementById('wmEnemySpikes');
+        if (wmEnemySpikes) {
+            wmEnemySpikes.textContent = (enemyTeam.length === 0) ? 'Belum ada data' : `Early: ${wm.enemy_power_spikes?.early || 0} | Mid: ${wm.enemy_power_spikes?.mid || 0} | Late: ${wm.enemy_power_spikes?.late || 0}`;
+        }
+
+        const wmFactsGrid = document.getElementById('wmFactsGrid');
+        if (wmFactsGrid) {
+            wmFactsGrid.innerHTML = `
+                <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-100">
+                    <div class="text-gray-400 text-[9px] font-black uppercase">STATUS MAGIC</div>
+                    <div class="font-black text-[11px] mt-0.5 ${wm.magic_deficit ? 'text-amber-700' : 'text-emerald-700'}">
+                        ${wm.magic_deficit ? 'Defisit (Wajib Mage)' : 'Aman (Tercukupi)'}
+                    </div>
+                </div>
+                <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-100">
+                    <div class="text-gray-400 text-[9px] font-black uppercase">STATUS FRONTLINE</div>
+                    <div class="font-black text-[11px] mt-0.5 ${wm.frontline_deficit ? 'text-amber-700' : 'text-emerald-700'}">
+                        ${wm.frontline_deficit ? 'Defisit (Perlu Tank)' : 'Tersedia'}
+                    </div>
+                </div>
+                <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-100">
+                    <div class="text-gray-400 text-[9px] font-black uppercase">INISIATOR CC</div>
+                    <div class="font-black text-[11px] mt-0.5 ${wm.ally_has_cc ? 'text-emerald-700' : 'text-gray-600'}">
+                        ${wm.ally_has_cc ? 'Tersedia' : 'Belum Ada'}
+                    </div>
+                </div>
+                <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-100">
+                    <div class="text-gray-400 text-[9px] font-black uppercase">HERO TEREKSKLUSI</div>
+                    <div class="font-black text-[11px] text-[#700B1A] mt-0.5">
+                        ${(wm.excluded_heroes || []).length} Hero
+                    </div>
+                </div>
+            `;
+        }
+
+        // 2. Conflict Set Tab
+        const ruleEvals = (latestInferenceData && latestInferenceData.rule_evaluations) ? latestInferenceData.rule_evaluations : {};
+        const conflictTbody = document.getElementById('conflictSetTableBody');
+        if (conflictTbody) {
+            const ruleEntries = Object.values(ruleEvals);
+            const countBadge = document.getElementById('conflictSetCountBadge');
+            if (countBadge) countBadge.textContent = `${ruleEntries.length} Rule Dievaluasi`;
+
+            if (ruleEntries.length === 0) {
+                conflictTbody.innerHTML = '<tr><td colspan="4" class="p-3 text-center text-gray-400">Tidak ada aturan yang dievaluasi</td></tr>';
+            } else {
+                conflictTbody.innerHTML = ruleEntries.map(r => `
+                    <tr class="hover:bg-gray-50/80 transition">
+                        <td class="py-2.5 px-3">
+                            <div class="font-black text-[#18181B] flex items-center gap-1.5">
+                                <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-[#700B1A] px-1.5 py-0.2 rounded text-[9px] font-black">${r.rule_id}</span>
+                                <span>${r.nama}</span>
+                            </div>
+                        </td>
+                        <td class="py-2.5 px-3 text-gray-600">
+                            ${r.kondisi}
+                        </td>
+                        <td class="py-2.5 px-3 text-center">
+                            ${r.fired ? 
+                                '<span class="bg-emerald-100 text-emerald-800 border border-emerald-200 text-[9px] font-black px-2 py-0.5 rounded-full">AKTIF</span>' : 
+                                '<span class="bg-gray-100 text-gray-500 text-[9px] font-semibold px-2 py-0.5 rounded-full">TIDAK MENYALA</span>'}
+                        </td>
+                        <td class="py-2.5 px-3 text-right font-mono font-bold text-gray-700">
+                            ${r.bobot} (W)
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // 3. Selected Rules Tab
+        const selectedList = document.getElementById('selectedRulesList');
+        if (selectedList) {
+            const firedList = Object.values(ruleEvals).filter(r => r.fired);
+            if (firedList.length === 0) {
+                selectedList.innerHTML = '<div class="p-3 bg-white rounded-xl border border-dashed border-[#F3E8E8] text-center text-gray-400">Belum ada aturan aktif pada kondisi draft saat ini.</div>';
+            } else {
+                selectedList.innerHTML = firedList.map((r, i) => `
+                    <div class="p-3 bg-white rounded-xl border border-[#F3E8E8] shadow-2xs space-y-1">
+                        <div class="flex items-center justify-between font-black">
+                            <span class="text-[#700B1A] flex items-center gap-1.5">
+                                <span class="w-5 h-5 rounded-full bg-[#700B1A] text-white flex items-center justify-center text-[10px]">${i + 1}</span>
+                                <span>[${r.rule_id}] ${r.nama}</span>
+                            </span>
+                            <span class="text-emerald-700 font-mono font-bold">+${(r.kontribusi_skor || 0).toFixed(1)} Poin</span>
+                        </div>
+                        <div class="text-[10px] text-gray-600 pl-6.5">
+                            <strong>Kondisi Aktual:</strong> ${r.kondisi}
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+    }
+
     function resetDraft() {
         allyTeam = [];
         enemyTeam = [];
         allyLanes = [];
         enemyLanes = [];
+        allyBans = [];
+        enemyBans = [];
+        activeTarget = { team: 'ally', index: 0, type: 'pick' };
+        activeTeamMode = 'ally';
+        updateTeamModeUI();
+        expandedRecHeroId = null;
+        currentRecommendations = @json($defaultPicks ?? []);
+        latestInferenceData = initialInferenceData;
         renderSlots();
+        renderBanSlots();
         renderPickerGrid();
         updateDamageAndPowerSpikes();
         renderTacticalAnalysis();
+        updateInferenceModalContent();
         syncServerDraft();
         showToast('Draft berhasil direset.');
     }
 
     function syncServerDraft() {
+        const loadingBar = document.getElementById('recLoadingBar');
+        if (loadingBar) {
+            loadingBar.classList.remove('opacity-0');
+            loadingBar.classList.add('opacity-100', 'animate-pulse');
+        }
+
+        const allBans = [...allyBans, ...enemyBans];
+
         fetch('/api/analyze-draft', {
             method: 'POST',
             headers: {
@@ -1536,13 +3151,80 @@
                 my_team: allyTeam,
                 enemy_team: enemyTeam,
                 my_lanes: allyLanes,
-                enemy_lanes: enemyLanes
+                enemy_lanes: enemyLanes,
+                banned: allBans
             })
         }).then(res => res.json()).then(data => {
-            console.log('RBR Engine Response (Academic Verifier):', data);
+            if (data && data.recommendations) {
+                currentRecommendations = data.recommendations;
+                latestInferenceData = data.inference || data;
+            }
+            renderTacticalAnalysis();
+            updateInferenceModalContent();
         }).catch(err => {
-            console.warn('Sync offline mode active:', err);
+            console.warn('Sync offline fallback active:', err);
+        }).finally(() => {
+            if (loadingBar) {
+                loadingBar.classList.remove('opacity-100', 'animate-pulse');
+                loadingBar.classList.add('opacity-0');
+            }
         });
+    }
+
+    // Kontrol Menu Skenario Demo (FASE 6)
+    function toggleScenarioMenu(e) {
+        if (e) e.stopPropagation();
+        const menu = document.getElementById('demoScenarioMenu');
+        if (menu) menu.classList.toggle('hidden');
+    }
+
+    function closeScenarioMenu() {
+        const menu = document.getElementById('demoScenarioMenu');
+        if (menu) menu.classList.add('hidden');
+    }
+
+    document.addEventListener('click', (e) => {
+        const dropdown = document.getElementById('demoScenarioDropdown');
+        if (dropdown && !dropdown.contains(e.target)) {
+            closeScenarioMenu();
+        }
+    });
+
+    function loadDemoScenario(type) {
+        closeScenarioMenu();
+        allyBans = [];
+        enemyBans = [];
+        if (type === 'magic-deficit') {
+            // Skenario 1: Defisit Magic (Mage Wajib RBR-COMP-01)
+            allyTeam = ['Tigreal', 'Bruno', 'Ling'];
+            allyLanes = ['ROAM', 'GOLD', 'JGL'];
+            enemyTeam = ['Pharsa', 'Hylos', 'Granger'];
+            enemyLanes = ['MID', 'ROAM', 'JGL'];
+            showToast('Skenario 1 dimuat: Tim Sekutu defisit Magic (memicu [RBR-COMP-01]).');
+        } else if (type === 'no-frontline') {
+            // Skenario 2: Tanpa Frontline & Minim CC (RBR-COMP-02 & RBR-CC-01)
+            allyTeam = ['Layla', 'Lesley', 'Hanabi'];
+            allyLanes = ['GOLD', 'EXP', 'MID'];
+            enemyTeam = ['Tigreal', 'Ling', 'Harith'];
+            enemyLanes = ['ROAM', 'JGL', 'MID'];
+            showToast('Skenario 2 dimuat: Tanpa Frontline & Minim CC (memicu [RBR-COMP-02]).');
+        } else if (type === 'late-scaling') {
+            // Skenario 3: Late-Heavy vs Early Snowball (RBR-POW-02)
+            allyTeam = ['Claude', 'Cecilion', 'Aldous', 'Uranus'];
+            allyLanes = ['GOLD', 'MID', 'EXP', 'ROAM'];
+            enemyTeam = ['Selena', 'Martis', 'Paquito', 'Brody'];
+            enemyLanes = ['ROAM', 'JGL', 'EXP', 'GOLD'];
+            showToast('Skenario 3 dimuat: Late-Heavy scaling vs Early Aggro (memicu [RBR-POW-02]).');
+        }
+
+        activeTarget = { team: 'ally', index: Math.min(4, allyTeam.length), type: 'pick' };
+        activeTeamMode = 'ally';
+        updateTeamModeUI();
+        renderSlots();
+        renderPickerGrid();
+        updateDamageAndPowerSpikes();
+        renderTacticalAnalysis();
+        syncServerDraft();
     }
 
     function shareDraft() {

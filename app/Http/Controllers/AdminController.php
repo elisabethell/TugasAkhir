@@ -36,6 +36,7 @@ class AdminController extends Controller
                 MatchDataset::where('match_id', 'like', '%R03-M002%')->update(['stage_name' => 'Lower Bracket Final']);
                 MatchDataset::where('match_id', 'like', '%R04-M001%')->update(['stage_name' => 'Grand Final Playoffs']);
 
+                // Ambil data murni relasional dari database lokal
                 $seriesMatches = MatchDataset::with(['games.details'])->orderBy('match_date', 'desc')->get();
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::warning('AdminController DB error: ' . $e->getMessage());

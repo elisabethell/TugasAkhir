@@ -83,22 +83,22 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs border-collapse" id="statsTable">
                 <thead>
-                    <tr class="bg-[#FAF8F8] border-b border-[#F3E8E8] text-[10px] font-black uppercase text-gray-500 tracking-wider">
+                    <tr class="bg-[#FAF8F8] border-b border-[#F3E8E8] text-[10px] font-black uppercase text-gray-500 tracking-wider select-none">
                         <th class="py-2.5 px-3 w-10 text-center">#</th>
-                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(1)">
-                            HERO NAME <span class="text-gray-400">⇅</span>
+                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition select-none" onclick="sortTable(1)">
+                            HERO NAME <span id="sort-icon-1" class="text-gray-400">⇅</span>
                         </th>
-                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(2, true)">
-                            WIN RATE <span class="text-[#700B1A]">↓</span>
+                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition select-none" onclick="sortTable(2, true)">
+                            WIN RATE <span id="sort-icon-2" class="text-[#700B1A] font-black">↓</span>
                         </th>
-                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(3, true)">
-                            PICK RATE <span class="text-gray-400">⇅</span>
+                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition select-none" onclick="sortTable(3, true)">
+                            PICK RATE <span id="sort-icon-3" class="text-gray-400">⇅</span>
                         </th>
-                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(4, true)">
-                            BAN RATE <span class="text-gray-400">⇅</span>
+                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition select-none" onclick="sortTable(4, true)">
+                            BAN RATE <span id="sort-icon-4" class="text-gray-400">⇅</span>
                         </th>
-                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable(5)">
-                            ROLE <span class="text-gray-400">⇅</span>
+                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition select-none" onclick="sortTable(5)">
+                            ROLE <span id="sort-icon-5" class="text-gray-400">⇅</span>
                         </th>
                         <th class="py-2.5 px-3.5">LANE</th>
                         <th class="py-2.5 px-3.5">SPECIALITY</th>
@@ -116,7 +116,7 @@
                             data-br="{{ $row['ban_rate'] }}">
                             
                             <!-- Index -->
-                            <td class="py-1 px-2.5 text-center font-bold text-gray-400 text-xs align-middle">
+                            <td class="py-1 px-2.5 text-center font-bold text-gray-400 text-xs align-middle stat-index-cell">
                                 {{ $idx + 1 }}
                             </td>
 
@@ -249,6 +249,7 @@
                     </select>
                 </div>
                 <span class="text-gray-300 font-light select-none hidden sm:inline">|</span>
+                <div class="h-4 w-px bg-[#E5E7EB] hidden sm:block"></div>
                 <div class="text-gray-600 font-medium text-xs whitespace-nowrap" id="statsPaginationInfo">
                     Menampilkan <span class="font-extrabold text-[#700B1A]" id="statsPageStart">1</span> - <span class="font-extrabold text-[#700B1A]" id="statsPageEnd">10</span> dari <span class="font-extrabold text-[#18181B]" id="statsTotalRows">0</span> hero
                 </div>
@@ -264,21 +265,25 @@
     <!-- 4. THREE BOTTOM INSIGHT CARDS (COMPACT & PROPORTIONAL) -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
         
-        <!-- Insight Card 1: Power Spike Insight -->
+        <!-- Insight Card 1: Dominant Win Rate -->
         <div class="card-custom p-3.5 sm:p-4 flex flex-col justify-between hover:shadow-md transition">
             <div>
                 <div class="flex items-center gap-2 mb-1.5">
                     <span class="w-5 h-5 rounded-md bg-[#FCECEE] text-[#700B1A] flex items-center justify-center font-black text-xs">!</span>
-                    <h4 class="font-extrabold text-xs sm:text-sm text-[#18181B]">Power Spike Insight</h4>
+                    <h4 class="font-extrabold text-xs sm:text-sm text-[#18181B]">Power Spike & Win Rate</h4>
                 </div>
                 <p class="text-[11px] text-gray-600 leading-snug">
-                    Harith dan Karrie mencatat 70%+ win rate dominan ketika dipasangkan dengan setup roamer CC keras seperti Tigreal atau Baxia.
+                    @if(!empty($topWrHero))
+                        {{ $topWrHero['name'] }} memimpin performa dengan Win Rate {{ number_format($topWrHero['wr'], 1) }}% ({{ $topWrHero['wins'] }} menang dari {{ $topWrHero['picks'] }} game) pada data turnamen MPL ID S18.
+                    @else
+                        Statistik performa win rate turnamen dihitung secara dinamis dari database.
+                    @endif
                 </p>
             </div>
             <div class="flex items-center justify-between text-[10px] font-bold text-gray-400 pt-2.5 mt-2 border-t border-[#FAF0F1]">
-                <span class="uppercase tracking-wider">FASE DRAFT 1-3</span>
+                <span class="uppercase tracking-wider">WIN RATE TERTINGGI</span>
                 <a href="{{ route('draft.analyzer') }}" class="text-[#700B1A] hover:underline flex items-center gap-1 font-extrabold">
-                    <span>LIHAT DETAIL &gt;</span>
+                    <span>SIMULASI DRAFT &gt;</span>
                 </a>
             </div>
         </div>
@@ -287,11 +292,15 @@
         <div class="card-custom p-3.5 sm:p-4 flex flex-col justify-between hover:shadow-md transition">
             <div>
                 <div class="flex items-center gap-2 mb-1.5">
-                    <span class="w-5 h-5 rounded-md bg-[#FCECEE] text-[#700B1A] flex items-center justify-center font-black text-xs">⊘</span>
+                    <span class="w-5 h-5 rounded-md bg-[#FCECEE] text-[#700B1A] flex items-center justify-center font-black text-xs">X</span>
                     <h4 class="font-extrabold text-xs sm:text-sm text-[#18181B]">Priority Permabans</h4>
                 </div>
                 <p class="text-[11px] text-gray-600 leading-snug">
-                    Ban rate 91.3% Harith menjadikannya ancaman mutlak di patch 1.9.14, memaksa tim sisi merah merelakan first phase bans.
+                    @if(!empty($topBanHero))
+                        Ban rate {{ number_format($topBanHero['ban_rate'], 1) }}% {{ $topBanHero['name'] }} ({{ $topBanHero['bans'] }} ban dari {{ $totalGames }} game) menjadikannya prioritas ban utama pada turnamen MPL ID S18.
+                    @else
+                        Data prioritas ban dihitung secara dinamis dari pertandingan turnamen.
+                    @endif
                 </p>
             </div>
             <div class="flex items-center justify-between text-[10px] font-bold text-gray-400 pt-2.5 mt-2 border-t border-[#FAF0F1]">
@@ -302,19 +311,23 @@
             </div>
         </div>
 
-        <!-- Insight Card 3: Surprise Pocket Picks -->
+        <!-- Insight Card 3: Most Picked Hero -->
         <div class="card-custom p-3.5 sm:p-4 flex flex-col justify-between hover:shadow-md transition">
             <div>
                 <div class="flex items-center gap-2 mb-1.5">
-                    <span class="w-5 h-5 rounded-md bg-[#ECFDF5] text-emerald-700 flex items-center justify-center font-black text-xs">✪</span>
-                    <h4 class="font-extrabold text-xs sm:text-sm text-[#18181B]">Surprise Pocket Picks</h4>
+                    <span class="w-5 h-5 rounded-md bg-[#ECFDF5] text-emerald-700 flex items-center justify-center font-black text-xs">+</span>
+                    <h4 class="font-extrabold text-xs sm:text-sm text-[#18181B]">Most Picked Hero</h4>
                 </div>
                 <p class="text-[11px] text-gray-600 leading-snug">
-                    Aulus dan Rafaela mempertahankan tingkat kemenangan 59%+ meskipun pick rate di bawah 2%, sangat efektif sebagai counter-draft situasional.
+                    @if(!empty($topPickHero))
+                        {{ $topPickHero['name'] }} menjadi hero paling banyak dipilih dengan {{ $topPickHero['picks'] }} kali pick (Pick Rate {{ number_format($topPickHero['pick_rate'], 1) }}%).
+                    @else
+                        Menghitung hero dengan pick rate tertinggi dari database turnamen.
+                    @endif
                 </p>
             </div>
             <div class="flex items-center justify-between text-[10px] font-bold text-gray-400 pt-2.5 mt-2 border-t border-[#FAF0F1]">
-                <span class="uppercase tracking-wider">EFFICIENCY RATING</span>
+                <span class="uppercase tracking-wider">PICK RATE TERTINGGI</span>
                 <a href="{{ route('matches') }}" class="text-[#700B1A] hover:underline flex items-center gap-1 font-extrabold">
                     <span>ANALISIS SERI &gt;</span>
                 </a>
@@ -453,37 +466,94 @@
         filterStatsTable();
     }
 
+    let currentSortCol = 2; // Default: Win Rate
+    let currentSortDir = 'desc'; // Default: descending (sesuai data awal yang terurut dari WR tertinggi)
+
     function sortTable(colIndex, isNumeric = false) {
         const tbody = document.getElementById('statsTbody');
         const rows = Array.from(tbody.querySelectorAll('.stat-table-row'));
-        const isAsc = tbody.dataset.sortOrder !== 'asc';
-        tbody.dataset.sortOrder = isAsc ? 'asc' : 'desc';
+
+        if (currentSortCol === colIndex) {
+            currentSortDir = (currentSortDir === 'desc') ? 'asc' : 'desc';
+        } else {
+            currentSortCol = colIndex;
+            currentSortDir = isNumeric ? 'desc' : 'asc';
+        }
+
+        const isAsc = (currentSortDir === 'asc');
 
         rows.sort((a, b) => {
             let valA, valB;
-            if (colIndex === 1) { // Name
-                valA = a.dataset.name;
-                valB = b.dataset.name;
+            if (colIndex === 1) { // Hero Name
+                valA = a.dataset.name || '';
+                valB = b.dataset.name || '';
                 return isAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
             } else if (colIndex === 2) { // Win Rate
                 valA = parseFloat(a.dataset.wr) || 0;
                 valB = parseFloat(b.dataset.wr) || 0;
+                if (valA !== valB) {
+                    return isAsc ? (valA - valB) : (valB - valA);
+                }
+                const prA = parseFloat(a.dataset.pr) || 0;
+                const prB = parseFloat(b.dataset.pr) || 0;
+                if (prA !== prB) return prB - prA;
+                return (a.dataset.name || '').localeCompare(b.dataset.name || '');
             } else if (colIndex === 3) { // Pick Rate
                 valA = parseFloat(a.dataset.pr) || 0;
                 valB = parseFloat(b.dataset.pr) || 0;
+                if (valA !== valB) {
+                    return isAsc ? (valA - valB) : (valB - valA);
+                }
+                const wrA = parseFloat(a.dataset.wr) || 0;
+                const wrB = parseFloat(b.dataset.wr) || 0;
+                if (wrA !== wrB) return wrB - wrA;
+                return (a.dataset.name || '').localeCompare(b.dataset.name || '');
             } else if (colIndex === 4) { // Ban Rate
                 valA = parseFloat(a.dataset.br) || 0;
                 valB = parseFloat(b.dataset.br) || 0;
+                if (valA !== valB) {
+                    return isAsc ? (valA - valB) : (valB - valA);
+                }
+                return (a.dataset.name || '').localeCompare(b.dataset.name || '');
             } else if (colIndex === 5) { // Role
-                valA = a.dataset.role;
-                valB = b.dataset.role;
-                return isAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                valA = a.dataset.role || '';
+                valB = b.dataset.role || '';
+                if (valA !== valB) {
+                    return isAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                }
+                return (a.dataset.name || '').localeCompare(b.dataset.name || '');
             }
             return isAsc ? (valA - valB) : (valB - valA);
         });
 
-        rows.forEach(row => tbody.appendChild(row));
+        // Susun ulang baris di tbody dan sinkronkan nomor urut (#)
+        rows.forEach((row, idx) => {
+            tbody.appendChild(row);
+            const indexCell = row.querySelector('.stat-index-cell');
+            if (indexCell) {
+                indexCell.textContent = idx + 1;
+            }
+        });
+
+        // Perbarui ikon panah indikator sorting
+        updateSortIcons(currentSortCol, currentSortDir);
+
+        currentStatsPage = 1;
         updateStatsPagination();
+    }
+
+    function updateSortIcons(activeCol, dir) {
+        for (let c = 1; c <= 5; c++) {
+            const iconEl = document.getElementById(`sort-icon-${c}`);
+            if (!iconEl) continue;
+            if (c === activeCol) {
+                iconEl.className = 'text-[#700B1A] font-black';
+                iconEl.textContent = (dir === 'desc') ? '↓' : '↑';
+            } else {
+                iconEl.className = 'text-gray-400';
+                iconEl.textContent = '⇅';
+            }
+        }
     }
 
     function exportTableToCSV(filename) {

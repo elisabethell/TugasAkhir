@@ -353,7 +353,8 @@ class MplIdS18RbrEngine:
         output_payload = {
             'generated_at': '2026-11-13T16:00:00+07:00',
             'tournament': 'MPL Indonesia Season 18',
-            'total_matches_analyzed': 90,
+            'total_matches_analyzed': 80,
+            'total_games_analyzed': 217,
             'total_heroes_cataloged': len(self.heroes),
             'rbr_rules': rbr_rules,
             'power_spikes': power_spikes,

@@ -185,24 +185,28 @@
         <!-- 4. CORE FEATURES (GRID 3 CARDS) -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-5">
 
-            <!-- Card 1: Counter Picks & Analisis Lawan -->
-            <div class="card-home p-6 flex flex-col justify-between hover:border-maroon/40 transition">
+            <!-- Card 1: Rekomendasi Draft Pick & Analisis Taktis (Fitur Utama Skripsi) -->
+            <div class="card-home p-6 flex flex-col justify-between border-2 border-maroon hover:border-maroon transition shadow-sm">
                 <div>
                     <div class="w-10 h-10 rounded-xl bg-maroon-subtle flex items-center justify-center text-maroon mb-4">
-                        <!-- Shield / Swords Cross Icon -->
+                        <!-- Sliders / Draft Strategy Icon -->
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                         </svg>
                     </div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="w-2 h-2 rounded-full bg-maroon"></span>
+                        <span class="text-[10px] font-black text-maroon uppercase tracking-wider">FITUR UTAMA SKRIPSI</span>
+                    </div>
                     <h3 class="text-sm font-black text-[#18181B] uppercase tracking-wide">
-                        COUNTER PICKS & ANALISIS LAWAN
+                        REKOMENDASI DRAFT & ANALISIS TAKTIS
                     </h3>
                     <p class="text-xs text-gray-500 leading-relaxed mt-2 mb-6">
-                        Pilih 1–5 hero musuh untuk mendapatkan rekomendasi counter pick terbaik beserta alasan taktis dan statistik dari dataset.
+                        <!-- Simulasi pemilihan hero draft 5v5 berbasis penalaran forward-chaining sistem pakar, sinergi kombo tim, counter ancaman lawan, power spike, dan win rate dataset MPL ID S18. -->
                     </p>
                 </div>
-                <a href="{{ route('counter.picks') }}" class="w-full bg-maroon bg-maroon-hover text-white text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition shadow-sm uppercase tracking-wider">
-                    <span>BUKA COUNTER PICKS</span>
+                <a href="{{ route('draft.recommendation') }}" class="w-full bg-maroon bg-maroon-hover text-white text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition shadow-sm uppercase tracking-wider">
+                    <span>BUKA REKOMENDASI DRAFT</span>
                     <span>&rarr;</span>
                 </a>
             </div>
@@ -220,7 +224,7 @@
                         STATISTIK HERO & TIER LIST PRO META
                     </h3>
                     <p class="text-xs text-gray-500 leading-relaxed mt-2 mb-6">
-                        Tabel analitik 120+ hero mencakup Win Rate, Pick Rate, Ban Rate, dan rasio K/D/A pada panggung turnamen internasional.
+                        <!-- Tabel analitik 120+ hero mencakup Win Rate, Pick Rate, Ban Rate, dan rasio K/D/A pada panggung turnamen internasional. -->
                     </p>
                 </div>
                 <a href="{{ route('hero.statistics') }}" class="w-full bg-white hover:bg-[#FAF8F8] border border-subtle text-gray-900 hover:text-maroon text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition shadow-sm uppercase tracking-wider">
@@ -229,24 +233,24 @@
                 </a>
             </div>
 
-            <!-- Card 3: Rekomendasi Draft Pick & Ban -->
+            <!-- Card 3: Knowledge Base & Rules RBR Inspector -->
             <div class="card-home p-6 flex flex-col justify-between hover:border-maroon/40 transition">
                 <div>
                     <div class="w-10 h-10 rounded-xl bg-maroon-subtle flex items-center justify-center text-maroon mb-4">
-                        <!-- Sliders / Draft Strategy Icon -->
+                        <!-- Academic Book / Shield Rules Icon -->
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                         </svg>
                     </div>
                     <h3 class="text-sm font-black text-[#18181B] uppercase tracking-wide">
-                        REKOMENDASI DRAFT PICK & BAN
+                        KNOWLEDGE BASE & RULES RBR
                     </h3>
                     <p class="text-xs text-gray-500 leading-relaxed mt-2 mb-6">
-                        Simulasi pemilihan hero draft dengan rekomendasi otomatis sinergi hero (Synergy Pick) dan prioritas larangan ancaman (Threat Ban).
+                        <!-- Transparansi akademik sistem pakar untuk pengujian sidang skripsi, memuat basis aturan komposisi damage, sinergi, counter pick, dan power spike. -->
                     </p>
                 </div>
-                <a href="{{ route('draft.analyzer') }}" class="w-full bg-white hover:bg-[#FAF8F8] border border-subtle text-gray-900 hover:text-maroon text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition shadow-sm uppercase tracking-wider">
-                    <span>BUKA REKOMENDASI DRAFT</span>
+                <a href="{{ route('rules') }}" class="w-full bg-white hover:bg-[#FAF8F8] border border-subtle text-gray-900 hover:text-maroon text-xs font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition shadow-sm uppercase tracking-wider">
+                    <span>BUKA RULES RBR</span>
                     <span>&rarr;</span>
                 </a>
             </div>

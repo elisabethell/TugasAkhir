@@ -30,8 +30,8 @@ Route::get('/rekomendasi-draft', [DraftController::class, 'draftRecommendation']
 Route::get('/draft-recommendation', [DraftController::class, 'draftRecommendation'])->name('draft.analyzer');
 Route::post('/api/analyze-draft', [DraftController::class, 'analyze'])->name('draft.analyze.api');
 
-// Counter Picks & Analisis Lawan (Pilih 1–5 Hero Musuh)
-Route::get('/counter-picks', [DraftController::class, 'counterPicks'])->name('counter.picks');
+// Counter Picks & Analisis Lawan (Dialihkan langsung ke Fitur Utama Rekomendasi Draft)
+Route::redirect('/counter-picks', '/rekomendasi-draft', 301)->name('counter.picks');
 
 // List Hero (Direktori Kamus Data Hero)
 Route::get('/heroes', [HeroController::class, 'index'])->name('heroes');

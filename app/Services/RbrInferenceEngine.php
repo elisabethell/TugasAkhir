@@ -171,13 +171,13 @@ class RbrInferenceEngine
         $winningConditions = [];
         $archetype = 'Fleksibel / Standar Turnamen MPL ID S18';
         $powerSpikeFocus = match (true) {
-            $earlyPct >= 40 && $earlyPct >= $midPct && $earlyPct >= $latePct => 'Early Game Aggression (<13m MPL ID S18)',
-            $latePct >= 40 && $latePct >= $earlyPct && $latePct >= $midPct   => 'Late Game Scaling (>17m MPL ID S18)',
-            default                                                          => 'Mid Game Objective Transition (13-17m MPL ID S18)',
+            $earlyPct >= 40 && $earlyPct >= $midPct && $earlyPct >= $latePct => 'Early Game Aggression (0–5m MPL ID S18)',
+            $latePct >= 40 && $latePct >= $earlyPct && $latePct >= $midPct   => 'Late Game Scaling (12+m / Trinity MM MPL ID S18)',
+            default                                                          => 'Mid Game Objective Transition (5–12m MPL ID S18)',
         };
         $mapSynergy = null;
 
-        $ruleTraces[] = "[DATASET MPL ID S18] Power Spike dihitung berdasarkan korelasi durasi kemenangan match di MPL ID Season 18 (Early <13m: {$earlyPct}%, Mid 13-17m: {$midPct}%, Late >17m: {$latePct}%).";
+        $ruleTraces[] = "[DATASET MPL ID S18] Power Spike dihitung berdasarkan korelasi durasi kemenangan match di MPL ID Season 18 (Early 0–5m: {$earlyPct}%, Mid 5–12m: {$midPct}%, Late 12+m / Trinity MM: {$latePct}%).";
 
         $hasMageOrMid = false;
         foreach ($myHeroes as $h) {

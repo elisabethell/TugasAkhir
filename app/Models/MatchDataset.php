@@ -26,7 +26,19 @@ class MatchDataset extends Model
         'simple_time',
         'formatted_stage_name',
         'winner',
+        'team_a_name',
+        'team_b_name',
     ];
+
+    public function getTeamANameAttribute(): ?string
+    {
+        return $this->team_1_name;
+    }
+
+    public function getTeamBNameAttribute(): ?string
+    {
+        return $this->team_2_name;
+    }
 
     /**
      * Relasi ke game-game individual di dalam seri pertandingan (Bo3 / Bo5 / Bo7)

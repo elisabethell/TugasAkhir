@@ -189,11 +189,11 @@
                                     @if($rec['rule_icon'] === 'check')
                                         <span class="text-emerald-600 font-bold">✔</span>
                                     @elseif($rec['rule_icon'] === 'lock')
-                                        <span>🔒</span>
+                                        <span class="text-gray-500 font-bold text-xs">[PRIORITAS]</span>
                                     @elseif($rec['rule_icon'] === 'arrow')
-                                        <span>🏹</span>
+                                        <span class="text-blue-600 font-bold text-xs">[FOKUS]</span>
                                     @else
-                                        <span class="text-red-600">🚫</span>
+                                        <span class="text-red-600 font-bold text-xs">[BAN]</span>
                                     @endif
                                     <span>{{ $rec['rule_text'] }}</span>
                                 </div>
@@ -211,7 +211,7 @@
             <!-- Synthesis Confidence Card -->
             <div class="card-custom p-4 flex items-center justify-between gap-4">
                 <div class="flex items-center gap-2.5 text-xs font-bold text-gray-700">
-                    <span class="text-[#700B1A] text-base">📈</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#700B1A] shrink-0"></span>
                     <span>Data synthesized from 69 games</span>
                 </div>
                 <div class="text-right">
@@ -414,9 +414,9 @@
             `;
 
             let iconHtml = '<span class="text-emerald-600 font-bold">✔</span>';
-            if (rec.rule_icon === 'lock') iconHtml = '<span>🔒</span>';
-            else if (rec.rule_icon === 'arrow') iconHtml = '<span>🏹</span>';
-            else if (rec.rule_icon === 'ban') iconHtml = '<span class="text-red-600">🚫</span>';
+            if (rec.rule_icon === 'lock') iconHtml = '<span class="text-gray-500 font-bold text-xs">[PRIORITAS]</span>';
+            else if (rec.rule_icon === 'arrow') iconHtml = '<span class="text-blue-600 font-bold text-xs">[FOKUS]</span>';
+            else if (rec.rule_icon === 'ban') iconHtml = '<span class="text-red-600 font-bold text-xs">[BAN]</span>';
 
             card.innerHTML = `
                 <div class="flex items-start justify-between gap-3">

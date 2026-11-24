@@ -5,239 +5,27 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\CsvDataService;
 use App\Services\RbrInferenceEngine;
+use App\Services\DraftInferenceService;
 
 class DraftController extends Controller
 {
     protected CsvDataService $csvService;
     protected RbrInferenceEngine $engine;
+    protected DraftInferenceService $inferenceService;
 
-    public function __construct(CsvDataService $csvService, RbrInferenceEngine $engine)
-    {
+    public function __construct(
+        CsvDataService $csvService,
+        RbrInferenceEngine $engine,
+        DraftInferenceService $inferenceService
+    ) {
         $this->csvService = $csvService;
         $this->engine = $engine;
+        $this->inferenceService = $inferenceService;
     }
 
     public function counterPicks()
     {
-        // 1. Ambil seluruh data 133 hero dari database/data/data_hero.csv
-        $heroes = $this->csvService->getHeroes()->sortBy('hero_name')->values();
-
-        // 2. Mapping hero portraits
-        $heroPortraits = [];
-        foreach ($heroes as $h) {
-            $heroPortraits[$h->clean_key] = $h->portrait;
-        }
-
-        // Data JSON picker hero untuk frontend JS
-        $pickerHeroes = $heroes->map(function($h) {
-            return [
-                'name'     => $h->hero_name,
-                'initial'  => $h->tag,
-                'lane'     => strtolower($h->laning),
-                'role'     => strtolower($h->primary_class),
-                'portrait' => $h->portrait,
-            ];
-        });
-
-        $defaultEnemyTeam = [];
-
-        // Rekomendasi hero meta turnamen dari dataset
-        $defaultRecommendations = [
-            [
-                'hero' => 'Granger',
-                'tier' => 'TIER S',
-                'win_rate' => '54.7%',
-                'win_rate_label' => 'MPL ID S18 WIN RATE',
-                'role' => 'Marksman / Assassin',
-                'lane' => 'Jungle / Gold',
-                'impact_score' => 4.7,
-                'impact_progress' => 94,
-                'accent_border' => true,
-                'portrait' => $this->csvService->resolveHeroPortrait('Granger'),
-                'initial' => 'GR',
-                'rule_text' => 'Prioritas meta MPL ID S18: mobilitas burst tinggi & kontrol objektif kuat',
-                'rule_icon' => 'check',
-                'samples' => 'MPL ID S18 DATASET',
-            ],
-            [
-                'hero' => 'Yve',
-                'tier' => 'TIER S',
-                'win_rate' => '78.3%',
-                'win_rate_label' => 'MPL ID S18 WIN RATE',
-                'role' => 'Mage',
-                'lane' => 'Mid Lane',
-                'impact_score' => 4.6,
-                'impact_progress' => 92,
-                'accent_border' => false,
-                'portrait' => $this->csvService->resolveHeroPortrait('Yve'),
-                'initial' => 'YV',
-                'rule_text' => 'Prioritas meta MPL ID S18: zoning Real World Manipulation & slow area dominan',
-                'rule_icon' => 'check',
-                'samples' => 'MPL ID S18 DATASET',
-            ],
-            [
-                'hero' => 'Belerick',
-                'tier' => 'TIER A',
-                'win_rate' => '70.4%',
-                'win_rate_label' => 'MPL ID S18 WIN RATE',
-                'role' => 'Tank',
-                'lane' => 'Roam',
-                'impact_score' => 4.4,
-                'impact_progress' => 88,
-                'accent_border' => false,
-                'portrait' => $this->csvService->resolveHeroPortrait('Belerick'),
-                'initial' => 'BL',
-                'rule_text' => 'Prioritas meta MPL ID S18: frontline kokoh pembalik burst proyektil dan taunt area',
-                'rule_icon' => 'check',
-                'samples' => 'MPL ID S18 DATASET',
-            ],
-            [
-                'hero' => 'Carmilla',
-                'tier' => 'TIER S',
-                'win_rate' => '100.0%',
-                'win_rate_label' => 'MPL ID S18 WIN RATE',
-                'role' => 'Support / Tank',
-                'lane' => 'Roam',
-                'impact_score' => 4.5,
-                'impact_progress' => 90,
-                'accent_border' => false,
-                'portrait' => $this->csvService->resolveHeroPortrait('Carmilla'),
-                'initial' => 'CR',
-                'rule_text' => 'Prioritas meta MPL ID S18: Curse of Blood membagi burst damage tim secara instan',
-                'rule_icon' => 'check',
-                'samples' => 'MPL ID S18 DATASET',
-            ],
-            [
-                'hero' => 'Sora',
-                'tier' => 'TIER S',
-                'win_rate' => '68.8%',
-                'win_rate_label' => 'MPL ID S18 WIN RATE',
-                'role' => 'Fighter / Assassin',
-                'lane' => 'Exp Lane',
-                'impact_score' => 4.3,
-                'impact_progress' => 86,
-                'accent_border' => false,
-                'portrait' => $this->csvService->resolveHeroPortrait('Sora'),
-                'initial' => 'SR',
-                'rule_text' => 'Prioritas meta MPL ID S18: fleksibilitas Thunder/Torrent & sustain duel lane tinggi',
-                'rule_icon' => 'check',
-                'samples' => 'MPL ID S18 DATASET',
-            ],
-            [
-                'hero' => 'Kaja',
-                'tier' => null,
-                'win_rate' => '51.2%',
-                'win_rate_label' => 'MPL ID S18 WIN RATE',
-                'role' => 'Support / Fighter',
-                'lane' => 'Roam / Mid',
-                'impact_score' => 3.8,
-                'impact_progress' => 76,
-                'accent_border' => false,
-                'portrait' => $this->csvService->resolveHeroPortrait('Kaja'),
-                'initial' => 'KJ',
-                'rule_text' => 'Suppression pick-off cepat untuk melumpuhkan core dan inisiator musuh',
-                'rule_icon' => 'lock',
-                'samples' => 'MPL ID S18 DATASET',
-            ],
-            [
-                'hero' => 'Irithel',
-                'tier' => null,
-                'win_rate' => '48.9%',
-                'win_rate_label' => 'MPL ID S18 WIN RATE',
-                'role' => 'Marksman',
-                'lane' => 'Gold Lane',
-                'impact_score' => 3.5,
-                'impact_progress' => 70,
-                'accent_border' => false,
-                'portrait' => $this->csvService->resolveHeroPortrait('Irithel'),
-                'initial' => 'IR',
-                'rule_text' => 'Mobilitas tembak terus menerus (kite while shooting) & debuff armor area',
-                'rule_icon' => 'arrow',
-                'samples' => 'MPL ID S18 DATASET',
-            ],
-            [
-                'hero' => 'Khufra',
-                'tier' => null,
-                'win_rate' => '52.4%',
-                'win_rate_label' => 'MPL ID S18 WIN RATE',
-                'role' => 'Tank / Roam',
-                'lane' => 'Roamer',
-                'impact_score' => 3.4,
-                'impact_progress' => 68,
-                'accent_border' => false,
-                'portrait' => $this->csvService->resolveHeroPortrait('Khufra'),
-                'initial' => 'KF',
-                'rule_text' => 'Bouncing Ball cc menghentikan seluruh skill dash/blink lincah musuh',
-                'rule_icon' => 'ban',
-                'samples' => 'MPL ID S18 DATASET',
-            ],
-        ];
-
-        // Pemetaan data counter dan statistik per hero untuk analisis dinamis di frontend
-        $heroCounterMap = [];
-        $tournamentStats = $this->csvService->getTournamentStatistics();
-        $heroStatsLookup = [];
-
-        foreach ($heroes as $h) {
-            $counters = [];
-            if (!empty($h->counters)) {
-                foreach ($h->counters as $c) {
-                    if (!empty($c['heroname'])) {
-                        $counters[] = $c['heroname'];
-                    }
-                }
-            }
-            $heroCounterMap[$h->hero_name] = $counters;
-
-            $stat = $tournamentStats[$h->clean_key] ?? null;
-            $wrVal = ($stat && $stat['picks'] > 0) ? round($stat['wr'], 1) : 50.0;
-            $heroStatsLookup[$h->hero_name] = [
-                'hero'            => $h->hero_name,
-                'role'            => $h->class ?: $h->primary_class,
-                'lane'            => $h->laning ?: 'Flex',
-                'portrait'        => $h->portrait,
-                'initial'         => $h->tag,
-                'win_rate'        => $wrVal . '%',
-                'win_rate_label'  => ($stat && $stat['picks'] > 0) ? 'MPL ID S18 WIN RATE' : 'MPL ID S18 ESTIMATE',
-                'tier'            => $wrVal >= 60 ? 'TIER S' : ($wrVal >= 52 ? 'TIER A' : null),
-                'impact_score'    => min(5.0, round(2.5 + ($wrVal / 25), 1)),
-                'impact_progress' => min(100, (int)($wrVal * 1.3)),
-                'samples'         => (($stat && $stat['picks'] > 0) ? $stat['picks'] : 15) . ' MATCHES (MPL ID S18)',
-            ];
-        }
-
-        // Aturan spesifik counter interaktif (Rule-Based Reasoning)
-        $specificRules = $this->getSpecificRules();
-
-        // Daftar spell dan map untuk rekomendasi lanjutan
-        $spells = [
-            'Flicker'     => $this->csvService->getSpellImage('Flicker'),
-            'Retribution' => $this->csvService->getSpellImage('Retribution'),
-            'Purify'      => $this->csvService->getSpellImage('Purify'),
-            'Revitalize'  => $this->csvService->getSpellImage('Revitalize'),
-            'Vengeance'   => $this->csvService->getSpellImage('Vengeance'),
-            'Inspire'     => $this->csvService->getSpellImage('Inspire'),
-        ];
-
-        $maps = [
-            'Broken Walls'     => $this->csvService->getMapImage('Broken Walls'),
-            'Dangerous Grass'  => $this->csvService->getMapImage('Dangerous Grass'),
-            'Expanding Rivers' => $this->csvService->getMapImage('Expanding Rivers'),
-            'Flying Clouds'    => $this->csvService->getMapImage('Flying Clouds'),
-        ];
-
-        return view('counter_picks', compact(
-            'heroes',
-            'pickerHeroes',
-            'heroPortraits',
-            'defaultEnemyTeam',
-            'defaultRecommendations',
-            'heroCounterMap',
-            'heroStatsLookup',
-            'specificRules',
-            'spells',
-            'maps'
-        ));
+        return redirect()->route('draft.recommendation');
     }
 
     /**
@@ -345,165 +133,25 @@ class DraftController extends Controller
             ];
         }
 
-        // 3. Default OP-01 PICKS (14 hero meta rekomendasi dasar saat draft kosong)
-        $defaultPicks = [
-            [
-                'hero'          => 'Tigreal',
-                'role'          => 'Tank',
-                'lane'          => 'roam',
-                'score'         => '2.6',
-                'priority'      => 'P3',
-                'progress'      => 85,
-                'portrait'      => $this->csvService->resolveHeroPortrait('Tigreal'),
+        // 3. Evaluasi Forward Chaining RBR Dinamis untuk Draft Awal
+        $initialInference = $this->inferenceService->evaluateDraft();
+        $defaultPicks = array_map(function($rec) {
+            return array_merge($rec, [
+                'hero'          => $rec['nama'],
+                'nama'          => $rec['nama'],
+                'score'         => number_format($rec['total_score'] / 20.0, 1),
+                'priority'      => $rec['total_score'] >= 75.0 ? 'P1' : ($rec['total_score'] >= 50.0 ? 'P2' : 'P3'),
+                'progress'      => (int) min(98, max(25, round($rec['total_score']))),
                 'subtitle_type' => 'META',
-                'subtitle_hero' => 'Anchor Crowd Control',
-            ],
-            [
-                'hero'          => 'Akai',
-                'role'          => 'Tank',
-                'lane'          => 'roam',
-                'score'         => '2.5',
-                'priority'      => 'P3',
-                'progress'      => 80,
-                'portrait'      => $this->csvService->resolveHeroPortrait('Akai'),
-                'subtitle_type' => 'META',
-                'subtitle_hero' => 'Heavy Spin Objective',
-            ],
-            [
-                'hero'          => 'Zetian',
-                'role'          => 'Mage',
-                'lane'          => 'mid lane',
-                'score'         => '1.2',
-                'priority'      => 'P3',
-                'progress'      => 60,
-                'portrait'      => $this->csvService->resolveHeroPortrait('Zetian'),
-                'subtitle_type' => 'META',
-                'subtitle_hero' => 'High Burst Area',
-            ],
-            [
-                'hero'          => 'Lolita',
-                'role'          => 'Support',
-                'lane'          => 'roam',
-                'score'         => '1.2',
-                'priority'      => 'P3',
-                'progress'      => 60,
-                'portrait'      => $this->csvService->resolveHeroPortrait('Lolita'),
-                'subtitle_type' => 'META',
-                'subtitle_hero' => 'Guardian Shield Defense',
-            ],
-            [
-                'hero'          => 'Khaleed',
-                'role'          => 'Fighter',
-                'lane'          => 'exp lane',
-                'score'         => '1.1',
-                'priority'      => 'P3',
-                'progress'      => 55,
-                'portrait'      => $this->csvService->resolveHeroPortrait('Khaleed'),
-                'subtitle_type' => 'META',
-                'subtitle_hero' => 'Early Skirmish Duelist',
-            ],
-            [
-                'hero'          => 'Kalea',
-                'role'          => 'Support',
-                'lane'          => 'roam',
-                'score'         => '1.1',
-                'priority'      => 'P3',
-                'progress'      => 55,
-                'portrait'      => $this->csvService->resolveHeroPortrait('Kalea'),
-                'subtitle_type' => 'META',
-                'subtitle_hero' => 'Protective Sustain Buff',
-            ],
-            [
-                'hero'          => 'Gloo',
-                'role'          => 'Tank',
-                'lane'          => 'exp lane',
-                'score'         => '0.8',
-                'priority'      => 'P3',
-                'progress'      => 45,
-                'portrait'      => $this->csvService->resolveHeroPortrait('Gloo'),
-                'subtitle_type' => 'META',
-                'subtitle_hero' => 'Sticky Harass Disruption',
-            ],
-            [
-                'hero'          => 'Martis',
-                'role'          => 'Fighter',
-                'lane'          => 'jungle',
-                'score'         => '0.7',
-                'priority'      => 'P3',
-                'progress'      => 40,
-                'portrait'      => $this->csvService->resolveHeroPortrait('Martis'),
-                'subtitle_type' => 'META',
-                'subtitle_hero' => 'Immunity Rush Finisher',
-            ],
-            [
-                'hero'          => 'Granger',
-                'role'          => 'Marksman',
-                'lane'          => 'gold lane',
-                'score'         => '4.7',
-                'priority'      => 'P1',
-                'progress'      => 94,
-                'portrait'      => $this->csvService->resolveHeroPortrait('Granger'),
-                'subtitle_type' => 'META',
-                'subtitle_hero' => 'Rhapsody Burst Gold',
-            ],
-            [
-                'hero'          => 'Yve',
-                'role'          => 'Mage',
-                'lane'          => 'mid lane',
-                'score'         => '4.6',
-                'priority'      => 'P1',
-                'progress'      => 92,
-                'portrait'      => $this->csvService->resolveHeroPortrait('Yve'),
-                'subtitle_type' => 'META',
-                'subtitle_hero' => 'Real World Manipulation',
-            ],
-            [
-                'hero'          => 'Belerick',
-                'role'          => 'Tank',
-                'lane'          => 'roam',
-                'score'         => '4.4',
-                'priority'      => 'P2',
-                'progress'      => 88,
-                'portrait'      => $this->csvService->resolveHeroPortrait('Belerick'),
-                'subtitle_type' => 'META',
-                'subtitle_hero' => 'Deadly Thorns Taunt',
-            ],
-            [
-                'hero'          => 'Carmilla',
-                'role'          => 'Support',
-                'lane'          => 'roam',
-                'score'         => '4.5',
-                'priority'      => 'P2',
-                'progress'      => 90,
-                'portrait'      => $this->csvService->resolveHeroPortrait('Carmilla'),
-                'subtitle_type' => 'META',
-                'subtitle_hero' => 'Curse of Blood Link',
-            ],
-            [
-                'hero'          => 'Sora',
-                'role'          => 'Fighter',
-                'lane'          => 'exp lane',
-                'score'         => '4.3',
-                'priority'      => 'P2',
-                'progress'      => 86,
-                'portrait'      => $this->csvService->resolveHeroPortrait('Sora'),
-                'subtitle_type' => 'META',
-                'subtitle_hero' => 'Torrent Duelist Lane',
-            ],
-            [
-                'hero'          => 'Harith',
-                'role'          => 'Mage',
-                'lane'          => 'gold lane',
-                'score'         => '4.2',
-                'priority'      => 'P2',
-                'progress'      => 84,
-                'portrait'      => $this->csvService->resolveHeroPortrait('Harith'),
-                'subtitle_type' => 'META',
-                'subtitle_hero' => 'Chrono Dash Flexibility',
-            ],
-        ];
+                'subtitle_hero' => 'Prioritas Awal Meta S18',
+                'win_rate'      => $rec['breakdown']['data']['win_rate'] . '%',
+                'rbr_id'        => 'RBR-GEN-01',
+                'rbr_confidence'=> $rec['confidence'],
+                'rbr_rationale' => $rec['alasan_ringkas'],
+            ]);
+        }, $initialInference['recommendations']);
 
-        // 4. Default OP-02 BANS (Hero prioritas ban turnamen tertinggi)
+        // 4. Default Rekomendasi Ban (Hero prioritas ban turnamen tertinggi)
         $defaultBans = [
             [
                 'hero'          => 'Gloo',
@@ -514,6 +162,8 @@ class DraftController extends Controller
                 'portrait'      => $this->csvService->resolveHeroPortrait('Gloo'),
                 'subtitle_type' => 'THR',
                 'subtitle_hero' => 'High Tournament Ban (84.1%)',
+                'ban_rate'      => '84.1%',
+                'rbr_rationale' => 'Prioritas ban #1 turnamen MPL ID S18 karena disrupsi split formasi yang mematikan.',
             ],
             [
                 'hero'          => 'Hayabusa',
@@ -524,6 +174,8 @@ class DraftController extends Controller
                 'portrait'      => $this->csvService->resolveHeroPortrait('Hayabusa'),
                 'subtitle_type' => 'THR',
                 'subtitle_hero' => 'High Tournament Ban (72.5%)',
+                'ban_rate'      => '72.5%',
+                'rbr_rationale' => 'Assassin single-target burst dengan keunggulan isolasi pick-off instan.',
             ],
             [
                 'hero'          => 'Harith',
@@ -534,6 +186,8 @@ class DraftController extends Controller
                 'portrait'      => $this->csvService->resolveHeroPortrait('Harith'),
                 'subtitle_type' => 'THR',
                 'subtitle_hero' => 'High Tournament Ban (91.3%)',
+                'ban_rate'      => '91.3%',
+                'rbr_rationale' => 'Hero tier S kontestasi ban mutlak di fase reguler dan playoff MPL.',
             ],
             [
                 'hero'          => 'Fanny',
@@ -544,6 +198,8 @@ class DraftController extends Controller
                 'portrait'      => $this->csvService->resolveHeroPortrait('Fanny'),
                 'subtitle_type' => 'THR',
                 'subtitle_hero' => 'High Tournament Ban (65.2%)',
+                'ban_rate'      => '65.2%',
+                'rbr_rationale' => 'Mobilitas kabel baja lintas lane yang sangat menekan tempo rotasi tim.',
             ],
             [
                 'hero'          => 'Ling',
@@ -554,6 +210,8 @@ class DraftController extends Controller
                 'portrait'      => $this->csvService->resolveHeroPortrait('Ling'),
                 'subtitle_type' => 'THR',
                 'subtitle_hero' => 'High Tournament Ban (59.4%)',
+                'ban_rate'      => '59.4%',
+                'rbr_rationale' => 'Penguasaan wall walk dan invasi objektif retribution berkecepatan tinggi.',
             ],
             [
                 'hero'          => 'Nolan',
@@ -564,6 +222,8 @@ class DraftController extends Controller
                 'portrait'      => $this->csvService->resolveHeroPortrait('Nolan'),
                 'subtitle_type' => 'THR',
                 'subtitle_hero' => 'High Tournament Ban (55.1%)',
+                'ban_rate'      => '55.1%',
+                'rbr_rationale' => 'Fast jungler rift burst dengan cooldown ultimate cepat pembalik momentum.',
             ],
             [
                 'hero'          => 'Mathilda',
@@ -574,6 +234,8 @@ class DraftController extends Controller
                 'portrait'      => $this->csvService->resolveHeroPortrait('Mathilda'),
                 'subtitle_type' => 'THR',
                 'subtitle_hero' => 'High Tournament Ban (52.2%)',
+                'ban_rate'      => '52.2%',
+                'rbr_rationale' => 'Guiding Wind mobilitas tim dan inisiasi Circling Eagle yang sulit dihentikan.',
             ],
             [
                 'hero'          => 'Valentina',
@@ -584,10 +246,41 @@ class DraftController extends Controller
                 'portrait'      => $this->csvService->resolveHeroPortrait('Valentina'),
                 'subtitle_type' => 'THR',
                 'subtitle_hero' => 'High Tournament Ban (50.7%)',
+                'ban_rate'      => '50.7%',
+                'rbr_rationale' => 'Pencuri ultimate fleksibel yang merusak rencana strategi kombo lawan.',
             ],
         ];
 
+        // Normalisasi Default Bans
+        $defaultBans = array_map(function($b) use ($heroStatsLookup) {
+            $stat = $heroStatsLookup[$b['hero']] ?? null;
+            $b['ban_rate'] = $b['ban_rate'] ?? ($stat['ban_rate'] ?? '50.0%');
+            $b['rbr_rationale'] = $b['rbr_rationale'] ?? 'High Priority Ban berdasarkan kontestasi pro player turnamen MPL ID S18.';
+            return $b;
+        }, $defaultBans);
+
         $specificRules = $this->getSpecificRules();
+
+        // Dataset metadata nyata untuk verifikasi sidang
+        $datasetTotalGames = 304;
+        $datasetLastUpdated = '13 November 2026';
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('match_games')) {
+                $dbCount = \App\Models\MatchGame::count();
+                if ($dbCount > 0) {
+                    $datasetTotalGames = $dbCount;
+                }
+                $latestDateVal = \App\Models\MatchGame::latest('updated_at')->value('updated_at');
+                if ($latestDateVal) {
+                    $datasetLastUpdated = \Carbon\Carbon::parse($latestDateVal)->translatedFormat('d F Y');
+                }
+            } else {
+                $datasetTotalGames = $this->csvService->getMatches()->count() ?: 304;
+            }
+        } catch (\Throwable $e) {
+            $datasetTotalGames = 304;
+            $datasetLastUpdated = '13 November 2026';
+        }
 
         return view('draft_recommendation', compact(
             'heroes',
@@ -600,7 +293,10 @@ class DraftController extends Controller
             'defaultBans',
             'specificRules',
             'rbrGenerated',
-            'powerSpikesMap'
+            'powerSpikesMap',
+            'datasetTotalGames',
+            'datasetLastUpdated',
+            'initialInference'
         ));
     }
 
@@ -613,13 +309,32 @@ class DraftController extends Controller
     {
         $myTeam = (array) $request->input('my_team', $request->input('ally_team', []));
         $enemyTeam = (array) $request->input('enemy_team', []);
+        $banned = (array) $request->input('banned', $request->input('bans', []));
         $map = $request->input('map', null);
         $myLanes = (array) $request->input('my_lanes', $request->input('ally_lanes', []));
         $enemyLanes = (array) $request->input('enemy_lanes', []);
 
-        $result = $this->engine->analyze($myTeam, $enemyTeam, $map, $myLanes, $enemyLanes);
+        // Evaluasi Forward Chaining melalui DraftInferenceService
+        $inference = $this->inferenceService->evaluateDraft(
+            allyTeam: $myTeam,
+            enemyTeam: $enemyTeam,
+            bannedHeroes: $banned,
+            allyLanes: $myLanes,
+            enemyLanes: $enemyLanes,
+            map: $map
+        );
 
-        return response()->json($result);
+        // Pertahankan backward compatibility dengan RbrInferenceEngine
+        $legacy = $this->engine->analyze($myTeam, $enemyTeam, $map, $myLanes, $enemyLanes);
+
+        return response()->json(array_merge($legacy, [
+            'inference'           => $inference,
+            'working_memory'      => $inference['working_memory'],
+            'rule_evaluations'    => $inference['rule_evaluations'],
+            'recommendations'     => $inference['recommendations'],
+            'composition_alerts'  => $inference['composition_alerts'] ?? [],
+            'power_spikes'        => $inference['power_spikes'] ?? [],
+        ]));
     }
 
     /**

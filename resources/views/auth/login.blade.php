@@ -59,7 +59,7 @@
             <!-- Flash Error -->
             @if(session('error'))
                 <div class="bg-[#FCECEE] border border-[#F8B4BD] text-[#700B1A] text-xs font-bold rounded-xl px-3.5 py-2.5 flex items-center gap-2">
-                    <span>⚠️</span>
+                    <span class="w-4 h-4 rounded-full bg-[#700B1A] text-white flex items-center justify-center text-[10px] shrink-0">!</span>
                     <span>{{ session('error') }}</span>
                 </div>
             @endif

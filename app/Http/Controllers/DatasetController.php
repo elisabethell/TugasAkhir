@@ -7,6 +7,7 @@ use App\Models\MatchDataset;
 use App\Services\LiquipediaApiService;
 use App\Services\CsvDataService;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
 
 class DatasetController extends Controller
 {
@@ -21,6 +22,7 @@ class DatasetController extends Controller
 
     /**
      * Halaman Dataset Pertandingan (Khusus Admin setelah Login)
+     * Mengambil HANYA data riil dari database (tanpa auto-seed dummy).
      */
     public function index()
     {
@@ -30,6 +32,7 @@ class DatasetController extends Controller
         }
 
         $seriesMatches = collect();
+        $matches = collect();
         $dbConnected = false;
         $dbErrorMessage = null;
 
@@ -46,18 +49,21 @@ class DatasetController extends Controller
                 // Ambil dari database lokal relasional (On-Demand Local Store)
                 $seriesMatches = MatchDataset::with(['games.details'])->orderBy('match_date', 'desc')->get();
 
-                // Jika tabel masih kosong, seed sample matchup Alter Ego vs ONIC (sesuai referensi mockup user)
-                if ($seriesMatches->isEmpty()) {
+                // Jika tabel masih kosong atau belum lengkap (<10 seri), sinkronkan dataset lengkap MPL ID Season 18 (215+ games)
+                if ($seriesMatches->isEmpty() || $seriesMatches->count() < 10) {
                     try {
-                        $this->liquipediaService->seedMockupSampleMatch();
+                        $this->liquipediaService->seedCompleteMplSeason18Dataset();
                         $seriesMatches = MatchDataset::with(['games.details'])->orderBy('match_date', 'desc')->get();
                     } catch (\Throwable $seedEx) {
-                        \Illuminate\Support\Facades\Log::warning('Gagal auto-seed mockup match: ' . $seedEx->getMessage());
+                        \Illuminate\Support\Facades\Log::warning('Gagal auto-seed match dataset: ' . $seedEx->getMessage());
                     }
                 }
+                // Query murni relasi database: MatchDataset beserta games dan details
+                $matches = MatchDataset::with(['games.details'])->orderBy('match_date', 'desc')->get();
             }
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('DatasetController index DB error: ' . $e->getMessage());
+            Log::error('DatasetController index DB error: ' . $e->getMessage());
             $dbConnected = false;
             $dbErrorMessage = $e->getMessage();
         }
@@ -65,12 +71,16 @@ class DatasetController extends Controller
         // Summary metrics
         $totalSeries = $seriesMatches->count();
         $totalGames = $seriesMatches->sum(fn($m) => $m->games ? $m->games->count() : 0);
+        $seriesMatches = $matches; // Alias untuk kompatibilitas
+        $totalSeries = $matches->count();
+        $totalGames = $matches->sum(fn($m) => $m->games ? $m->games->count() : 0);
 
         // Fallback CSV data untuk perbandingan historis
         $csvSummary = $this->csvService->getTournamentSummary();
         $heroPortraitsMap = $this->csvService->getCsvPortraitMap();
 
         return view('dataset_list', compact(
+            'matches',
             'seriesMatches',
             'totalSeries',
             'totalGames',

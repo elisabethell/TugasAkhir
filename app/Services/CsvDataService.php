@@ -33,7 +33,7 @@ class CsvDataService
             return trim(str_replace(['[', ']', "'", '"'], '', (string)$val));
         };
 
-        while (($data = fgetcsv($file, 10000, ',')) !== false) {
+        while (($data = fgetcsv($file, 10000, ',', '"', "\\")) !== false) {
             if ($isHeader) {
                 $isHeader = false;
                 continue;
@@ -132,7 +132,7 @@ class CsvDataService
         if (file_exists($path)) {
             $file = fopen($path, 'r');
             $isHeader = true;
-            while (($data = fgetcsv($file, 10000, ',')) !== false) {
+            while (($data = fgetcsv($file, 10000, ',', '"', "\\")) !== false) {
                 if ($isHeader) {
                     $isHeader = false;
                     continue;
@@ -270,6 +270,20 @@ class CsvDataService
                         $team2Picks = $game->team2Picks();
                         $team1Bans = $game->team1Bans();
                         $team2Bans = $game->team2Bans();
+
+                        // Fallback ke kolom JSON match_games jika relasi details belum dimuat
+                        if ($team1Picks->isEmpty() && !empty($game->team_1_picks)) {
+                            $team1Picks = collect($game->team_1_picks)->map(fn($h) => (object)['hero_name' => $h, 'hero_portrait' => $this->resolveHeroPortrait($h)]);
+                        }
+                        if ($team2Picks->isEmpty() && !empty($game->team_2_picks)) {
+                            $team2Picks = collect($game->team_2_picks)->map(fn($h) => (object)['hero_name' => $h, 'hero_portrait' => $this->resolveHeroPortrait($h)]);
+                        }
+                        if ($team1Bans->isEmpty() && !empty($game->team_1_bans)) {
+                            $team1Bans = collect($game->team_1_bans)->map(fn($h) => (object)['hero_name' => $h]);
+                        }
+                        if ($team2Bans->isEmpty() && !empty($game->team_2_bans)) {
+                            $team2Bans = collect($game->team_2_bans)->map(fn($h) => (object)['hero_name' => $h]);
+                        }
 
                         if ($game->team_1_side === 'Blue') {
                             $teamBlue = $team1Name;
@@ -770,13 +784,13 @@ class CsvDataService
                 // Tentukan spike berdasarkan win rate tertinggi dan volume durasi di MPL ID S18
                 if ($lateWr >= 55.0 && ($data['late_games'] >= 2 || ($lateWr >= $earlyWr && $lateWr >= $midWr))) {
                     $spike = 'Late Game Scaler';
-                    $desc = "Sangat dominan di late game ({$lateWr}% WR pada match >17m MPL ID S18)";
+                    $desc = "Sangat dominan di late game ({$lateWr}% WR pada fase late game MPL ID S18 - fase Trinity MM & Evolved Lord 12+m)";
                 } elseif ($earlyWr >= 55.0 && ($data['early_games'] >= 2 || ($earlyWr >= $midWr && $earlyWr >= $lateWr))) {
                     $spike = 'Early Game';
-                    $desc = "Sangat dominan di early tempo ({$earlyWr}% WR pada match <13m MPL ID S18)";
+                    $desc = "Sangat dominan di early tempo ({$earlyWr}% WR pada fase laning awal MPL ID S18 - outer turret shield 0–5m)";
                 } else {
                     $spike = 'Mid Game';
-                    $desc = "Stabil di mid game ({$midWr}% WR pada match 13-17m MPL ID S18)";
+                    $desc = "Stabil di mid game ({$midWr}% WR pada fase transisi objektif MPL ID S18 - Turtle & Lord 5–12m)";
                 }
 
                 $powerSpikes[$name] = [

@@ -250,40 +250,36 @@
                                 <div class="flex items-center justify-center gap-2 sm:gap-2.5">
                                     <!-- Team 1 (Right aligned) -->
                                     <div class="flex items-center gap-1.5 flex-1 justify-end min-w-0">
-                                        <span class="font-black text-xs sm:text-sm text-right whitespace-nowrap {{ $match->team_1_score > $match->team_2_score ? 'text-[#18181B]' : 'text-gray-500' }}"
-                                              title="{{ $match->team_1_name }}">
-                                            {{ $match->team_1_name }}
+                                        <span class="font-black text-xs sm:text-sm text-right whitespace-nowrap {{ ->team_1_score > ->team_2_score ? 'text-[#18181B]' : 'text-gray-500' }}"
+                                              title="{{ ->team_1_name }}">
+                                            {{ ->team_1_name }}
                                         </span>
-                                        @if(!empty($match->team_1_logo))
-                                            <img src="{{ $match->team_1_logo }}" 
-                                                 alt="{{ $match->team_1_name }}" 
-                                                 referrerpolicy="no-referrer"
-                                                 loading="lazy"
-                                                 class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0"
-                                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($match->team_1_name) }}&background=700B1A&color=fff&size=64';">
-                                        @endif
+                                        <img src="/images/teams/{{ strtolower(->team_a_name) }}.png" 
+                                             alt="{{ ->team_1_name }}" 
+                                             referrerpolicy="no-referrer"
+                                             loading="lazy"
+                                             class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0"
+                                             onerror="this.onerror=null; this.src='{{ ->team_1_logo ?: 'https://ui-avatars.com/api/?name=' . urlencode(->team_1_name) . '&background=700B1A&color=fff&size=64' }}';">
                                     </div>
 
                                     <!-- Score Badge (Pill, never wraps) -->
                                     <div class="flex-shrink-0">
                                         <span class="inline-flex items-center justify-center bg-[#FAF8F8] border border-[#F3E8E8] text-[#18181B] font-mono font-black px-2.5 py-0.5 rounded-md text-xs shadow-2xs whitespace-nowrap tracking-wider">
-                                            {{ $match->team_1_score }} - {{ $match->team_2_score }}
+                                            {{ ->team_1_score }} - {{ ->team_2_score }}
                                         </span>
                                     </div>
 
                                     <!-- Team 2 (Left aligned) -->
                                     <div class="flex items-center gap-1.5 flex-1 justify-start min-w-0">
-                                        @if(!empty($match->team_2_logo))
-                                            <img src="{{ $match->team_2_logo }}" 
-                                                 alt="{{ $match->team_2_name }}" 
-                                                 referrerpolicy="no-referrer"
-                                                 loading="lazy"
-                                                 class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0"
-                                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($match->team_2_name) }}&background=700B1A&color=fff&size=64';">
-                                        @endif
-                                        <span class="font-black text-xs sm:text-sm text-left whitespace-nowrap {{ $match->team_2_score > $match->team_1_score ? 'text-[#18181B]' : 'text-gray-500' }}"
-                                              title="{{ $match->team_2_name }}">
-                                            {{ $match->team_2_name }}
+                                        <img src="/images/teams/{{ strtolower(->team_b_name) }}.png" 
+                                             alt="{{ ->team_2_name }}" 
+                                             referrerpolicy="no-referrer"
+                                             loading="lazy"
+                                             class="w-5 h-5 sm:w-6 sm:h-6 object-contain flex-shrink-0"
+                                             onerror="this.onerror=null; this.src='{{ ->team_2_logo ?: 'https://ui-avatars.com/api/?name=' . urlencode(->team_2_name) . '&background=700B1A&color=fff&size=64' }}';">
+                                        <span class="font-black text-xs sm:text-sm text-left whitespace-nowrap {{ ->team_2_score > ->team_1_score ? 'text-[#18181B]' : 'text-gray-500' }}"
+                                              title="{{ ->team_2_name }}">
+                                            {{ ->team_2_name }}
                                         </span>
                                     </div>
                                 </div>
@@ -711,6 +707,12 @@
                             ${match.team_1_name}
                         </span>
                         ${match.team_1_logo ? `<img src="${match.team_1_logo}" alt="${match.team_1_name}" referrerpolicy="no-referrer" loading="lazy" class="w-8 h-8 sm:w-9 sm:h-9 object-contain flex-shrink-0" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(match.team_1_name)}&background=700B1A&color=fff&size=64';">` : ''}
+                        <img src="/images/teams/${(match.team_1_name || '').toLowerCase()}.png" 
+                             alt="${match.team_1_name}" 
+                             referrerpolicy="no-referrer" 
+                             loading="lazy" 
+                             class="w-8 h-8 sm:w-9 sm:h-9 object-contain flex-shrink-0" 
+                             onerror="this.onerror=null; this.src='${match.team_1_logo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(match.team_1_name) + '&background=700B1A&color=fff&size=64'}';">
                     </div>
 
                     <!-- Center Score -->
@@ -730,6 +732,12 @@
                     <!-- Tim Kanan -->
                     <div class="flex items-center gap-2.5 flex-1 justify-end">
                         ${match.team_2_logo ? `<img src="${match.team_2_logo}" alt="${match.team_2_name}" referrerpolicy="no-referrer" loading="lazy" class="w-8 h-8 sm:w-9 sm:h-9 object-contain flex-shrink-0" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(match.team_2_name)}&background=700B1A&color=fff&size=64';">` : ''}
+                        <img src="/images/teams/${(match.team_2_name || '').toLowerCase()}.png" 
+                             alt="${match.team_2_name}" 
+                             referrerpolicy="no-referrer" 
+                             loading="lazy" 
+                             class="w-8 h-8 sm:w-9 sm:h-9 object-contain flex-shrink-0" 
+                             onerror="this.onerror=null; this.src='${match.team_2_logo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(match.team_2_name) + '&background=700B1A&color=fff&size=64'}';">
                         <span class="font-black text-base sm:text-lg text-[#0260a8] tracking-tight truncate max-w-[130px] sm:max-w-[180px]">
                             ${match.team_2_name}
                         </span>
@@ -743,33 +751,70 @@
         // 3. Daftar Baris Game (Game 1 s/d Game 7 - Sesuai Gambar 2 & 3)
         html += `<div class="space-y-3.5">`;
 
+        // 3. Daftar Baris Game
         const rawGames = match.games || [];
         // Urutkan game secara teratur berdasarkan game_number (1, 2, 3...)
         const games = [...rawGames].sort((a, b) => (parseInt(a.game_number) || 0) - (parseInt(b.game_number) || 0));
         const seenPickGameNums = new Set();
 
         games.forEach((game, gIdx) => {
-            const team1Details = (game.details || []).filter(d => d.team_position === 1 && d.type === 'pick');
-            const team2Details = (game.details || []).filter(d => d.team_position === 2 && d.type === 'pick');
+            let team1Details = (game.details || []).filter(d => d.team_position === 1 && d.type === 'pick');
+            let team2Details = (game.details || []).filter(d => d.team_position === 2 && d.type === 'pick');
+        if (games.length === 0) {
+            html += `
+                <div class="py-8 px-4 text-center bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl text-xs font-semibold text-gray-500">
+                    Belum ada data game individual yang tersimpan untuk pertandingan ini.
+                </div>
+            `;
+        } else {
+            html += `<div class="space-y-3.5">`;
+            const seenPickGameNums = new Set();
+
+            if (team1Details.length === 0 && Array.isArray(game.team_1_picks) && game.team_1_picks.length > 0) {
+                team1Details = game.team_1_picks.map(h => ({ hero_name: h, hero_portrait: resolveHeroImg(h, '') }));
+            }
+            if (team2Details.length === 0 && Array.isArray(game.team_2_picks) && game.team_2_picks.length > 0) {
+                team2Details = game.team_2_picks.map(h => ({ hero_name: h, hero_portrait: resolveHeroImg(h, '') }));
+            }
+            games.forEach((game, gIdx) => {
+                let team1Details = (game.details || []).filter(d => d.team_position === 1 && d.type === 'pick');
+                let team2Details = (game.details || []).filter(d => d.team_position === 2 && d.type === 'pick');
 
             // Lewati jika kedua tim tidak punya pick
             if (team1Details.length === 0 && team2Details.length === 0) return;
+                if (team1Details.length === 0 && Array.isArray(game.team_1_picks) && game.team_1_picks.length > 0) {
+                    team1Details = game.team_1_picks.map(h => ({ hero_name: h, hero_portrait: resolveHeroImg(h, '') }));
+                }
+                if (team2Details.length === 0 && Array.isArray(game.team_2_picks) && game.team_2_picks.length > 0) {
+                    team2Details = game.team_2_picks.map(h => ({ hero_name: h, hero_portrait: resolveHeroImg(h, '') }));
+                }
 
             // Cegah duplikasi nomor game
             const gNum = game.game_number || (gIdx + 1);
             if (seenPickGameNums.has(gNum)) return;
             seenPickGameNums.add(gNum);
+                // Lewati jika kedua tim tidak punya pick
+                if (team1Details.length === 0 && team2Details.length === 0) return;
 
             const team1Won = (game.team_1_status === 'W');
             const team2Won = (game.team_2_status === 'W');
+                // Cegah duplikasi nomor game
+                const gNum = game.game_number || (gIdx + 1);
+                if (seenPickGameNums.has(gNum)) return;
+                seenPickGameNums.add(gNum);
 
             const t1Badge = team1Won 
                 ? `<span class="w-6 h-6 rounded bg-[#dcfce7] text-[#16a34a] border border-[#bbf7d0] font-black text-xs flex items-center justify-center flex-shrink-0 shadow-2xs">W</span>`
                 : `<span class="w-6 h-6 rounded bg-[#fee2e2] text-[#dc2626] border border-[#fecaca] font-black text-xs flex items-center justify-center flex-shrink-0 shadow-2xs">L</span>`;
+                const team1Won = (game.team_1_status === 'W');
+                const team2Won = (game.team_2_status === 'W');
 
             const t2Badge = team2Won 
                 ? `<span class="w-6 h-6 rounded bg-[#dcfce7] text-[#16a34a] border border-[#bbf7d0] font-black text-xs flex items-center justify-center flex-shrink-0 shadow-2xs">W</span>`
                 : `<span class="w-6 h-6 rounded bg-[#fee2e2] text-[#dc2626] border border-[#fecaca] font-black text-xs flex items-center justify-center flex-shrink-0 shadow-2xs">L</span>`;
+                const t1Badge = team1Won 
+                    ? `<span class="w-6 h-6 rounded bg-[#dcfce7] text-[#16a34a] border border-[#bbf7d0] font-black text-xs flex items-center justify-center flex-shrink-0 shadow-2xs">W</span>`
+                    : `<span class="w-6 h-6 rounded bg-[#fee2e2] text-[#dc2626] border border-[#fecaca] font-black text-xs flex items-center justify-center flex-shrink-0 shadow-2xs">L</span>`;
 
             // Helper hero avatar picks (Rounded square dengan border solid merah/biru sesuai Gambar 2)
             const renderHeroPicks = (details, sideColor) => {
@@ -777,6 +822,9 @@
                 details.forEach(d => {
                     const portrait = resolveHeroImg(d.hero_name, d.hero_portrait);
                     const borderColor = sideColor === 'Red' ? 'border-[#ef4444]' : 'border-[#3b82f6]';
+                const t2Badge = team2Won 
+                    ? `<span class="w-6 h-6 rounded bg-[#dcfce7] text-[#16a34a] border border-[#bbf7d0] font-black text-xs flex items-center justify-center flex-shrink-0 shadow-2xs">W</span>`
+                    : `<span class="w-6 h-6 rounded bg-[#fee2e2] text-[#dc2626] border border-[#fecaca] font-black text-xs flex items-center justify-center flex-shrink-0 shadow-2xs">L</span>`;
 
                     hHtml += `
                         <div class="relative group/h flex-shrink-0">
@@ -785,6 +833,25 @@
                                      alt="${d.hero_name}" 
                                      class="w-full h-full object-cover"
                                      onerror="this.onerror=null; const cl = '${d.hero_name.toLowerCase().replace(/[^a-z0-9]/g, '')}'; if (heroPortraitsMap[cl]) { this.src = heroPortraitsMap[cl]; } else { this.src = 'https://ui-avatars.com/api/?name=${encodeURIComponent(d.hero_name)}&background=700B1A&color=fff'; }">
+                // Helper hero avatar picks (Rounded square dengan border solid merah/biru sesuai Gambar 2)
+                const renderHeroPicks = (details, sideColor) => {
+                    let hHtml = `<div class="flex items-center gap-1">`;
+                    details.forEach(d => {
+                        const portrait = resolveHeroImg(d.hero_name, d.hero_portrait);
+                        const borderColor = sideColor === 'Red' ? 'border-[#ef4444]' : 'border-[#3b82f6]';
+
+                        hHtml += `
+                            <div class="relative group/h flex-shrink-0">
+                                <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-md border-2 ${borderColor} overflow-hidden bg-gray-100 shadow-2xs">
+                                    <img src="${portrait}" 
+                                         alt="${d.hero_name}" 
+                                         class="w-full h-full object-cover"
+                                         onerror="this.onerror=null; const cl = '${d.hero_name.toLowerCase().replace(/[^a-z0-9]/g, '')}'; if (heroPortraitsMap[cl]) { this.src = heroPortraitsMap[cl]; } else { this.src = 'https://ui-avatars.com/api/?name=${encodeURIComponent(d.hero_name)}&background=700B1A&color=fff'; }">
+                                </div>
+                                <!-- Floating Tooltip Nama Hero -->
+                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1.5 hidden group-hover/h:block bg-gray-900 text-white text-[10px] font-extrabold px-2 py-0.5 rounded shadow-lg whitespace-nowrap z-40 pointer-events-none">
+                                    ${d.hero_name}
+                                </div>
                             </div>
                             <!-- Floating Tooltip Nama Hero -->
                             <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1.5 hidden group-hover/h:block bg-gray-900 text-white text-[10px] font-extrabold px-2 py-0.5 rounded shadow-lg whitespace-nowrap z-40 pointer-events-none">
@@ -796,9 +863,16 @@
                 hHtml += `</div>`;
                 return hHtml;
             };
+                        `;
+                    });
+                    hHtml += `</div>`;
+                    return hHtml;
+                };
 
             const t1PicksHtml = renderHeroPicks(team1Details, game.team_1_side || 'Red');
             const t2PicksHtml = renderHeroPicks(team2Details, game.team_2_side || 'Blue');
+                const t1PicksHtml = renderHeroPicks(team1Details, game.team_1_side || 'Red');
+                const t2PicksHtml = renderHeroPicks(team2Details, game.team_2_side || 'Blue');
 
             html += `
                 <div class="flex items-center justify-between gap-2 py-1.5 border-b border-gray-100 last:border-b-0">
@@ -807,23 +881,54 @@
                         ${t1Badge}
                         ${t1PicksHtml}
                     </div>
+                html += `
+                    <div class="flex items-center justify-between gap-2 py-1.5 border-b border-gray-100 last:border-b-0">
+                        <!-- Left: W/L badge + 5 hero picks Tim 1 -->
+                        <div class="flex items-center gap-2">
+                            ${t1Badge}
+                            ${t1PicksHtml}
+                        </div>
 
                     <!-- Center: Durasi Match & Nama Jenis Map (Sesuai Gambar 2 & 3) -->
                     <div class="text-center px-1 flex-shrink-0">
                         <div class="font-mono font-black text-xs sm:text-sm text-gray-900">
                             ${game.duration || '14:40'}
+                        <!-- Center: Durasi Match & Nama Jenis Map (Sesuai Gambar 2 & 3) -->
+                        <div class="text-center px-1 flex-shrink-0">
+                            <div class="font-mono font-black text-xs sm:text-sm text-gray-900">
+                                ${game.duration ? game.duration : '<span class="text-[10px] text-gray-400 font-sans">Data tidak tersedia</span>'}
+                            </div>
+                            ${renderMapBadge(game.map_type)}
                         </div>
                         ${renderMapBadge(game.map_type)}
+
+                        <!-- Right: 5 hero picks Tim 2 + W/L badge -->
+                        <div class="flex items-center gap-2">
+                            ${t2PicksHtml}
+                            ${t2Badge}
+                        </div>
                     </div>
+                `;
+            });
 
                     <!-- Right: 5 hero picks Tim 2 + W/L badge -->
                     <div class="flex items-center gap-2">
                         ${t2PicksHtml}
                         ${t2Badge}
                     </div>
+            html += `</div>`;
+        }
+
+        // 4. Banner MVP (Hanya jika data MVP riil tersedia)
+        if (match.series_mvp && match.series_mvp.trim()) {
+            html += `
+                <div class="bg-[#fef9c3] border border-[#fef08a] rounded-lg py-2 px-4 text-center shadow-2xs mt-3">
+                    <span class="font-black text-gray-900 text-xs sm:text-sm">MVP:</span>
+                    <span class="font-black text-[#0260a8] text-xs sm:text-sm ml-1 hover:underline cursor-pointer">${match.series_mvp}</span>
                 </div>
             `;
         });
+        }
 
         html += `</div>`;
 
@@ -859,8 +964,15 @@
         const seenBanGameNumbers = new Set();
 
         games.forEach((game, gIdx) => {
-            const team1Bans = (game.details || []).filter(d => d.team_position === 1 && d.type === 'ban');
-            const team2Bans = (game.details || []).filter(d => d.team_position === 2 && d.type === 'ban');
+            let team1Bans = (game.details || []).filter(d => d.team_position === 1 && d.type === 'ban');
+            let team2Bans = (game.details || []).filter(d => d.team_position === 2 && d.type === 'ban');
+
+            if (team1Bans.length === 0 && Array.isArray(game.team_1_bans) && game.team_1_bans.length > 0) {
+                team1Bans = game.team_1_bans.map(h => ({ hero_name: h, hero_portrait: resolveHeroImg(h, '') }));
+            }
+            if (team2Bans.length === 0 && Array.isArray(game.team_2_bans) && game.team_2_bans.length > 0) {
+                team2Bans = game.team_2_bans.map(h => ({ hero_name: h, hero_portrait: resolveHeroImg(h, '') }));
+            }
 
             // 1. LEWATI JIKA KEDUA TIM TIDAK MEMILIKI HERO BANS SAMA SEKALI
             if (team1Bans.length === 0 && team2Bans.length === 0) {
