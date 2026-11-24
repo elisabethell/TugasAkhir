@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\CsvDataService;
 use App\Models\MatchDataset;
+use App\Models\Hero;
 use Illuminate\Support\Facades\Schema;
 
 class AdminController extends Controller
@@ -66,10 +67,55 @@ class AdminController extends Controller
     }
 
     /**
-     * Manajemen Data Hero telah dinonaktifkan (Hero diambil otomatis dari Liquipedia API).
+     * Tabel RU (Read & Update) Atribut Hero
+     * Menampilkan daftar hero resmi untuk penyesuaian atribut bila terjadi perubahan patch meta.
      */
     public function heroes(Request $request)
     {
-        return redirect()->route('matches')->with('info', 'Halaman manajemen hero dinonaktifkan karena hero sudah otomatis tersinkronisasi dari API Liquipedia.');
+        if (!session('admin_logged_in')) {
+            return redirect()->route('login')->with('error', 'Akses terbatas. Anda harus login sebagai Admin.');
+        }
+
+        // Pastikan tabel database heroes terisi jika kosong
+        if (Schema::hasTable('heroes') && Hero::count() === 0) {
+            try {
+                (new \Database\Seeders\HeroSeeder())->run();
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Gagal auto-seed HeroSeeder: ' . $e->getMessage());
+            }
+        }
+
+        $heroes = Hero::orderBy('hero_name', 'asc')->get();
+        $heroPortraitsMap = $this->csvService->getCsvPortraitMap();
+
+        return view('admin_heroes', compact('heroes', 'heroPortraitsMap'));
+    }
+
+    /**
+     * Update Atribut Hero (Role, Lane, Specialty, Portrait)
+     */
+    public function updateHero(Request $request, $id)
+    {
+        if (!session('admin_logged_in')) {
+            return redirect()->route('login')->with('error', 'Sesi login admin tidak sah.');
+        }
+
+        $hero = Hero::findOrFail($id);
+
+        $request->validate([
+            'class'     => 'required|string|max:100',
+            'laning'    => 'required|string|max:150',
+            'specialty' => 'nullable|string|max:200',
+            'portrait'  => 'nullable|string|max:500',
+        ]);
+
+        $hero->update([
+            'class'     => $request->input('class'),
+            'laning'    => $request->input('laning'),
+            'specialty' => $request->input('specialty', $hero->specialty),
+            'portrait'  => $request->input('portrait', $hero->portrait),
+        ]);
+
+        return redirect()->route('admin.heroes')->with('success', "Atribut hero {$hero->hero_name} berhasil diperbarui.");
     }
 }

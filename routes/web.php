@@ -46,6 +46,9 @@ Route::get('/statistics', [StatisticsController::class, 'index'])->name('hero.st
 // Knowledge Base Aturan RBR (Transparansi Akademik)
 Route::get('/rules', [RbrRuleController::class, 'index'])->name('rules');
 
+// Dataset Match (Daftar Pertandingan Turnamen Pro MPL ID Season 18 - Publik)
+Route::get('/matches', [DatasetController::class, 'index'])->name('matches');
+
 
 // ==========================================
 // 2. AUTHENTICATION & ACCESS REQUEST ROUTES
@@ -62,13 +65,11 @@ Route::post('/admin/logout', [AuthController::class, 'logout'])->name('admin.log
 // ==========================================
 Route::prefix('admin')->middleware([\App\Http\Middleware\AdminAuthMiddleware::class])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    Route::get('/datasets', [DatasetController::class, 'index'])->name('matches');
     Route::post('/datasets/sync', [DatasetController::class, 'syncLiquipedia'])->name('admin.datasets.sync');
     Route::post('/datasets/seed-mockup', [DatasetController::class, 'seedMockup'])->name('admin.datasets.seed');
-    // Manajemen hero dinonaktifkan: hero sudah ditarik otomatis dari API Liquipedia
-    Route::get('/heroes', function () {
-        return redirect()->route('matches')->with('info', 'Halaman manajemen hero dinonaktifkan karena hero sudah otomatis tersinkronisasi dari API Liquipedia.');
-    })->name('admin.heroes');
+    // RU Table Hero (Read & Update Atribut Hero saat terjadi Patch Meta)
+    Route::get('/heroes', [AdminController::class, 'heroes'])->name('admin.heroes');
+    Route::post('/heroes/{id}/update', [AdminController::class, 'updateHero'])->name('admin.heroes.update');
 });
 
 // Redirects

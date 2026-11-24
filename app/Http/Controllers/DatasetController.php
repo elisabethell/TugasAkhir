@@ -21,16 +21,11 @@ class DatasetController extends Controller
     }
 
     /**
-     * Halaman Dataset Pertandingan (Khusus Admin setelah Login)
-     * Mengambil HANYA data riil dari database (tanpa auto-seed dummy).
+     * Halaman Dataset Pertandingan (Publik & Terbuka untuk Umum)
+     * Mengambil HANYA data riil dari database turnamen MPL ID Season 18.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // 1. Proteksi otentikasi admin: Hanya bisa diakses setelah login
-        if (!session('admin_logged_in')) {
-            return redirect()->route('login')->with('error', 'Akses terbatas. Anda harus login sebagai Admin untuk mengakses Dataset Pertandingan.');
-        }
-
         $seriesMatches = collect();
         $matches = collect();
         $dbConnected = false;
@@ -46,34 +41,38 @@ class DatasetController extends Controller
                 MatchDataset::where('match_id', 'like', '%R03-M002%')->update(['stage_name' => 'Lower Bracket Final']);
                 MatchDataset::where('match_id', 'like', '%R04-M001%')->update(['stage_name' => 'Grand Final Playoffs']);
 
-                // Ambil dari database lokal relasional (On-Demand Local Store)
-                $seriesMatches = MatchDataset::with(['games.details'])->orderBy('match_date', 'desc')->get();
+                // Query murni relasi database: MatchDataset beserta games dan details
+                $matches = MatchDataset::with(['games.details'])->orderBy('match_date', 'desc')->get();
 
                 // Jika tabel masih kosong atau belum lengkap (<10 seri), sinkronkan dataset lengkap MPL ID Season 18 (215+ games)
-                if ($seriesMatches->isEmpty() || $seriesMatches->count() < 10) {
+                if ($matches->isEmpty() || $matches->count() < 10) {
                     try {
                         $this->liquipediaService->seedCompleteMplSeason18Dataset();
-                        $seriesMatches = MatchDataset::with(['games.details'])->orderBy('match_date', 'desc')->get();
+                        $matches = MatchDataset::with(['games.details'])->orderBy('match_date', 'desc')->get();
                     } catch (\Throwable $seedEx) {
                         \Illuminate\Support\Facades\Log::warning('Gagal auto-seed match dataset: ' . $seedEx->getMessage());
                     }
                 }
-                // Query murni relasi database: MatchDataset beserta games dan details
-                $matches = MatchDataset::with(['games.details'])->orderBy('match_date', 'desc')->get();
+                $seriesMatches = $matches;
             }
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('DatasetController index DB error: ' . $e->getMessage());
-            Log::error('DatasetController index DB error: ' . $e->getMessage());
             $dbConnected = false;
             $dbErrorMessage = $e->getMessage();
         }
 
         // Summary metrics
-        $totalSeries = $seriesMatches->count();
-        $totalGames = $seriesMatches->sum(fn($m) => $m->games ? $m->games->count() : 0);
-        $seriesMatches = $matches; // Alias untuk kompatibilitas
         $totalSeries = $matches->count();
         $totalGames = $matches->sum(fn($m) => $m->games ? $m->games->count() : 0);
+
+        // Hitung pembagian Regular Season vs Playoffs
+        $regularCount = $matches->filter(fn($m) => stripos($m->stage_name, 'regular') !== false)->count();
+        $playoffsCount = $matches->filter(fn($m) => stripos($m->stage_name, 'playoff') !== false || stripos($m->stage_name, 'final') !== false)->count();
+
+        $activeStage = strtolower($request->query('stage', 'regular'));
+        if (!in_array($activeStage, ['regular', 'playoffs', 'all'])) {
+            $activeStage = 'regular';
+        }
 
         // Fallback CSV data untuk perbandingan historis
         $csvSummary = $this->csvService->getTournamentSummary();
@@ -84,6 +83,9 @@ class DatasetController extends Controller
             'seriesMatches',
             'totalSeries',
             'totalGames',
+            'regularCount',
+            'playoffsCount',
+            'activeStage',
             'csvSummary',
             'dbConnected',
             'dbErrorMessage',

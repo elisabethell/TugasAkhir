@@ -32,7 +32,10 @@
                 DASHBOARD
             </a>
             <a href="{{ route('matches') }}" class="text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition whitespace-nowrap">
- window
+                DATASET MATCH
+            </a>
+            <a href="{{ route('admin.heroes') }}" class="text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE] px-3.5 py-1.5 rounded-full transition whitespace-nowrap">
+                MANAJEMEN HERO
             </a>
         </nav>
 
