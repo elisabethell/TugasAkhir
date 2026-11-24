@@ -13,32 +13,52 @@ test('fallback palsu getMetaFallbackHeroes dan generatePlaceholderGames telah di
         ->and(method_exists(LiquipediaApiService::class, 'generatePlaceholderGames'))->toBeFalse();
 });
 
-test('game dengan picks bans kosong menyimpan array kosong dan tidak mengarang hero', function () {
+test('game tidak dimainkan atau picks kosong diabaikan saat sync dan tidak menyimpan game hantu', function () {
     $item = [
-        'match2id' => 'empty-picks-match',
+        'match2id' => 'unplayed-game-match',
         'match2opponents' => [
-            ['name' => 'Team Alpha'],
-            ['name' => 'Team Beta'],
+            ['name' => 'Team Alpha', 'score' => 2],
+            ['name' => 'Team Beta', 'score' => 0],
         ],
         'extradata' => [],
         'match2games' => [
             [
                 'match2gameid' => 1,
                 'winner' => 1,
-                'length' => '15:20',
+                'length' => '13:57',
+                'team_1_picks' => ['Fanny', 'Miya', 'Tigreal', 'Gord', 'Sora'],
+                'team_2_picks' => ['Ling', 'Layla', 'Franco', 'Nana', 'Baxia'],
                 'extradata' => [],
+            ],
+            [
+                'match2gameid' => 2,
+                'winner' => 1,
+                'length' => '18:20',
+                'team_1_picks' => ['Hayabusa', 'Bruno', 'Atlas', 'Vexana', 'Fredrinn'],
+                'team_2_picks' => ['Lancelot', 'Claude', 'Khufra', 'Pharsa', 'Terizla'],
+                'extradata' => [],
+            ],
+            // Game 3 tidak dimainkan (resulttype np / picks kosong / game_number > total score 2)
+            [
+                'match2gameid' => 3,
+                'resulttype' => 'np',
+                'winner' => null,
+                'length' => null,
+                'extradata' => ['resulttype' => 'np'],
             ],
         ],
     ];
 
     app(LiquipediaApiService::class)->parseAndSaveMatchSeries($item);
 
-    $game = MatchGame::firstWhere('match_id', 'empty-picks-match');
-    expect($game)->not->toBeNull()
-        ->and($game->team_1_picks)->toBe([])
-        ->and($game->team_2_picks)->toBe([])
-        ->and($game->team_1_bans)->toBe([])
-        ->and($game->team_2_bans)->toBe([]);
+    $game1 = MatchGame::where('match_id', 'unplayed-game-match')->where('game_number', 1)->first();
+    $game2 = MatchGame::where('match_id', 'unplayed-game-match')->where('game_number', 2)->first();
+    $game3 = MatchGame::where('match_id', 'unplayed-game-match')->where('game_number', 3)->first();
+
+    expect($game1)->not->toBeNull()
+        ->and(count($game1->team_1_picks))->toBe(5)
+        ->and($game2)->not->toBeNull()
+        ->and($game3)->toBeNull(); // Game 3 hantu harus di-skip
 });
 
 test('halaman statistik hero menghitung win rate, pick rate, dan ban rate secara dinamis dari database', function () {

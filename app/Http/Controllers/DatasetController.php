@@ -41,14 +41,28 @@ class DatasetController extends Controller
                 MatchDataset::where('match_id', 'like', '%R03-M002%')->update(['stage_name' => 'Lower Bracket Final']);
                 MatchDataset::where('match_id', 'like', '%R04-M001%')->update(['stage_name' => 'Grand Final Playoffs']);
 
-                // Query murni relasi database: MatchDataset beserta games dan details
-                $matches = MatchDataset::with(['games.details'])->orderBy('match_date', 'desc')->get();
+                // Query murni relasi database: MatchDataset beserta games (hanya game valid yang dimainkan) dan details
+                $matchesQuery = function() {
+                    return MatchDataset::with(['games' => function($q) {
+                        $q->where(function($sub) {
+                            $sub->whereNotNull('team_1_picks')
+                                ->where('team_1_picks', '!=', '[]')
+                                ->where('team_1_picks', '!=', '');
+                        })->orWhere(function($sub) {
+                            $sub->whereNotNull('team_2_picks')
+                                ->where('team_2_picks', '!=', '[]')
+                                ->where('team_2_picks', '!=', '');
+                        });
+                    }, 'games.details'])->orderBy('match_date', 'desc')->get();
+                };
+
+                $matches = $matchesQuery();
 
                 // Jika tabel masih kosong atau belum lengkap (<10 seri), sinkronkan dataset lengkap MPL ID Season 18 (215+ games)
                 if ($matches->isEmpty() || $matches->count() < 10) {
                     try {
                         $this->liquipediaService->seedCompleteMplSeason18Dataset();
-                        $matches = MatchDataset::with(['games.details'])->orderBy('match_date', 'desc')->get();
+                        $matches = $matchesQuery();
                     } catch (\Throwable $seedEx) {
                         \Illuminate\Support\Facades\Log::warning('Gagal auto-seed match dataset: ' . $seedEx->getMessage());
                     }

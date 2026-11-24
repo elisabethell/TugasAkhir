@@ -258,6 +258,7 @@ class LiquipediaApiService
         // 6. LOOPING DETAIL GAME: Memproses setiap ronde (Game 1, Game 2, dst)
         $savedGamesCount = 0;
         $gameIndex = 1;
+        $totalSeriesScore = $team1Score + $team2Score;
 
         if (empty($rawGames)) {
             Log::warning("Liquipedia API match {$matchId} has no raw games data.", [
@@ -273,7 +274,29 @@ class LiquipediaApiService
 
             $gameNumber = (int) ($gameItem['match2gameid'] ?? $gameItem['game_number'] ?? $gameItem['subgroup'] ?? (is_numeric($gameItem['game'] ?? null) ? $gameItem['game'] : $gameIndex));
 
-            // A. Format Durasi Pertandingan (contoh: "14:40")
+            // FILTER 1: Abaikan game jika resulttype bernilai 'np' (not played)
+            $resultType = strtolower(trim((string) ($gameItem['resulttype'] ?? $gameItem['extradata']['resulttype'] ?? '')));
+            if ($resultType === 'np' || $resultType === 'not played') {
+                continue;
+            }
+
+            // FILTER 2: Abaikan game jika nomor game melebihi total skor pertandingan (misal game 3 pada BO3 skor 2-0)
+            if ($totalSeriesScore > 0 && $gameNumber > $totalSeriesScore) {
+                continue;
+            }
+
+            // Ekstraksi data hero picks & bans
+            $t1Picks = $this->extractGameHeroList($gameItem, 1, 'pick', $team1Name);
+            $t2Picks = $this->extractGameHeroList($gameItem, 2, 'pick', $team2Name);
+            $t1Bans  = $this->extractGameHeroList($gameItem, 1, 'ban', $team1Name);
+            $t2Bans  = $this->extractGameHeroList($gameItem, 2, 'ban', $team2Name);
+
+            // FILTER 3: Abaikan game jika data picks kedua tim sama-sama kosong
+            if (empty($t1Picks) && empty($t2Picks)) {
+                continue;
+            }
+
+            // A. Format Durasi Pertandingan (tanpa generate durasi palsu jika kosong)
             $durationRaw = $gameItem['length'] 
                 ?? $gameItem['duration'] 
                 ?? $gameItem['extradata']['duration'] 
@@ -337,12 +360,6 @@ class LiquipediaApiService
                 $mapType = json_encode($mapType);
             }
 
-            // C. EKSTRAKSI DATA SPESIFIK HERO PICKS & BANS (5 HERO TIAP TIM)
-            $t1Picks = $this->extractGameHeroList($gameItem, 1, 'pick', $team1Name);
-            $t2Picks = $this->extractGameHeroList($gameItem, 2, 'pick', $team2Name);
-            $t1Bans  = $this->extractGameHeroList($gameItem, 1, 'ban', $team1Name);
-            $t2Bans  = $this->extractGameHeroList($gameItem, 2, 'ban', $team2Name);
-
             // D. RELASI DATABASE: Simpan ke tabel match_games
             $gameModel = MatchGame::updateOrCreate(
                 [
@@ -372,6 +389,21 @@ class LiquipediaApiService
             $savedGamesCount++;
             $gameIndex++;
         }
+
+        // Hapus game hantu / unplayed yang mungkin pernah tersimpan di database untuk match ini
+        MatchGame::where('match_id', $matchId)
+            ->where(function($q) use ($totalSeriesScore) {
+                if ($totalSeriesScore > 0) {
+                    $q->where('game_number', '>', $totalSeriesScore);
+                }
+                $q->orWhere(function($sub) {
+                    $sub->where(function($p) {
+                        $p->whereNull('team_1_picks')->orWhere('team_1_picks', '[]')->orWhere('team_1_picks', '');
+                    })->where(function($p) {
+                        $p->whereNull('team_2_picks')->orWhere('team_2_picks', '[]')->orWhere('team_2_picks', '');
+                    });
+                });
+            })->delete();
 
         return [
             'dataset_id'  => $dataset->id,
@@ -555,15 +587,17 @@ class LiquipediaApiService
 
     /**
      * Format durasi game dari detik atau teks mentah menjadi "MM:SS" (e.g. "14:40")
+     * Tidak men-generate durasi palsu jika data aslinya kosong.
      */
-    public function formatGameDuration($raw): string
+    public function formatGameDuration($raw): ?string
     {
         if (empty($raw)) {
-            return '15:20';
+            return null;
         }
 
         if (is_numeric($raw)) {
             $sec = (int)$raw;
+            if ($sec <= 0) return null;
             $mins = floor($sec / 60);
             $rem = $sec % 60;
             return sprintf('%02d:%02d', $mins, $rem);
@@ -574,7 +608,7 @@ class LiquipediaApiService
             return $str;
         }
 
-        return '14:45';
+        return null;
     }
 
     /**

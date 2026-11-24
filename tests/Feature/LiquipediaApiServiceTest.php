@@ -27,6 +27,8 @@ test('Liquipedia array payload and map values are stored as JSON strings', funct
                 'game' => 1,
                 'winner' => 1,
                 'map' => ['name' => 'Healing Turtle', 'variant' => 'Night'],
+                'team_1_picks' => ['Miya', 'Fanny'],
+                'team_2_picks' => ['Tigreal', 'Nana'],
                 'extradata' => [],
             ],
         ],

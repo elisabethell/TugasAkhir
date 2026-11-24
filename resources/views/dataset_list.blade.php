@@ -654,7 +654,7 @@
                     <div class="bg-[#F4F4F5] text-gray-800 text-[11px] font-extrabold px-3 py-1 rounded-full shadow-2xs">
                         ${dateHeader}
                     </div>
-                    <div class="text-[11px] font-extrabold uppercase text-[#700B1A] bg-[#FCECEE] border border-[#F8B4BD] px-2.5 py-0.5 rounded-full">
+                    <div class="text-[11px] font-extrabold uppercase text-[#700B1A] bg-[#FCECEE] border border-[#F8B4BD] px-2.5 py-0.5 rounded-full mr-10 sm:mr-12">
                         ${match.formatted_stage_name || 'Match Series'}
                     </div>
                 </div>
@@ -712,7 +712,14 @@
 
         // 2. DAFTAR GAME (Game 1, Game 2, dst)
         const rawGames = match.games || [];
-        const games = [...rawGames].sort((a, b) => (parseInt(a.game_number) || 0) - (parseInt(b.game_number) || 0));
+        // Filter agar HANYA merender game yang valid dan memiliki minimal 1 hero pick
+        const games = rawGames.filter(g => {
+            const t1 = Array.isArray(g.team_1_picks) ? g.team_1_picks : [];
+            const t2 = Array.isArray(g.team_2_picks) ? g.team_2_picks : [];
+            const details = Array.isArray(g.details) ? g.details : [];
+            const hasPickDetails = details.some(d => d.type === 'pick');
+            return t1.length > 0 || t2.length > 0 || hasPickDetails;
+        }).sort((a, b) => (parseInt(a.game_number) || 0) - (parseInt(b.game_number) || 0));
 
         if (games.length === 0) {
             html += `
@@ -800,7 +807,7 @@
                         <div class="text-center px-1 flex-shrink-0 min-w-[70px]">
                             <div class="text-[10px] font-extrabold text-gray-400 uppercase">Game ${gNum}</div>
                             <div class="font-mono font-black text-xs text-gray-900">
-                                ${game.duration || '15:20'}
+                                ${game.duration ? game.duration : '-'}
                             </div>
                         </div>
 
