@@ -4,11 +4,13 @@ namespace App\Services;
 
 use App\Models\RbrRule;
 use App\Services\CsvDataService;
+use App\Services\TeamDraftDnaService;
 use Illuminate\Support\Collection;
 
 class DraftInferenceService
 {
     protected CsvDataService $csvService;
+    protected TeamDraftDnaService $teamDnaService;
 
     // Mapping hero dengan damage type dominan Magic
     protected array $knownMagic = [
@@ -26,9 +28,10 @@ class DraftInferenceService
         'karrie', 'edith', 'natan', 'kimmy', 'lesley', 'bane', 'paquito', 'alpha'
     ];
 
-    public function __construct(CsvDataService $csvService)
+    public function __construct(CsvDataService $csvService, ?TeamDraftDnaService $teamDnaService = null)
     {
         $this->csvService = $csvService;
+        $this->teamDnaService = $teamDnaService ?? app(TeamDraftDnaService::class);
         RbrRule::seedDefaultRules();
     }
 
@@ -41,6 +44,7 @@ class DraftInferenceService
      * @param array $allyLanes Lane hero sekutu (opsional, contoh: ['ROAM', 'MID'])
      * @param array $enemyLanes Lane hero musuh (opsional)
      * @param string|null $map Varian map (opsional)
+     * @param string|null $teamName Nama tim untuk evaluasi Draft DNA (opsional)
      * @return array
      */
     public function evaluateDraft(
@@ -49,11 +53,15 @@ class DraftInferenceService
         array $bannedHeroes = [],
         array $allyLanes = [],
         array $enemyLanes = [],
-        ?string $map = null
+        ?string $map = null,
+        ?string $teamName = null
     ): array {
         $allHeroes = $this->csvService->getHeroes();
         $tournamentStats = $this->csvService->getTournamentStatistics();
         $powerSpikesMap = $this->csvService->getEmpiricalPowerSpikes();
+
+        // Ambil profil Draft DNA historis jika nama tim disediakan
+        $teamDna = !empty($teamName) ? $this->teamDnaService->getTeamDraftDna($teamName) : null;
 
         // 1. Inisialisasi Working Memory
         $workingMemory = $this->buildWorkingMemory(
@@ -76,7 +84,8 @@ class DraftInferenceService
             $workingMemory,
             $ruleEvaluations,
             $tournamentStats,
-            $powerSpikesMap
+            $powerSpikesMap,
+            $teamDna
         );
 
         // 4. Alert Komposisi Rule-Based untuk Tim Sekutu & Tim Musuh
@@ -114,6 +123,21 @@ class DraftInferenceService
                 'ally'  => $allyIdentity,
                 'enemy' => $enemyIdentity,
             ],
+            'team_dna'            => $teamDna ? [
+                'team_name'             => $teamDna['team_name'],
+                'team_logo'             => $teamDna['team_logo'],
+                'total_games'           => $teamDna['total_games'],
+                'wins'                  => $teamDna['wins'],
+                'losses'                => $teamDna['losses'],
+                'win_rate'              => $teamDna['win_rate'],
+                'win_rate_formatted'    => $teamDna['win_rate_formatted'],
+                'top_heroes'            => $teamDna['top_heroes'],
+                'top_bans'              => $teamDna['top_bans'],
+                'playstyle_tag'         => $teamDna['playstyle_tag'],
+                'playstyle_frequency'   => $teamDna['playstyle_frequency'],
+                'playstyle_description' => $teamDna['playstyle_description'],
+                'composition_breakdown' => $teamDna['composition_breakdown'],
+            ] : null,
         ];
     }
 
@@ -418,14 +442,16 @@ class DraftInferenceService
     }
 
     /**
-     * 3. Evaluasi Skor Hybrid per Hero Kandidat
+     * 3. Evaluasi Skor Hybrid per Hero Kandidat (ARM & RBR)
+     * Mendukung pembobotan Draft DNA spesifik tim dengan mekanisme fallback
      */
     protected function evaluateCandidates(
         Collection $allHeroes,
         array $wm,
         array $ruleEvals,
         array $tournamentStats,
-        array $powerSpikesMap
+        array $powerSpikesMap,
+        ?array $teamDna = null
     ): array {
         $k = (int) config('metascout.bayesian.k', 10);
         $prior = (float) config('metascout.bayesian.prior', 0.50);
@@ -438,6 +464,10 @@ class DraftInferenceService
             if (!empty($s['clean_key'])) $statsMap[$s['clean_key']] = $s;
             if (!empty($s['name'])) $statsMap[strtolower($s['name'])] = $s;
         }
+
+        $hasTeamDna = ($teamDna !== null && !empty($teamDna['team_name']));
+        $teamHeroPoolKeys = $hasTeamDna ? ($teamDna['hero_pool_keys'] ?? []) : [];
+        $teamPlaystyle = $hasTeamDna ? ($teamDna['playstyle_tag'] ?? null) : null;
 
         $results = [];
 
@@ -455,63 +485,166 @@ class DraftInferenceService
             $wins = $stat ? (int) $stat['wins'] : 0;
             $rawWr = ($stat && $n > 0) ? round((float) $stat['wr'], 1) : 50.0;
 
-            // Bayesian Smoothing (M-Estimate / Shrinkage)
+            // Bayesian Smoothing (M-Estimate / Shrinkage) Overall MPL ID S18
             // formula: smoothed_wr = ((wins + k * prior) / (n + k)) * 100
-            $smoothedWr = round((($wins + ($k * $prior)) / ($n + $k)) * 100.0, 2);
+            $smoothedWrOverall = round((($wins + ($k * $prior)) / ($n + $k)) * 100.0, 2);
 
-            // Evaluasi Sinergi Data-Driven (hanya jika ada sekutu terpilih)
+            // 1. Integrasi Draft DNA Tim: Prioritaskan Data Historis Tim
+            $teamHeroStat = $hasTeamDna ? ($teamDna['hero_stats'][$nameLower] ?? null) : null;
+            $teamPicks = $teamHeroStat ? (int) $teamHeroStat['picks'] : 0;
+            $teamWins = $teamHeroStat ? (int) $teamHeroStat['wins'] : 0;
+            $isHeroInPool = in_array($nameLower, $teamHeroPoolKeys);
+
+            if ($hasTeamDna && $teamPicks > 0) {
+                // Gunakan prior win rate tim dengan faktor peredam k_team = 4
+                $teamPrior = ($teamDna['win_rate'] > 0) ? ($teamDna['win_rate'] / 100.0) : $prior;
+                $teamK = 4;
+                $teamSmoothedWr = round((($teamWins + ($teamK * $teamPrior)) / ($teamPicks + $teamK)) * 100.0, 2);
+                $effectiveSmoothedWr = $teamSmoothedWr;
+                $effectiveRawWr = round(($teamWins / $teamPicks) * 100.0, 1);
+                $effectiveN = $teamPicks;
+                $wrSource = 'team_historical';
+            } else {
+                // Fallback ke statistik keseluruhan turnamen MPL ID S18
+                $effectiveSmoothedWr = $smoothedWrOverall;
+                $effectiveRawWr = $rawWr;
+                $effectiveN = $n;
+                $wrSource = 'overall_mpl_s18';
+            }
+
+            // 2. Evaluasi Sinergi (Prioritas Sinergi Tim -> Fallback Association Rule Mining CSV)
             $synergyList = [];
             $synergyScore = 0.0;
-            if ($wm['ally_count'] > 0 && !empty($h->synergies)) {
-                $candidateSyns = array_map(function($item) {
+            if ($wm['ally_count'] > 0) {
+                $candidateSyns = !empty($h->synergies) ? array_map(function($item) {
                     return strtolower($item['heroname'] ?? '');
-                }, $h->synergies);
+                }, $h->synergies) : [];
 
                 foreach ($wm['ally_heroes'] as $ah) {
                     $aLower = strtolower($ah['name']);
-                    if (in_array($aLower, $candidateSyns)) {
+                    $synKey1 = $nameLower . '|' . $aLower;
+                    $synKey2 = $aLower . '|' . $nameLower;
+                    $teamSyn = $hasTeamDna ? ($teamDna['synergies'][$synKey1] ?? ($teamDna['synergies'][$synKey2] ?? null)) : null;
+
+                    if ($teamSyn && $teamSyn['picks'] > 0) {
+                        // Data sinergi tim empiris
+                        $val = round(8.0 + min(12.0, max(0.0, ($teamSyn['win_rate'] - 45.0) * 0.4)) + min(4.0, $teamSyn['picks'] * 0.8), 1);
+                        $synergyScore += $val;
+                        $synergyList[] = [
+                            'dengan'   => $ah['name'],
+                            'nilai'    => $val,
+                            'source'   => 'team_dna',
+                            'picks'    => $teamSyn['picks'],
+                            'win_rate' => $teamSyn['win_rate'] . '%',
+                        ];
+                    } elseif (in_array($aLower, $candidateSyns)) {
+                        // Fallback ke Sinergi ARM / CSV
                         $val = 12.0;
                         $synergyScore += $val;
                         $synergyList[] = [
                             'dengan' => $ah['name'],
                             'nilai'  => $val,
+                            'source' => $hasTeamDna ? 'overall_meta_fallback' : 'overall_meta',
                         ];
                     }
                 }
             }
 
-            // Evaluasi Counter Data-Driven (hanya jika ada musuh terpilih)
+            // 3. Evaluasi Counter (Prioritas Head-to-Head Tim -> Fallback Overall MPL ID S18)
+            // Sesuai aturan: jika musuh belum pernah dihadapi tim (n = 0), gunakan fallback statistik
+            // overall MPL, namun tetap prioritaskan hero yang masuk dalam top_heroes (Hero Pool) tim.
             $counterList = [];
             $counterScore = 0.0;
-            if ($wm['enemy_count'] > 0 && !empty($h->counters)) {
-                $candidateCtrs = array_map(function($item) {
+            if ($wm['enemy_count'] > 0) {
+                $candidateCtrs = !empty($h->counters) ? array_map(function($item) {
                     return strtolower($item['heroname'] ?? '');
-                }, $h->counters);
+                }, $h->counters) : [];
 
                 foreach ($wm['enemy_heroes'] as $eh) {
                     $eLower = strtolower($eh['name']);
-                    if (in_array($eLower, $candidateCtrs)) {
-                        $val = 14.0;
+                    $h2hKey = $nameLower . '|vs|' . $eLower;
+                    $teamH2h = $hasTeamDna ? ($teamDna['counters'][$h2hKey] ?? null) : null;
+                    $isMetaCounter = in_array($eLower, $candidateCtrs);
+
+                    if ($teamH2h && $teamH2h['matches'] > 0) {
+                        // Tim pernah menghadapi musuh ini di turnamen
+                        $h2hN = $teamH2h['matches'];
+                        $h2hWr = $teamH2h['win_rate'];
+                        $val = round(8.0 + min(12.0, max(0.0, ($h2hWr - 40.0) * 0.35)) + min(4.0, $h2hN * 1.0), 1);
                         $counterScore += $val;
                         $counterList[] = [
-                            'vs'    => $eh['name'],
-                            'nilai' => $val,
+                            'vs'       => $eh['name'],
+                            'nilai'    => $val,
+                            'source'   => 'team_h2h',
+                            'matches'  => $h2hN,
+                            'win_rate' => $h2hWr . '%',
                         ];
+                    } else {
+                        // Mekanisme Fallback: Musuh belum pernah dihadapi oleh tim (n = 0)
+                        if ($isMetaCounter) {
+                            $val = 14.0;
+                            // Prioritaskan hero yang masuk dalam top_heroes (Hero Pool) tim
+                            if ($isHeroInPool) {
+                                $heroPoolBonus = 6.0;
+                                $val += $heroPoolBonus;
+                                $counterList[] = [
+                                    'vs'     => $eh['name'],
+                                    'nilai'  => $val,
+                                    'source' => 'overall_meta_fallback_hero_pool',
+                                    'note'   => "Fallback MPL + Hero Pool Priority ({$teamDna['team_name']})",
+                                ];
+                            } else {
+                                $counterList[] = [
+                                    'vs'     => $eh['name'],
+                                    'nilai'  => $val,
+                                    'source' => $hasTeamDna ? 'overall_meta_fallback' : 'overall_meta',
+                                ];
+                            }
+                            $counterScore += $val;
+                        } elseif ($hasTeamDna && $isHeroInPool) {
+                            // Hero signature tim mendapat comfort priority saat menghadapi matchup belum terpetakan
+                            $comfortVal = 8.0;
+                            $counterScore += $comfortVal;
+                            $counterList[] = [
+                                'vs'     => $eh['name'],
+                                'nilai'  => $comfortVal,
+                                'source' => 'hero_pool_comfort_fallback',
+                                'note'   => "Hero Pool Signature ({$teamDna['team_name']}) vs Unfaced Matchup",
+                            ];
+                        }
                     }
+                }
+            }
+
+            // 4. Playstyle Alignment Bonus jika Team DNA aktif
+            $playstyleBonus = 0.0;
+            $primaryRole = strtolower($h->primary_class ?: $h->class ?: '');
+            $dmgType = $this->resolveDamageType($h);
+            $spike = $this->resolvePowerSpike($h, $powerSpikesMap);
+
+            if ($teamPlaystyle) {
+                if ($teamPlaystyle === 'Double Fighter' && str_contains($primaryRole, 'fighter')) {
+                    $playstyleBonus = 4.0;
+                } elseif ($teamPlaystyle === 'Tank Jungler' && (str_contains($primaryRole, 'tank') || in_array($nameLower, ['fredrinn', 'baxia', 'akai', 'barats', 'hylos', 'gloo', 'belerick']))) {
+                    $playstyleBonus = 4.0;
+                } elseif ($teamPlaystyle === 'Assassin Snowball' && (str_contains($primaryRole, 'assassin') || in_array($nameLower, ['ling', 'fanny', 'hayabusa', 'nolan', 'joy', 'lancelot', 'suyou']))) {
+                    $playstyleBonus = 4.0;
+                } elseif ($teamPlaystyle === 'Late Game Scaling' && (str_contains($primaryRole, 'marksman') || str_contains($spike, 'Late'))) {
+                    $playstyleBonus = 4.0;
+                } elseif ($teamPlaystyle === 'Support Utility (UBE)' && str_contains($primaryRole, 'support')) {
+                    $playstyleBonus = 4.0;
+                } elseif ($teamPlaystyle === 'Early Game Aggro' && str_contains($spike, 'Early')) {
+                    $playstyleBonus = 4.0;
                 }
             }
 
             // Data Score (0 - 100)
-            $dataScore = min(100.0, max(10.0, $smoothedWr + min(25.0, $synergyScore) + min(30.0, $counterScore)));
+            $dataScore = min(100.0, max(10.0, $effectiveSmoothedWr + min(25.0, $synergyScore) + min(30.0, $counterScore) + $playstyleBonus));
 
-            // Evaluasi Kesesuaian Hero terhadap Fired Rules
+            // Evaluasi Kesesuaian Hero terhadap Fired Rules (9 Aturan RBR tetap berjalan normal)
             $firedRulesForHero = [];
             $notFiredRulesForHero = [];
             $ruleScoreRaw = 0.0;
-
-            $primaryRole = strtolower($h->primary_class ?: $h->class ?: '');
-            $dmgType = $this->resolveDamageType($h);
-            $spike = $this->resolvePowerSpike($h, $powerSpikesMap);
 
             foreach ($ruleEvals as $code => $r) {
                 if ($r['fired']) {
@@ -539,7 +672,7 @@ class DraftInferenceService
                         $applies = true;
                     } elseif ($code === 'RBR-GEN-01') {
                         $applies = true;
-                        $multiplier = min(1.0, max(0.4, $rawWr / 60.0));
+                        $multiplier = min(1.0, max(0.4, $effectiveRawWr / 60.0));
                     }
 
                     if ($applies) {
@@ -564,9 +697,8 @@ class DraftInferenceService
 
             // 4. Perhitungan Confidence Dinamis
             // reliability = n / (n + k)
-            // confidence = weighted average dari kekuatan rule x reliabilitas data
-            $reliability = $n / ($n + $k);
-            $lowData = ($n < $lowDataThreshold);
+            $reliability = $effectiveN / ($effectiveN + ($hasTeamDna ? 4 : $k));
+            $lowData = ($effectiveN < ($hasTeamDna ? 3 : $lowDataThreshold));
 
             $ruleWeightSum = 0.0;
             $ruleWeightTotal = 0.0;
@@ -584,7 +716,17 @@ class DraftInferenceService
             $laneFlex = !empty($h->lanes_array) ? $h->lanes_array : (!empty($h->laning) ? array_map('trim', explode('•', $h->laning)) : ['Flex']);
 
             // 7. Pembuatan Alasan Ringkas (1 kalimat dinamis berbasis rule & data)
-            $alasanRingkas = $this->buildAlasanRingkas($h, $wm, $firedRulesForHero, $synergyList, $counterList, $dmgType, $spike);
+            $alasanRingkas = $this->buildAlasanRingkas(
+                $h,
+                $wm,
+                $firedRulesForHero,
+                $synergyList,
+                $counterList,
+                $dmgType,
+                $spike,
+                $teamDna,
+                $isHeroInPool
+            );
 
             $results[] = [
                 'hero'          => $name,
@@ -596,18 +738,28 @@ class DraftInferenceService
                 'total_score'   => $totalScore,
                 'score'         => number_format($totalScore / 20.0, 1),
                 'confidence'    => $calcConfidence . '%',
-                'sample_size'   => $n,
+                'sample_size'   => $effectiveN,
                 'low_data'      => $lowData,
                 'portrait'      => $h->portrait,
                 'damage_type'   => $dmgType,
                 'power_spike'   => $spike,
+                'team_dna'      => $hasTeamDna ? [
+                    'team_name'        => $teamDna['team_name'],
+                    'in_hero_pool'     => $isHeroInPool,
+                    'team_picks'       => $teamPicks,
+                    'team_wins'        => $teamWins,
+                    'team_wr'          => $teamPicks > 0 ? $teamHeroStat['win_rate'] : null,
+                    'team_smoothed_wr' => $teamPicks > 0 ? $teamSmoothedWr : null,
+                    'playstyle_fit'    => $playstyleBonus > 0,
+                    'wr_source'        => $wrSource,
+                ] : null,
                 'breakdown'     => [
                     'data' => [
-                        'score'   => round($dataScore, 1),
-                        'win_rate'=> $rawWr,
-                        'n'       => $n,
-                        'synergy' => $synergyList,
-                        'counter' => $counterList,
+                        'score'    => round($dataScore, 1),
+                        'win_rate' => $effectiveRawWr,
+                        'n'        => $effectiveN,
+                        'synergy'  => $synergyList,
+                        'counter'  => $counterList,
                     ],
                     'rule' => [
                         'score'     => round($ruleScore, 1),
@@ -635,14 +787,11 @@ class DraftInferenceService
         array $synergies,
         array $counters,
         string $dmgType,
-        string $spike
+        string $spike,
+        ?array $teamDna = null,
+        bool $isHeroInPool = false
     ): string {
-        // Kasus 5: Draft Kosong (0 hero)
-        if ($wm['ally_count'] === 0 && $wm['enemy_count'] === 0) {
-            return "Prioritas awal (meta S18) berdasarkan kestabilan win rate dan fleksibilitas fase turnamen.";
-        }
-
-        // Cek apakah rule komposisi mutlak menyala untuk hero ini
+        // Cek apakah rule komposisi mutlak menyala untuk hero ini (Prioritas Utama RBR)
         foreach ($firedRules as $r) {
             if ($r['rule_id'] === 'RBR-COMP-01' && $dmgType === 'Magic') {
                 return "Aturan Komposisi Mutlak: Wajib mengamankan magic damage/midlaner agar musuh tidak menumpuk Armor Fisik.";
@@ -650,6 +799,14 @@ class DraftInferenceService
             if ($r['rule_id'] === 'RBR-COMP-02') {
                 return "Aturan Komposisi Frontline: Menyediakan ketahanan garis depan penting untuk kontes objektif Turtle dan Lord.";
             }
+        }
+
+        // Kasus: Draft Kosong (0 hero)
+        if ($wm['ally_count'] === 0 && $wm['enemy_count'] === 0) {
+            if ($teamDna && $isHeroInPool) {
+                return "Hero signature {$teamDna['team_name']} dengan kecocokan tinggi terhadap playstyle {$teamDna['playstyle_tag']}.";
+            }
+            return "Prioritas awal (meta S18) berdasarkan kestabilan win rate dan fleksibilitas fase turnamen.";
         }
 
         // Cek kombinasi Counter dan Synergy
@@ -662,12 +819,18 @@ class DraftInferenceService
         // Cek Counter musuh
         if (!empty($counters)) {
             $eName = $counters[0]['vs'];
+            if (!empty($counters[0]['note'])) {
+                return "{$counters[0]['note']} efektif meredam pergerakan {$eName}.";
+            }
             return "Direct counter efektif terhadap {$eName} berdasarkan keunggulan mekanik skill pelumpuh lawan.";
         }
 
         // Cek Sinergi sekutu
         if (!empty($synergies)) {
             $aName = $synergies[0]['dengan'];
+            if (!empty($synergies[0]['source']) && $synergies[0]['source'] === 'team_dna') {
+                return "Duet andalan {$teamDna['team_name']} bersama {$aName} ({$synergies[0]['picks']} game, {$synergies[0]['win_rate']} WR).";
+            }
             return "Membentuk sinergi taktis yang kuat bersama {$aName} untuk penguasaan teamfight objektif.";
         }
 
@@ -679,6 +842,10 @@ class DraftInferenceService
             if ($r['rule_id'] === 'RBR-CTR-02') {
                 return "Penembus armor tebal lawan dengan true damage persentase HP shredder.";
             }
+        }
+
+        if ($teamDna && $isHeroInPool) {
+            return "Hero signature andalan {$teamDna['team_name']} untuk memperkuat formasi {$teamDna['playstyle_tag']}.";
         }
 
         return "Pilihan meta turnamen solid dengan keunggulan adaptasi power spike {$spike}.";

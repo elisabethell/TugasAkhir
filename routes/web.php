@@ -34,6 +34,10 @@ Route::get('/rekomendasi-draft', [DraftController::class, 'draftRecommendation']
 Route::get('/draft-recommendation', [DraftController::class, 'draftRecommendation'])->name('draft.analyzer');
 Route::post('/api/analyze-draft', [DraftController::class, 'analyze'])->name('draft.analyze.api');
 
+// Draft DNA Tim Turnamen MPL ID S18 (Team-Specific Drafting Profile)
+Route::get('/api/teams/{team}/dna', [DraftController::class, 'getTeamDraftDna'])->name('api.team.dna');
+Route::get('/api/team-dna', [DraftController::class, 'getTeamDraftDna'])->name('api.team.dna.query');
+
 // Counter Picks & Analisis Lawan (Dialihkan langsung ke Fitur Utama Rekomendasi Draft)
 Route::redirect('/counter-picks', '/rekomendasi-draft', 301)->name('counter.picks');
 

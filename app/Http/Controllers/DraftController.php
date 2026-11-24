@@ -6,21 +6,25 @@ use Illuminate\Http\Request;
 use App\Services\CsvDataService;
 use App\Services\RbrInferenceEngine;
 use App\Services\DraftInferenceService;
+use App\Services\TeamDraftDnaService;
 
 class DraftController extends Controller
 {
     protected CsvDataService $csvService;
     protected RbrInferenceEngine $engine;
     protected DraftInferenceService $inferenceService;
+    protected TeamDraftDnaService $teamDnaService;
 
     public function __construct(
         CsvDataService $csvService,
         RbrInferenceEngine $engine,
-        DraftInferenceService $inferenceService
+        DraftInferenceService $inferenceService,
+        TeamDraftDnaService $teamDnaService
     ) {
         $this->csvService = $csvService;
         $this->engine = $engine;
         $this->inferenceService = $inferenceService;
+        $this->teamDnaService = $teamDnaService;
     }
 
     public function counterPicks()
@@ -285,6 +289,8 @@ class DraftController extends Controller
             $datasetLastUpdated = '13 November 2026';
         }
 
+        $allTeamsDna = $this->teamDnaService->getAllTeamsDna();
+
         return view('draft_recommendation', compact(
             'heroes',
             'pickerHeroes',
@@ -299,7 +305,8 @@ class DraftController extends Controller
             'powerSpikesMap',
             'datasetTotalGames',
             'datasetLastUpdated',
-            'initialInference'
+            'initialInference',
+            'allTeamsDna'
         ));
     }
 
@@ -316,15 +323,17 @@ class DraftController extends Controller
         $map = $request->input('map', null);
         $myLanes = (array) $request->input('my_lanes', $request->input('ally_lanes', []));
         $enemyLanes = (array) $request->input('enemy_lanes', []);
+        $teamName = $request->input('team_name', $request->input('team', null));
 
-        // Evaluasi Forward Chaining melalui DraftInferenceService
+        // Evaluasi Forward Chaining melalui DraftInferenceService (didukung Draft DNA spesifik tim)
         $inference = $this->inferenceService->evaluateDraft(
             allyTeam: $myTeam,
             enemyTeam: $enemyTeam,
             bannedHeroes: $banned,
             allyLanes: $myLanes,
             enemyLanes: $enemyLanes,
-            map: $map
+            map: $map,
+            teamName: $teamName
         );
 
         // Pertahankan backward compatibility dengan RbrInferenceEngine
@@ -337,7 +346,36 @@ class DraftController extends Controller
             'recommendations'     => $inference['recommendations'],
             'composition_alerts'  => $inference['composition_alerts'] ?? [],
             'power_spikes'        => $inference['power_spikes'] ?? [],
+            'team_dna'            => $inference['team_dna'] ?? null,
         ]));
+    }
+
+    /**
+     * Endpoint API Profil Draft DNA Tim (MPL ID Season 18)
+     */
+    public function getTeamDraftDna(Request $request, ?string $team = null)
+    {
+        $teamName = $team ?: $request->query('team_name', $request->query('team', ''));
+
+        if (empty($teamName)) {
+            return response()->json([
+                'status' => 'success',
+                'teams'  => $this->teamDnaService->getAllTeamsDna(),
+            ]);
+        }
+
+        $dna = $this->teamDnaService->getTeamDraftDna($teamName);
+        if (!$dna) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => "Data Draft DNA untuk tim '{$teamName}' tidak ditemukan di database turnamen MPL ID S18.",
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => $dna,
+        ]);
     }
 
     /**
