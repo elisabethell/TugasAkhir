@@ -21,6 +21,26 @@ class HomeController extends Controller
         $this->liquipediaService = $liquipediaService;
     }
 
+    public function landing()
+    {
+        $totalHeroes = 133;
+        $totalGames = 0;
+        $totalMatches = 0;
+
+        try {
+            if (Schema::hasTable('match_games')) {
+                $totalGames = MatchGame::count();
+            }
+            if (Schema::hasTable('match_datasets')) {
+                $totalMatches = MatchDataset::count();
+            }
+        } catch (\Throwable $e) {
+            // Safe fallback
+        }
+
+        return view('landing', compact('totalHeroes', 'totalGames', 'totalMatches'));
+    }
+
     public function index()
     {
         // 1. Inisialisasi database lokal jika tabel match dataset masih kosong

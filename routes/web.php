@@ -22,8 +22,12 @@ use App\Http\Controllers\AdminController;
 // 1. PUBLIC ROUTES (Dapat diakses tanpa login)
 // ==========================================
 
-// Homepage Utama
-Route::get('/', [HomeController::class, 'index'])->name('home');
+// Landing Page Utama (Gateway & Pengenalan Sistem)
+Route::get('/', [HomeController::class, 'landing'])->name('landing');
+
+// Homepage / Dashboard (Ringkasan Data & Quick Access)
+Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
 
 // Rekomendasi Draft (Pick & Ban Sinergi Tim & Counter Ancaman)
 Route::get('/rekomendasi-draft', [DraftController::class, 'draftRecommendation'])->name('draft.recommendation');

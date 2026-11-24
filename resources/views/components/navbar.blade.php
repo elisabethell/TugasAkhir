@@ -2,7 +2,7 @@
 <header class="bg-white border border-[#F3E8E8] rounded-full px-3 sm:px-4 xl:px-5 py-2 flex items-center justify-between shadow-sm flex-nowrap gap-2 xl:gap-3 w-full overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
     <!-- Brand Logo & Liquipedia Badge -->
     <div class="flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
-        <a href="{{ route('home') }}" class="flex items-center gap-2 group whitespace-nowrap">
+        <a href="{{ route('landing') }}" class="flex items-center gap-2 group whitespace-nowrap" title="Kembali ke Landing Page">
             <span class="w-2.5 h-2.5 rounded-full bg-[#700B1A] inline-block shadow-[0_0_8px_rgba(112,11,26,0.5)]"></span>
             <span class="font-black text-xs sm:text-sm tracking-wider text-[#18181B] group-hover:text-[#700B1A] transition uppercase">METASCOUT</span>
         </a>
@@ -34,6 +34,10 @@
         <a href="{{ route('hero.statistics') }}" 
            class="{{ request()->routeIs('hero.statistics') ? 'bg-[#700B1A] text-white shadow-sm' : 'text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE]' }} px-2 sm:px-2.5 xl:px-3 py-1.5 rounded-full transition whitespace-nowrap">
             STATISTIK HERO
+        </a>
+        <a href="{{ route('matches') }}" 
+           class="{{ request()->routeIs('matches') ? 'bg-[#700B1A] text-white shadow-sm' : 'text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE]' }} px-2 sm:px-2.5 xl:px-3 py-1.5 rounded-full transition whitespace-nowrap">
+            DATA TURNAMEN
         </a>
         <a href="{{ route('rules') }}" 
            class="{{ request()->routeIs('rules') ? 'bg-[#700B1A] text-white shadow-sm' : 'text-gray-600 hover:text-[#700B1A] hover:bg-[#FCECEE]' }} px-2 sm:px-2.5 xl:px-3 py-1.5 rounded-full transition whitespace-nowrap"
