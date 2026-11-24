@@ -251,7 +251,11 @@ class CsvDataService
         // 1. Prioritaskan data game dari database lokal MySQL (MPL ID Season 18)
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('match_games')) {
-                $dbGames = \App\Models\MatchGame::with(['dataset', 'details'])->orderBy('id', 'desc')->get();
+                $dbGames = \App\Models\MatchGame::with(['dataset', 'details'])
+                    ->whereNotNull('team_1_picks')
+                    ->where('team_1_picks', '!=', '[]')
+                    ->where('team_1_picks', '!=', '')
+                    ->orderBy('id', 'desc')->get();
                 if ($dbGames->isNotEmpty()) {
                     $matches = collect();
                     $matchIndex = 1;
@@ -535,7 +539,11 @@ class CsvDataService
         $hasDbGames = false;
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('match_games') && \Illuminate\Support\Facades\Schema::hasTable('match_details')) {
-                $dbGames = \App\Models\MatchGame::with('details')->get();
+                $dbGames = \App\Models\MatchGame::with('details')
+                    ->whereNotNull('team_1_picks')
+                    ->where('team_1_picks', '!=', '[]')
+                    ->where('team_1_picks', '!=', '')
+                    ->get();
                 if ($dbGames->isNotEmpty()) {
                     $hasDbGames = true;
                     $totalGames = $dbGames->count();

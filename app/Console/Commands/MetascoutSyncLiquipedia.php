@@ -14,7 +14,7 @@ class MetascoutSyncLiquipedia extends Command
      */
     protected $signature = 'metascout:sync-liquipedia 
                             {--pagename=MPL/Indonesia/Season_18 : Nama halaman turnamen di Liquipedia} 
-                            {--limit=200 : Batas maksimal record yang diambil (1-1000)}
+                            {--limit=1000 : Batas maksimal record yang diambil (1-1000)}
                             {--offset=0 : Offset data untuk paginasi}
                             {--mockup : Seed sample mockup Alter Ego vs ONIC sesuai mockup}
                             {--seed : Sinkronkan dataset lengkap 215+ games MPL ID Season 18 secara offline/lokal}';

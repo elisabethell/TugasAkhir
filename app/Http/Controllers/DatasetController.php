@@ -101,7 +101,7 @@ class DatasetController extends Controller
         }
 
         $pageName = $request->input('pagename', 'MPL/Indonesia/Season_18');
-        $limit = (int) $request->input('limit', 200);
+        $limit = (int) $request->input('limit', 1000);
 
         $result = $this->liquipediaService->syncTournamentMatches($pageName, $limit);
 

@@ -29,7 +29,10 @@ class HomeController extends Controller
 
         try {
             if (Schema::hasTable('match_games')) {
-                $totalGames = MatchGame::count();
+                $totalGames = MatchGame::whereNotNull('team_1_picks')
+                    ->where('team_1_picks', '!=', '[]')
+                    ->where('team_1_picks', '!=', '')
+                    ->count();
             }
             if (Schema::hasTable('match_datasets')) {
                 $totalMatches = MatchDataset::count();

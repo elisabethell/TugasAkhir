@@ -19,6 +19,31 @@
         </div>
     </div>
 
+    <!-- 1.5. STAGE TABS (SESUAI LIQUIPEDIA OVERALL / REGULAR / PLAYOFFS) -->
+    <div class="flex items-center gap-2 flex-wrap border-b border-[#F3E8E8] pb-2">
+        <a href="{{ route('hero.statistics', ['stage' => 'overall']) }}" 
+           class="px-4 py-2 text-xs font-black rounded-xl transition flex items-center gap-2 {{ ($activeStage ?? 'overall') === 'overall' ? 'bg-[#700B1A] text-white shadow-sm' : 'bg-white hover:bg-[#FAF8F8] text-gray-600 border border-[#F3E8E8]' }}">
+            <span>Overall</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] {{ ($activeStage ?? 'overall') === 'overall' ? 'bg-white/20 text-white' : 'bg-[#FAF8F8] text-gray-500' }}">
+                {{ $totalOverallGames ?? 215 }} Games
+            </span>
+        </a>
+        <a href="{{ route('hero.statistics', ['stage' => 'regular']) }}" 
+           class="px-4 py-2 text-xs font-black rounded-xl transition flex items-center gap-2 {{ ($activeStage ?? 'overall') === 'regular' ? 'bg-[#700B1A] text-white shadow-sm' : 'bg-white hover:bg-[#FAF8F8] text-gray-600 border border-[#F3E8E8]' }}">
+            <span>Regular Season</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] {{ ($activeStage ?? 'overall') === 'regular' ? 'bg-white/20 text-white' : 'bg-[#FAF8F8] text-gray-500' }}">
+                {{ $totalRegularGames ?? 174 }} Games
+            </span>
+        </a>
+        <a href="{{ route('hero.statistics', ['stage' => 'playoffs']) }}" 
+           class="px-4 py-2 text-xs font-black rounded-xl transition flex items-center gap-2 {{ ($activeStage ?? 'overall') === 'playoffs' ? 'bg-[#700B1A] text-white shadow-sm' : 'bg-white hover:bg-[#FAF8F8] text-gray-600 border border-[#F3E8E8]' }}">
+            <span>Playoffs</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] {{ ($activeStage ?? 'overall') === 'playoffs' ? 'bg-white/20 text-white' : 'bg-[#FAF8F8] text-gray-500' }}">
+                {{ $totalPlayoffGames ?? 41 }} Games
+            </span>
+        </a>
+    </div>
+
     <!-- 2. SEARCH & FILTER TOOLBAR -->
     <div class="card-custom p-4 flex flex-col md:flex-row items-center justify-between gap-3 flex-wrap">
         
@@ -68,7 +93,7 @@
             </button>
 
             <!-- Export CSV -->
-            <button type="button" onclick="exportTableToCSV('metascout_hero_statistics.csv')" class="bg-[#700B1A] hover:bg-[#550713] text-white rounded-xl px-4 py-2 text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
+            <button type="button" onclick="exportTableToCSV('liquipedia_hero_statistics_{{ $activeStage ?? 'overall' }}.csv')" class="bg-[#700B1A] hover:bg-[#550713] text-white rounded-xl px-4 py-2 text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                 </svg>
@@ -78,50 +103,121 @@
 
     </div>
 
-    <!-- 3. STATISTICS TABLE -->
+    <!-- 3. LIQUIPEDIA STYLE HERO STATISTICS TABLE -->
     <div class="card-custom overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs border-collapse" id="statsTable">
                 <thead>
-                    <tr class="bg-[#FAF8F8] border-b border-[#F3E8E8] text-[10px] font-black uppercase text-gray-500 tracking-wider select-none">
-                        <th class="py-2.5 px-3 w-10 text-center">#</th>
-                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition select-none" onclick="sortTable(1)">
-                            HERO NAME <span id="sort-icon-1" class="text-gray-400">⇅</span>
+                    <!-- LEVEL 1 HEADER: KATEGORI METRIK -->
+                    <tr class="bg-[#FAF8F8] border-b border-[#F3E8E8] text-[10px] font-black uppercase text-gray-500 tracking-wider select-none text-center">
+                        <th rowspan="2" class="py-2.5 px-3 w-10 text-center border-r border-[#F3E8E8]">#</th>
+                        <th rowspan="2" class="py-2.5 px-3.5 text-left border-r border-[#F3E8E8] cursor-pointer hover:text-[#700B1A] transition select-none" onclick="sortTable('name')">
+                            HERO <span id="sort-icon-name" class="text-gray-400">⇅</span>
                         </th>
-                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition select-none" onclick="sortTable(2, true)">
-                            WIN RATE <span id="sort-icon-2" class="text-[#700B1A] font-black">↓</span>
+                        <th colspan="5" class="py-2 px-3 border-r border-[#F3E8E8] bg-amber-50/50 text-amber-900">
+                            PICKS
                         </th>
-                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition select-none" onclick="sortTable(3, true)">
-                            PICK RATE <span id="sort-icon-3" class="text-gray-400">⇅</span>
+                        <th colspan="4" class="py-2 px-3 border-r border-[#F3E8E8] bg-blue-50/50 text-blue-900">
+                            BLUE SIDE
                         </th>
-                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition select-none" onclick="sortTable(4, true)">
-                            BAN RATE <span id="sort-icon-4" class="text-gray-400">⇅</span>
+                        <th colspan="4" class="py-2 px-3 border-r border-[#F3E8E8] bg-red-50/50 text-red-900">
+                            RED SIDE
                         </th>
-                        <th class="py-2.5 px-3.5 cursor-pointer hover:text-[#700B1A] transition select-none" onclick="sortTable(5)">
-                            ROLE <span id="sort-icon-5" class="text-gray-400">⇅</span>
+                        <th colspan="2" class="py-2 px-3 border-r border-[#F3E8E8] bg-rose-50/50 text-rose-900">
+                            BANS
                         </th>
-                        <th class="py-2.5 px-3.5">LANE</th>
-                        <th class="py-2.5 px-3.5">SPECIALITY</th>
+                        <th colspan="2" class="py-2 px-3 border-r border-[#F3E8E8] bg-purple-50/50 text-purple-900">
+                            PICKS & BANS
+                        </th>
+                        <th rowspan="2" class="py-2.5 px-3.5 text-left cursor-pointer hover:text-[#700B1A] transition select-none" onclick="sortTable('role')">
+                            ROLE & LANE <span id="sort-icon-role" class="text-gray-400">⇅</span>
+                        </th>
+                    </tr>
+
+                    <!-- LEVEL 2 HEADER: SUB-METRIK PERSIS LIQUIPEDIA -->
+                    <tr class="bg-[#FAF8F8] border-b border-[#F3E8E8] text-[9.5px] font-black uppercase text-gray-600 tracking-wider select-none text-center">
+                        <!-- Picks Sub-columns -->
+                        <th class="py-1.5 px-2.5 bg-amber-50/30 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable('picks', true)" title="Total Picks">
+                            &Sigma; <span id="sort-icon-picks" class="text-[#700B1A] font-black">&darr;</span>
+                        </th>
+                        <th class="py-1.5 px-2 bg-amber-50/30 cursor-pointer hover:text-[#700B1A] transition text-emerald-700" onclick="sortTable('wins', true)" title="Wins">
+                            W <span id="sort-icon-wins" class="text-gray-400 font-normal">⇅</span>
+                        </th>
+                        <th class="py-1.5 px-2 bg-amber-50/30 cursor-pointer hover:text-[#700B1A] transition text-red-600" onclick="sortTable('losses', true)" title="Losses">
+                            L <span id="sort-icon-losses" class="text-gray-400 font-normal">⇅</span>
+                        </th>
+                        <th class="py-1.5 px-2.5 bg-amber-50/30 cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable('wr', true)" title="Win Rate %">
+                            WR <span id="sort-icon-wr" class="text-gray-400 font-normal">⇅</span>
+                        </th>
+                        <th class="py-1.5 px-2.5 bg-amber-50/30 border-r border-[#F3E8E8] cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable('pr', true)" title="Pick Rate %T">
+                            %T <span id="sort-icon-pr" class="text-gray-400 font-normal">⇅</span>
+                        </th>
+
+                        <!-- Blue Side Sub-columns -->
+                        <th class="py-1.5 px-2 bg-blue-50/30 cursor-pointer hover:text-[#700B1A] transition font-bold text-blue-800" onclick="sortTable('blue_picks', true)" title="Blue Side Picks">
+                            &Sigma; <span id="sort-icon-blue_picks" class="text-gray-400 font-normal">⇅</span>
+                        </th>
+                        <th class="py-1.5 px-2 bg-blue-50/30 text-emerald-700" title="Blue Side Wins">W</th>
+                        <th class="py-1.5 px-2 bg-blue-50/30 text-red-600" title="Blue Side Losses">L</th>
+                        <th class="py-1.5 px-2.5 bg-blue-50/30 border-r border-[#F3E8E8] cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable('blue_wr', true)" title="Blue Side Win Rate %">
+                            WR <span id="sort-icon-blue_wr" class="text-gray-400 font-normal">⇅</span>
+                        </th>
+
+                        <!-- Red Side Sub-columns -->
+                        <th class="py-1.5 px-2 bg-red-50/30 cursor-pointer hover:text-[#700B1A] transition font-bold text-red-800" onclick="sortTable('red_picks', true)" title="Red Side Picks">
+                            &Sigma; <span id="sort-icon-red_picks" class="text-gray-400 font-normal">⇅</span>
+                        </th>
+                        <th class="py-1.5 px-2 bg-red-50/30 text-emerald-700" title="Red Side Wins">W</th>
+                        <th class="py-1.5 px-2 bg-red-50/30 text-red-600" title="Red Side Losses">L</th>
+                        <th class="py-1.5 px-2.5 bg-red-50/30 border-r border-[#F3E8E8] cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable('red_wr', true)" title="Red Side Win Rate %">
+                            WR <span id="sort-icon-red_wr" class="text-gray-400 font-normal">⇅</span>
+                        </th>
+
+                        <!-- Bans Sub-columns -->
+                        <th class="py-1.5 px-2.5 bg-rose-50/30 cursor-pointer hover:text-[#700B1A] transition font-bold text-rose-800" onclick="sortTable('bans', true)" title="Total Bans">
+                            &Sigma; <span id="sort-icon-bans" class="text-gray-400 font-normal">⇅</span>
+                        </th>
+                        <th class="py-1.5 px-2.5 bg-rose-50/30 border-r border-[#F3E8E8] cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable('br', true)" title="Ban Rate %T">
+                            %T <span id="sort-icon-br" class="text-gray-400 font-normal">⇅</span>
+                        </th>
+
+                        <!-- Picks & Bans Sub-columns -->
+                        <th class="py-1.5 px-2.5 bg-purple-50/30 cursor-pointer hover:text-[#700B1A] transition font-bold text-purple-800" onclick="sortTable('pb', true)" title="Total Picks + Bans">
+                            &Sigma; <span id="sort-icon-pb" class="text-gray-400 font-normal">⇅</span>
+                        </th>
+                        <th class="py-1.5 px-2.5 bg-purple-50/30 border-r border-[#F3E8E8] cursor-pointer hover:text-[#700B1A] transition" onclick="sortTable('pbr', true)" title="Contest Rate %T">
+                            %T <span id="sort-icon-pbr" class="text-gray-400 font-normal">⇅</span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#F3E8E8]" id="statsTbody">
                     @foreach($heroRows as $idx => $row)
-                        <tr class="hover:bg-[#FAF8F8]/80 transition stat-table-row"
+                        <tr class="hover:bg-[#FAF8F8]/90 transition stat-table-row {{ $idx % 2 === 1 ? 'bg-[#FCFAFA]/40' : 'bg-white' }}"
                             data-name="{{ strtolower($row['name']) }}"
                             data-role="{{ strtolower($row['role']) }}"
                             data-lane="{{ strtolower(implode(' ', (array)$row['lane'])) }}"
                             data-spec="{{ strtolower(implode(' ', (array)$row['speciality'])) }}"
+                            data-picks="{{ $row['picks'] }}"
+                            data-wins="{{ $row['wins'] }}"
+                            data-losses="{{ $row['losses'] }}"
                             data-wr="{{ $row['wr'] }}"
                             data-pr="{{ $row['pick_rate'] }}"
-                            data-br="{{ $row['ban_rate'] }}">
+                            data-blue_picks="{{ $row['blue_picks'] }}"
+                            data-blue_wr="{{ $row['blue_wr'] }}"
+                            data-red_picks="{{ $row['red_picks'] }}"
+                            data-red_wr="{{ $row['red_wr'] }}"
+                            data-bans="{{ $row['bans'] }}"
+                            data-br="{{ $row['ban_rate'] }}"
+                            data-pb="{{ $row['picks_bans'] }}"
+                            data-pbr="{{ $row['picks_bans_rate'] }}">
                             
                             <!-- Index -->
-                            <td class="py-1 px-2.5 text-center font-bold text-gray-400 text-xs align-middle stat-index-cell">
+                            <td class="py-1.5 px-2.5 text-center font-bold text-gray-400 text-xs align-middle border-r border-[#F3E8E8] stat-index-cell">
                                 {{ $idx + 1 }}
                             </td>
 
                             <!-- Hero Name with Avatar Box -->
-                            <td class="py-1 px-3 align-middle">
+                            <td class="py-1.5 px-3 align-middle border-r border-[#F3E8E8] whitespace-nowrap">
                                 <div class="flex items-center gap-2">
                                     @if(!empty($row['portrait']))
                                         <img src="{{ $row['portrait'] }}" 
@@ -133,96 +229,82 @@
                                             {{ $row['initial'] }}
                                         </div>
                                     @endif
-                                    <span class="font-extrabold text-[#18181B] text-xs leading-none">
+                                    <span class="font-extrabold text-[#18181B] text-xs">
                                         {{ $row['name'] }}
                                     </span>
                                 </div>
                             </td>
 
-                            <!-- Win Rate -->
-                            <td class="py-1 px-3 font-mono align-middle">
-                                <div class="flex flex-col justify-center leading-tight">
-                                    @if($row['wr'] >= 58)
-                                        <div class="font-extrabold text-emerald-600 text-xs leading-none">
-                                            {{ number_format($row['wr'], 2) }}%
-                                        </div>
-                                        <div class="text-[8px] font-extrabold text-emerald-600 tracking-wider">HIGH</div>
-                                    @elseif($row['wr'] >= 50)
-                                        <div class="font-extrabold text-gray-700 text-xs leading-none">
-                                            {{ number_format($row['wr'], 2) }}%
-                                        </div>
-                                        <div class="text-[8px] font-bold text-gray-500 tracking-wider">AVERAGE</div>
-                                    @else
-                                        <div class="font-extrabold text-red-600 text-xs leading-none">
-                                            {{ number_format($row['wr'], 2) }}%
-                                        </div>
-                                        <div class="text-[8px] font-extrabold text-red-600 tracking-wider">LOW</div>
-                                    @endif
-                                </div>
+                            <!-- Picks: Σ, W, L, WR, %T -->
+                            <td class="py-1.5 px-2.5 text-center font-extrabold text-[#18181B] bg-amber-50/20 font-mono text-xs">
+                                {{ $row['picks'] }}
+                            </td>
+                            <td class="py-1.5 px-2 text-center text-emerald-700 font-bold bg-amber-50/20 font-mono text-xs">
+                                {{ $row['wins'] }}
+                            </td>
+                            <td class="py-1.5 px-2 text-center text-red-600 font-bold bg-amber-50/20 font-mono text-xs">
+                                {{ $row['losses'] }}
+                            </td>
+                            <td class="py-1.5 px-2.5 text-center font-mono font-extrabold bg-amber-50/20 text-xs {{ $row['wr'] >= 58 ? 'text-emerald-700' : ($row['wr'] >= 50 ? 'text-gray-700' : 'text-red-600') }}">
+                                {{ number_format($row['wr'], 2) }}%
+                            </td>
+                            <td class="py-1.5 px-2.5 text-center font-mono font-bold text-gray-700 bg-amber-50/20 border-r border-[#F3E8E8] text-xs">
+                                {{ number_format($row['pick_rate'], 2) }}%
                             </td>
 
-                            <!-- Pick Rate -->
-                            <td class="py-1 px-3 font-mono align-middle">
-                                <div class="flex flex-col justify-center leading-tight">
-                                    <div class="font-bold text-gray-800 text-xs leading-none">
-                                        {{ number_format($row['pick_rate'], 2) }}%
-                                    </div>
-                                    <div class="text-[8px] font-semibold text-gray-400 uppercase tracking-wider">
-                                        {{ $row['pick_tag'] }}
-                                    </div>
-                                </div>
+                            <!-- Blue Side: Σ, W, L, WR -->
+                            <td class="py-1.5 px-2 text-center font-bold text-blue-800 bg-blue-50/20 font-mono text-xs">
+                                {{ $row['blue_picks'] }}
+                            </td>
+                            <td class="py-1.5 px-2 text-center text-emerald-700 bg-blue-50/20 font-mono text-xs">
+                                {{ $row['blue_wins'] }}
+                            </td>
+                            <td class="py-1.5 px-2 text-center text-red-600 bg-blue-50/20 font-mono text-xs">
+                                {{ $row['blue_losses'] }}
+                            </td>
+                            <td class="py-1.5 px-2.5 text-center font-mono font-extrabold bg-blue-50/20 border-r border-[#F3E8E8] text-xs {{ $row['blue_wr'] >= 58 ? 'text-emerald-700' : ($row['blue_wr'] >= 50 ? 'text-gray-700' : 'text-red-600') }}">
+                                {{ number_format($row['blue_wr'], 2) }}%
                             </td>
 
-                            <!-- Ban Rate -->
-                            <td class="py-1 px-3 font-mono align-middle">
-                                <div class="flex flex-col justify-center leading-tight">
-                                    @if($row['ban_rate'] >= 50)
-                                        <div class="font-extrabold text-red-600 text-xs leading-none">
-                                            {{ number_format($row['ban_rate'], 2) }}%
-                                        </div>
-                                        <div class="text-[8px] font-extrabold text-red-600 uppercase tracking-wider">
-                                            OFTEN BANNED
-                                        </div>
-                                    @elseif($row['ban_rate'] >= 20)
-                                        <div class="font-bold text-gray-700 text-xs leading-none">
-                                            {{ number_format($row['ban_rate'], 2) }}%
-                                        </div>
-                                        <div class="text-[8px] font-semibold text-gray-400 uppercase tracking-wider">
-                                            MODERATE
-                                        </div>
-                                    @else
-                                        <div class="font-bold text-gray-700 text-xs leading-none">
-                                            {{ number_format($row['ban_rate'], 2) }}%
-                                        </div>
-                                        <div class="text-[8px] font-semibold text-gray-400 uppercase tracking-wider">
-                                            LOW
-                                        </div>
-                                    @endif
-                                </div>
+                            <!-- Red Side: Σ, W, L, WR -->
+                            <td class="py-1.5 px-2 text-center font-bold text-red-800 bg-red-50/20 font-mono text-xs">
+                                {{ $row['red_picks'] }}
+                            </td>
+                            <td class="py-1.5 px-2 text-center text-emerald-700 bg-red-50/20 font-mono text-xs">
+                                {{ $row['red_wins'] }}
+                            </td>
+                            <td class="py-1.5 px-2 text-center text-red-600 bg-red-50/20 font-mono text-xs">
+                                {{ $row['red_losses'] }}
+                            </td>
+                            <td class="py-1.5 px-2.5 text-center font-mono font-extrabold bg-red-50/20 border-r border-[#F3E8E8] text-xs {{ $row['red_wr'] >= 58 ? 'text-emerald-700' : ($row['red_wr'] >= 50 ? 'text-gray-700' : 'text-red-600') }}">
+                                {{ number_format($row['red_wr'], 2) }}%
                             </td>
 
-                            <!-- Role -->
-                            <td class="py-1 px-3 text-gray-700 font-medium text-xs align-middle">
-                                <span class="leading-none">{{ $row['role'] }}</span>
+                            <!-- Bans: Σ, %T -->
+                            <td class="py-1.5 px-2.5 text-center font-extrabold text-rose-800 bg-rose-50/20 font-mono text-xs">
+                                {{ $row['bans'] }}
+                            </td>
+                            <td class="py-1.5 px-2.5 text-center font-mono font-bold text-gray-700 bg-rose-50/20 border-r border-[#F3E8E8] text-xs">
+                                {{ number_format($row['ban_rate'], 2) }}%
                             </td>
 
-                            <!-- Lane Pills -->
-                            <td class="py-1 px-3 align-middle">
-                                <div class="flex items-center gap-1 flex-wrap">
+                            <!-- Picks & Bans: Σ, %T -->
+                            <td class="py-1.5 px-2.5 text-center font-extrabold text-purple-900 bg-purple-50/20 font-mono text-xs">
+                                {{ $row['picks_bans'] }}
+                            </td>
+                            <td class="py-1.5 px-2.5 text-center font-mono font-bold text-gray-700 bg-purple-50/20 border-r border-[#F3E8E8] text-xs">
+                                {{ number_format($row['picks_bans_rate'], 2) }}%
+                            </td>
+
+                            <!-- Role & Lane -->
+                            <td class="py-1.5 px-3 align-middle whitespace-nowrap">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-700 text-[10px] font-bold px-2 py-0.5 rounded leading-tight">
+                                        {{ $row['role'] }}
+                                    </span>
                                     @foreach((array)$row['lane'] as $l)
-                                        <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-600 text-[9.5px] font-semibold px-1.5 py-0.2 rounded leading-tight">
+                                        <span class="bg-gray-50 border border-gray-200 text-gray-500 text-[9.5px] font-semibold px-1.5 py-0.5 rounded leading-tight">
                                             {{ $l }}
-                                        </span>
-                                    @endforeach
-                                </div>
-                            </td>
-
-                            <!-- Speciality Pills -->
-                            <td class="py-1 px-3 align-middle">
-                                <div class="flex items-center gap-1 flex-wrap">
-                                    @foreach((array)$row['speciality'] as $s)
-                                        <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-600 text-[9.5px] font-semibold px-1.5 py-0.2 rounded leading-tight">
-                                            {{ $s }}
                                         </span>
                                     @endforeach
                                 </div>
@@ -234,7 +316,7 @@
             </table>
         </div>
 
-        <!-- 3.5. PAGINATION FOOTER BAR (Rapi & Presisi, Bebas Wrapping Rusak) -->
+        <!-- 3.5. PAGINATION FOOTER BAR -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-3.5 border-t border-[#F3E8E8] bg-white text-xs">
             <div class="flex items-center gap-2.5 flex-wrap">
                 <div class="flex items-center gap-2 flex-shrink-0">
@@ -242,8 +324,8 @@
                     <select id="statsPerPageSelect" 
                             onchange="changeStatsPerPage(this.value)" 
                             class="bg-[#FAF8F8] border border-[#E5E7EB] rounded-lg px-2.5 py-1 text-xs font-extrabold text-[#18181B] focus:outline-none focus:border-[#700B1A] transition cursor-pointer shadow-2xs">
-                        <option value="10" selected>10</option>
-                        <option value="25">25</option>
+                        <option value="10">10</option>
+                        <option value="25" selected>25</option>
                         <option value="50">50</option>
                         <option value="all">Semua</option>
                     </select>
@@ -251,7 +333,7 @@
                 <span class="text-gray-300 font-light select-none hidden sm:inline">|</span>
                 <div class="h-4 w-px bg-[#E5E7EB] hidden sm:block"></div>
                 <div class="text-gray-600 font-medium text-xs whitespace-nowrap" id="statsPaginationInfo">
-                    Menampilkan <span class="font-extrabold text-[#700B1A]" id="statsPageStart">1</span> - <span class="font-extrabold text-[#700B1A]" id="statsPageEnd">10</span> dari <span class="font-extrabold text-[#18181B]" id="statsTotalRows">0</span> hero
+                    Menampilkan <span class="font-extrabold text-[#700B1A]" id="statsPageStart">1</span> - <span class="font-extrabold text-[#700B1A]" id="statsPageEnd">25</span> dari <span class="font-extrabold text-[#18181B]" id="statsTotalRows">0</span> hero
                 </div>
             </div>
 
@@ -341,7 +423,7 @@
 @push('scripts')
 <script>
     let currentStatsPage = 1;
-    let statsPerPage = 10;
+    let statsPerPage = 25;
 
     function filterStatsTable() {
         const query = (document.getElementById('statSearchInput').value || '').toLowerCase().trim();
@@ -466,64 +548,42 @@
         filterStatsTable();
     }
 
-    let currentSortCol = 2; // Default: Win Rate
-    let currentSortDir = 'desc'; // Default: descending (sesuai data awal yang terurut dari WR tertinggi)
+    let currentSortKey = 'picks'; // Default sort key sesuai Liquipedia
+    let currentSortDir = 'desc';
 
-    function sortTable(colIndex, isNumeric = false) {
+    function sortTable(key, isNumeric = false) {
         const tbody = document.getElementById('statsTbody');
         const rows = Array.from(tbody.querySelectorAll('.stat-table-row'));
 
-        if (currentSortCol === colIndex) {
+        if (currentSortKey === key) {
             currentSortDir = (currentSortDir === 'desc') ? 'asc' : 'desc';
         } else {
-            currentSortCol = colIndex;
+            currentSortKey = key;
             currentSortDir = isNumeric ? 'desc' : 'asc';
         }
 
         const isAsc = (currentSortDir === 'asc');
 
         rows.sort((a, b) => {
-            let valA, valB;
-            if (colIndex === 1) { // Hero Name
-                valA = a.dataset.name || '';
-                valB = b.dataset.name || '';
-                return isAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
-            } else if (colIndex === 2) { // Win Rate
-                valA = parseFloat(a.dataset.wr) || 0;
-                valB = parseFloat(b.dataset.wr) || 0;
+            if (isNumeric) {
+                const valA = parseFloat(a.dataset[key]) || 0;
+                const valB = parseFloat(b.dataset[key]) || 0;
                 if (valA !== valB) {
                     return isAsc ? (valA - valB) : (valB - valA);
                 }
-                const prA = parseFloat(a.dataset.pr) || 0;
-                const prB = parseFloat(b.dataset.pr) || 0;
-                if (prA !== prB) return prB - prA;
+                // Tie breaker: Picks, WR, Name
+                const picksA = parseFloat(a.dataset.picks) || 0;
+                const picksB = parseFloat(b.dataset.picks) || 0;
+                if (picksA !== picksB) return picksB - picksA;
                 return (a.dataset.name || '').localeCompare(b.dataset.name || '');
-            } else if (colIndex === 3) { // Pick Rate
-                valA = parseFloat(a.dataset.pr) || 0;
-                valB = parseFloat(b.dataset.pr) || 0;
-                if (valA !== valB) {
-                    return isAsc ? (valA - valB) : (valB - valA);
-                }
-                const wrA = parseFloat(a.dataset.wr) || 0;
-                const wrB = parseFloat(b.dataset.wr) || 0;
-                if (wrA !== wrB) return wrB - wrA;
-                return (a.dataset.name || '').localeCompare(b.dataset.name || '');
-            } else if (colIndex === 4) { // Ban Rate
-                valA = parseFloat(a.dataset.br) || 0;
-                valB = parseFloat(b.dataset.br) || 0;
-                if (valA !== valB) {
-                    return isAsc ? (valA - valB) : (valB - valA);
-                }
-                return (a.dataset.name || '').localeCompare(b.dataset.name || '');
-            } else if (colIndex === 5) { // Role
-                valA = a.dataset.role || '';
-                valB = b.dataset.role || '';
+            } else {
+                const valA = a.dataset[key] || '';
+                const valB = b.dataset[key] || '';
                 if (valA !== valB) {
                     return isAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
                 }
                 return (a.dataset.name || '').localeCompare(b.dataset.name || '');
             }
-            return isAsc ? (valA - valB) : (valB - valA);
         });
 
         // Susun ulang baris di tbody dan sinkronkan nomor urut (#)
@@ -535,25 +595,24 @@
             }
         });
 
-        // Perbarui ikon panah indikator sorting
-        updateSortIcons(currentSortCol, currentSortDir);
-
+        updateSortIcons(currentSortKey, currentSortDir);
         currentStatsPage = 1;
         updateStatsPagination();
     }
 
-    function updateSortIcons(activeCol, dir) {
-        for (let c = 1; c <= 5; c++) {
-            const iconEl = document.getElementById(`sort-icon-${c}`);
-            if (!iconEl) continue;
-            if (c === activeCol) {
+    function updateSortIcons(activeKey, dir) {
+        const sortKeys = ['name', 'role', 'picks', 'wins', 'losses', 'wr', 'pr', 'blue_picks', 'blue_wr', 'red_picks', 'red_wr', 'bans', 'br', 'pb', 'pbr'];
+        sortKeys.forEach(k => {
+            const iconEl = document.getElementById(`sort-icon-${k}`);
+            if (!iconEl) return;
+            if (k === activeKey) {
                 iconEl.className = 'text-[#700B1A] font-black';
-                iconEl.textContent = (dir === 'desc') ? '↓' : '↑';
+                iconEl.innerHTML = (dir === 'desc') ? '&darr;' : '&uarr;';
             } else {
-                iconEl.className = 'text-gray-400';
-                iconEl.textContent = '⇅';
+                iconEl.className = 'text-gray-400 font-normal';
+                iconEl.innerHTML = '&#8645;';
             }
-        }
+        });
     }
 
     function exportTableToCSV(filename) {

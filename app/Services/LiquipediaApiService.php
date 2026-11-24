@@ -34,7 +34,7 @@ class LiquipediaApiService
      * @param int $offset Offset data
      * @return array Status hasil sinkronisasi
      */
-    public function syncTournamentMatches(string $pageName = 'MPL/Indonesia/Season_18', int $limit = 200, int $offset = 0): array
+    public function syncTournamentMatches(string $pageName = 'MPL/Indonesia/Season_18', int $limit = 1000, int $offset = 0): array
     {
         // 1. Pastikan kolom-kolom baru (winner, team_1_picks, team_2_picks, team_1_bans, team_2_bans) tersedia
         MatchGame::ensureColumnsExist();
@@ -307,9 +307,29 @@ class LiquipediaApiService
                 }
             }
 
-            // Sisi tim (Blue / Red)
-            $team1Side = $gameItem['extradata']['team1_side'] ?? $gameItem['team_1_side'] ?? ($gameNumber % 2 === 1 ? 'Blue' : 'Red');
-            $team2Side = $team1Side === 'Blue' ? 'Red' : 'Blue';
+            // Sisi tim (Blue / Red) - Deteksi tepat dari extradata team1side / team2side
+            $rawSide1 = $gameItem['extradata']['team1side'] 
+                ?? $gameItem['extradata']['team1_side'] 
+                ?? $gameItem['team_1_side'] 
+                ?? $gameItem['team1_side'] 
+                ?? null;
+
+            $rawSide2 = $gameItem['extradata']['team2side'] 
+                ?? $gameItem['extradata']['team2_side'] 
+                ?? $gameItem['team_2_side'] 
+                ?? $gameItem['team2_side'] 
+                ?? null;
+
+            if (!empty($rawSide1)) {
+                $team1Side = (strcasecmp(trim($rawSide1), 'red') === 0) ? 'Red' : 'Blue';
+                $team2Side = ($team1Side === 'Blue') ? 'Red' : 'Blue';
+            } elseif (!empty($rawSide2)) {
+                $team2Side = (strcasecmp(trim($rawSide2), 'red') === 0) ? 'Red' : 'Blue';
+                $team1Side = ($team2Side === 'Blue') ? 'Red' : 'Blue';
+            } else {
+                $team1Side = ($gameNumber % 2 === 1 ? 'Blue' : 'Red');
+                $team2Side = ($team1Side === 'Blue') ? 'Red' : 'Blue';
+            }
 
             // Jenis map
             $mapType = $gameItem['map'] ?? $gameItem['extradata']['map'] ?? $gameItem['map_type'] ?? ($mapTypes[0] ?? 'Healing Turtle');
@@ -442,8 +462,15 @@ class LiquipediaApiService
             if (!empty($val)) {
                 $hName = is_array($val) ? ($val['name'] ?? reset($val)) : (string)$val;
                 $trimmed = trim($hName);
-                if (!empty($trimmed) && !in_array($trimmed, $heroes)) {
-                    $heroes[] = $trimmed;
+                if (!empty($trimmed)) {
+                    if ($type === 'pick') {
+                        if (!in_array($trimmed, $heroes)) {
+                            $heroes[] = $trimmed;
+                        }
+                    } else {
+                        // Untuk ban, hitung seluruh slot ban per game sesuai pencatatan resmi Liquipedia LPDB
+                        $heroes[] = $trimmed;
+                    }
                 }
             }
         }

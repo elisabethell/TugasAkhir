@@ -266,7 +266,10 @@ class DraftController extends Controller
         $datasetLastUpdated = '13 November 2026';
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('match_games')) {
-                $dbCount = \App\Models\MatchGame::count();
+                $dbCount = \App\Models\MatchGame::whereNotNull('team_1_picks')
+                    ->where('team_1_picks', '!=', '[]')
+                    ->where('team_1_picks', '!=', '')
+                    ->count();
                 if ($dbCount > 0) {
                     $datasetTotalGames = $dbCount;
                 }
