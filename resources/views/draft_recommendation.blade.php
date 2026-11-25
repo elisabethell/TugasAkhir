@@ -2,39 +2,6 @@
 
 @section('title', 'Rekomendasi Draft')
 
-@push('styles')
-<style>
-    /* Styling khusus saat Print ke PDF */
-    @media print {
-        body * {
-            visibility: hidden !important;
-        }
-        #printableCoachSheet, #printableCoachSheet * {
-            visibility: visible !important;
-        }
-        #printableCoachSheet {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 20px !important;
-            background: #ffffff !important;
-            box-shadow: none !important;
-            border: none !important;
-            display: block !important;
-        }
-        .no-print {
-            display: none !important;
-        }
-        @page {
-            size: A4 portrait;
-            margin: 12mm;
-        }
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="space-y-6">
 
@@ -54,16 +21,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                 </svg>
                 <span>Draft Baru</span>
-            </button>
-
-            <!-- Export PDF Cheat Sheet Button untuk Coach -->
-            <button type="button" 
-                    onclick="openCoachCheatSheetModal()" 
-                    class="bg-white hover:bg-[#FCECEE] text-[#700B1A] border-2 border-[#700B1A] rounded-full px-4 py-2 text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition">
-                <svg class="w-3.5 h-3.5 text-[#700B1A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                <span>Download / Cetak PDF Cheat Sheet</span>
             </button>
 
             <button type="button" 
@@ -734,165 +691,6 @@
     </div>
 </div>
 
-<!-- ================= MODAL EXPORT PDF CHEAT SHEET COACH ================= -->
-<div id="coachCheatSheetModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none transition-all duration-300">
-    <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-[#F3E8E8]">
-        
-        <!-- Modal Top Actions Bar (No Print) -->
-        <div class="px-6 py-4 bg-[#FAF8F8] border-b border-[#F3E8E8] flex items-center justify-between no-print flex-wrap gap-2">
-            <div class="flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-[#700B1A]"></span>
-                <span class="font-black text-sm text-[#18181B] uppercase tracking-wider">PREVIEW CHEAT SHEET COACH (A4 READY)</span>
-            </div>
-            <div class="flex items-center gap-2">
-                <!-- Tombol Download File PDF Langsung -->
-                <button type="button" 
-                        id="downloadPdfBtn"
-                        onclick="downloadCheatSheetPdf()" 
-                        class="bg-[#700B1A] hover:bg-[#550713] text-white text-xs font-extrabold uppercase px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                    </svg>
-                    <span id="downloadPdfBtnText">Download File PDF</span>
-                </button>
-                <!-- Tombol Cetak / Browser Print -->
-                <button type="button" 
-                        onclick="triggerPrintPdf()" 
-                        class="bg-white hover:bg-[#FCECEE] text-[#700B1A] border border-[#700B1A] text-xs font-bold uppercase px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                    </svg>
-                    <span>Print / Cetak</span>
-                </button>
-                <button type="button" 
-                        onclick="closeCoachCheatSheetModal()" 
-                        class="bg-white hover:bg-gray-100 text-gray-700 text-xs font-bold px-3 py-2 rounded-xl border border-[#F3E8E8] transition">
-                    ✕ Tutup
-                </button>
-            </div>
-        </div>
-
-        <!-- Printable Document Body -->
-        <div class="p-8 overflow-y-auto flex-1 space-y-6" id="printableCoachSheet">
-            
-            <!-- Document Header -->
-            <div class="flex items-center justify-between border-b-2 border-[#700B1A] pb-4">
-                <div>
-                    <div class="flex items-center gap-2">
-                        <span class="w-4 h-4 rounded-full bg-[#700B1A] inline-block"></span>
-                        <span class="text-xl font-black tracking-widest text-[#18181B] uppercase">METASCOUT: LAND OF DAWN</span>
-                    </div>
-                    <h2 class="text-lg font-black text-[#700B1A] mt-0.5 uppercase tracking-wide">
-                        COACH TACTICAL DRAFT CHEAT SHEET
-                    </h2>
-                    <p class="text-[11px] text-gray-500 font-medium">
-                        Tournament Intelligence System • MPL Indonesia Season 18 (Liquipedia API) • Patch 1.9.14
-                    </p>
-                </div>
-                <div class="text-right text-[11px]">
-                    <div class="font-bold text-gray-700" id="cheatSheetTimestamp">Generated: 08 Oktober 2026</div>
-                </div>
-            </div>
-
-            <!-- 5v5 Lineup Comparison Table -->
-            <div class="space-y-3">
-                <h3 class="text-xs font-black uppercase tracking-wider text-[#18181B] flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-[#700B1A]"></span>
-                    <span>1. KOMPOSISI LINEUP 5V5 (MATCHUP PER-LANE)</span>
-                </h3>
-                <div class="overflow-x-auto rounded-xl border border-[#F3E8E8]">
-                    <table class="w-full text-left text-xs border-collapse">
-                        <thead>
-                            <tr class="bg-[#FAF8F8] border-b border-[#F3E8E8] text-[10px] font-black uppercase text-gray-600">
-                                <th class="py-2.5 px-3">LANE</th>
-                                <th class="py-2.5 px-3 text-[#700B1A]">TIM SEKUTU</th>
-                                <th class="py-2.5 px-3">DMG TYPE</th>
-                                <th class="py-2.5 px-3">POWER SPIKE</th>
-                                <th class="py-2.5 px-3 text-red-700">TIM MUSUH</th>
-                                <th class="py-2.5 px-3">DMG TYPE</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-[#F3E8E8] font-medium" id="cheatSheetLineupTbody">
-                            <!-- Populated via JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Damage Distribution & Power Spike Matrix -->
-            <div class="grid grid-cols-2 gap-4">
-                
-                <!-- Damage Breakdown -->
-                <div class="p-4 bg-[#FAF8F8] border border-[#F3E8E8] rounded-2xl space-y-2">
-                    <h4 class="text-xs font-black uppercase tracking-wider text-[#18181B] flex items-center gap-1.5">
-                        <span>2. DAMAGE DISTRIBUTION COMPARISON</span>
-                    </h4>
-                    <div class="space-y-1.5 text-xs">
-                        <div class="flex justify-between font-bold">
-                            <span class="text-amber-800">Sekutu Physical: <strong id="csAllyPhys">0%</strong></span>
-                            <span class="text-purple-800">Sekutu Magic: <strong id="csAllyMag">0%</strong></span>
-                        </div>
-                        <div class="w-full h-2 rounded-full overflow-hidden flex bg-gray-200">
-                            <div id="csAllyPhysBar" class="bg-amber-600 h-full" style="width: 50%;"></div>
-                            <div id="csAllyMagBar" class="bg-purple-600 h-full" style="width: 50%;"></div>
-                        </div>
-                        <p class="text-[10px] text-gray-500 font-medium" id="csDamageNote">
-                            Rasio damage seimbang membantu penetrasi armor lawan di mid-late game.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Power Spike Timeline Curve -->
-                <div class="p-4 bg-[#FAF8F8] border border-[#F3E8E8] rounded-2xl space-y-2">
-                    <h4 class="text-xs font-black uppercase tracking-wider text-[#18181B] flex items-center gap-1.5">
-                        <span>3. POWER SPIKE & TIMELINE WIN CONDITION</span>
-                    </h4>
-                    <div class="space-y-1 text-xs font-bold text-gray-700" id="csPowerSpikeBreakdown">
-                        <div>Early Game (0–5m): <span id="csEarlyCount" class="text-[#700B1A]">0 Hero</span></div>
-                        <div>Mid Game (5–12m): <span id="csMidCount" class="text-emerald-700">0 Hero</span></div>
-                        <div>Late Game (12+m / Trinity MM): <span id="csLateCount" class="text-indigo-700">0 Hero</span></div>
-                    </div>
-                    <p class="text-[10px] text-gray-500 font-medium" id="csWinConditionNote">
-                        Objektif utama: Eksekusi lord di menit 12:00 dan kontrol semi-river jungle.
-                    </p>
-                </div>
-
-            </div>
-
-            <!-- Active RBR Production Rules Matrix -->
-            <div class="space-y-2.5">
-                <h3 class="text-xs font-black uppercase tracking-wider text-[#18181B] flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-[#700B1A]"></span>
-                    <span>4. ACTIVE RULE-BASED REASONING (RBR) TRIGGERS</span>
-                </h3>
-                <div class="space-y-2" id="csActiveRulesList">
-                    <!-- Populated dynamically via JS -->
-                </div>
-            </div>
-
-            <!-- Coach Notes & Macro Game Plan -->
-            <div class="p-4 bg-white border-2 border-dashed border-[#F3E8E8] rounded-2xl space-y-2">
-                <h4 class="text-xs font-black uppercase tracking-wider text-[#700B1A]">
-                    5. COACH MACRO GAME PLAN & ROTATION TIMINGS
-                </h4>
-                <ul class="text-[11px] text-gray-600 list-disc list-inside space-y-1 font-medium">
-                    <li><strong>Menit 02:00 (Turtle 1):</strong> Pastikan Roamer dan Midlaner melakukan rotasi zoning 15 detik sebelum Turtle spawn.</li>
-                    <li><strong>Menit 08:00 (Turret Plate Hilang):</strong> Transisi Gold Laner ke Mid Lane untuk mengamankan push tier 1 tower.</li>
-                    <li><strong>Menit 12:00 (Evolved Lord 1):</strong> Setup ambush semak area Broken Walls / Expanding Rivers sebelum inisiasi.</li>
-                </ul>
-            </div>
-
-            <!-- Document Footer -->
-            <div class="pt-4 border-t border-[#F3E8E8] flex items-center justify-between text-[10px] text-gray-400 font-bold uppercase">
-                <span>MetaScout Analytics • Confidential Team Tactical Sheet</span>
-                <span>Page 1 of 1</span>
-            </div>
-
-        </div>
-
-    </div>
-</div>
-
 <!-- ================= MODAL JEJAK INFERENSI (FASE 3 - PERSYARATAN 3) ================= -->
 <div id="inferenceTraceModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none transition-all duration-300">
     <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-[#F3E8E8]">
@@ -1146,7 +944,6 @@
 </div>
 
 @push('scripts')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
     // Master data dari controller
     const pickerHeroes = @json($pickerHeroes);
@@ -3053,105 +2850,6 @@
         }
     }
 
-    // Modal Export PDF Cheat Sheet Coach
-    function openCoachCheatSheetModal() {
-        const modal = document.getElementById('coachCheatSheetModal');
-        modal.classList.remove('opacity-0', 'pointer-events-none');
-        modal.classList.add('opacity-100');
-
-        // Update timestamp
-        const now = new Date();
-        document.getElementById('cheatSheetTimestamp').textContent = `Generated: ${now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })} ${now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
-
-        // Populate Lineup Table
-        const tbody = document.getElementById('cheatSheetLineupTbody');
-        tbody.innerHTML = '';
-        const lanes = ['Roam', 'Jungle', 'Mid', 'Exp', 'Gold'];
-
-        lanes.forEach((laneName, idx) => {
-            const allyHeroName = allyTeam[idx] || '—';
-            const enemyHeroName = enemyTeam[idx] || '—';
-
-            const allyHero = pickerHeroes.find(h => h.name.toLowerCase() === allyHeroName.toLowerCase());
-            const enemyHero = pickerHeroes.find(h => h.name.toLowerCase() === enemyHeroName.toLowerCase());
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="py-2.5 px-3 font-bold text-gray-500 uppercase">${laneName}</td>
-                <td class="py-2.5 px-3 font-black text-[#700B1A]">
-                    ${allyHeroName !== '—' ? `
-                        <div class="flex items-center gap-1.5">
-                            <img src="${allyHero?.portrait}" class="w-5 h-5 rounded-full">
-                            <span>${allyHeroName}</span>
-                        </div>
-                    ` : '<span class="text-gray-300">Unselected</span>'}
-                </td>
-                <td class="py-2.5 px-3 text-gray-600">${allyHero?.damage_type || '—'}</td>
-                <td class="py-2.5 px-3 text-gray-600">${allyHero?.power_spike || '—'}</td>
-                <td class="py-2.5 px-3 font-black text-red-700">
-                    ${enemyHeroName !== '—' ? `
-                        <div class="flex items-center gap-1.5">
-                            <img src="${enemyHero?.portrait}" class="w-5 h-5 rounded-full">
-                            <span>${enemyHeroName}</span>
-                        </div>
-                    ` : '<span class="text-gray-300">Unselected</span>'}
-                </td>
-                <td class="py-2.5 px-3 text-gray-600">${enemyHero?.damage_type || '—'}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-
-        // Damage Stats in Modal
-        const allyDist = computeTeamDamage(allyTeam);
-        const elPhys = document.getElementById('csAllyPhys');
-        const elMag = document.getElementById('csAllyMag');
-        const elPhysBar = document.getElementById('csAllyPhysBar');
-        const elMagBar = document.getElementById('csAllyMagBar');
-        if (elPhys) elPhys.textContent = `${allyDist.phys}%`;
-        if (elMag) elMag.textContent = `${allyDist.mag}%`;
-        if (elPhysBar) elPhysBar.style.width = `${allyDist.phys}%`;
-        if (elMagBar) elMagBar.style.width = `${allyDist.mag}%`;
-
-        // Power Spike in Modal
-        const allySpikes = computeTeamPowerSpikes(allyTeam);
-        const elEarly = document.getElementById('csEarlyCount');
-        const elMid = document.getElementById('csMidCount');
-        const elLate = document.getElementById('csLateCount');
-        if (elEarly) elEarly.textContent = `${allySpikes.early} Hero`;
-        if (elMid) elMid.textContent = `${allySpikes.mid} Hero`;
-        if (elLate) elLate.textContent = `${allySpikes.late} Hero`;
-
-        // Active Rules in Modal
-        const rulesList = document.getElementById('csActiveRulesList');
-        if (rulesList) {
-            rulesList.innerHTML = '';
-            const rulesToDisplay = rbrGenerated.length > 0 ? rbrGenerated.slice(0, 4) : [
-                { rule_id: 'RBR-CTR-01', antecedent: "Enemy Pick 'Ling'", consequent: "Pick 'Khufra' (Anti-Dash CC)", confidence: '96.4%', rationale: 'Bouncing ball membatalkan lintasan kabel baja Ling.' },
-                { rule_id: 'RBR-SYN-01', antecedent: "Ally Pick 'Tigreal'", consequent: "Pick 'Yve' (Area Combo)", confidence: '94.5%', rationale: 'Implosion grouping dilanjutkan Real World Manipulation.' },
-                { rule_id: 'RBR-DMG-01', antecedent: "Physical Ratio >= 80%", consequent: "Prioritaskan Magic Core", confidence: '97.5%', rationale: 'Menghindari counter Antique Cuirass dan Blade Armor.' },
-            ];
-
-            rulesToDisplay.forEach(r => {
-                const rDiv = document.createElement('div');
-                rDiv.className = 'p-2.5 bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl text-[10px] space-y-0.5';
-                rDiv.innerHTML = `
-                    <div class="flex justify-between font-black text-[#700B1A]">
-                        <span>[${r.rule_id}] IF ${r.antecedent} ➜ THEN ${r.consequent}</span>
-                        <span class="text-emerald-700">${r.confidence}</span>
-                    </div>
-                    <div class="text-gray-500 font-medium text-[9px]">${r.rationale}</div>
-                `;
-                rulesList.appendChild(rDiv);
-            });
-        }
-    }
-
-    function closeCoachCheatSheetModal() {
-        const modal = document.getElementById('coachCheatSheetModal');
-        modal.classList.remove('opacity-100');
-        modal.classList.add('opacity-0', 'pointer-events-none');
-    }
-
     // Modal Panduan Istilah & Legenda RBR
     function openLegendModal() {
         const modal = document.getElementById('legendModal');
@@ -3166,46 +2864,6 @@
         if (modal) {
             modal.classList.remove('opacity-100');
             modal.classList.add('opacity-0', 'pointer-events-none');
-        }
-    }
-
-    function triggerPrintPdf() {
-        window.print();
-    }
-
-    function downloadCheatSheetPdf() {
-        const element = document.getElementById('printableCoachSheet');
-        if (!element) return;
-
-        const btn = document.getElementById('downloadPdfBtn');
-        const btnText = document.getElementById('downloadPdfBtnText');
-        const origText = btnText ? btnText.innerText : 'Download File PDF';
-
-        if (btnText) btnText.innerText = 'Mengunduh PDF...';
-        if (btn) btn.disabled = true;
-
-        const opt = {
-            margin:       [8, 8, 8, 8],
-            filename:     'MetaScout_Laporan_Draft_MLBB_' + new Date().toISOString().slice(0, 10) + '.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true, logging: false },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        if (window.html2pdf) {
-            window.html2pdf().set(opt).from(element).save().then(() => {
-                if (btnText) btnText.innerText = origText;
-                if (btn) btn.disabled = false;
-            }).catch(err => {
-                console.warn('html2pdf gagal, fallback ke window.print:', err);
-                window.print();
-                if (btnText) btnText.innerText = origText;
-                if (btn) btn.disabled = false;
-            });
-        } else {
-            window.print();
-            if (btnText) btnText.innerText = origText;
-            if (btn) btn.disabled = false;
         }
     }
 

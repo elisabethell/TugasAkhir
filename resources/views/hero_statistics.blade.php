@@ -91,14 +91,6 @@
                 </svg>
                 <span>RESET FILTERS</span>
             </button>
-
-            <!-- Export CSV -->
-            <button type="button" onclick="exportTableToCSV('liquipedia_hero_statistics_{{ $activeStage ?? 'overall' }}.csv')" class="bg-[#700B1A] hover:bg-[#550713] text-white rounded-xl px-4 py-2 text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                </svg>
-                <span>EXPORT CSV</span>
-            </button>
         </div>
 
     </div>
@@ -613,29 +605,6 @@
                 iconEl.innerHTML = '&#8645;';
             }
         });
-    }
-
-    function exportTableToCSV(filename) {
-        const rows = document.querySelectorAll('#statsTable tr');
-        let csv = [];
-        
-        rows.forEach(row => {
-            if (row.style.display === 'none') return;
-            let rowData = [];
-            row.querySelectorAll('th, td').forEach(cell => {
-                let text = cell.innerText.replace(/(\r\n|\n|\r)/gm, ' ').replace(/\s+/g, ' ').trim();
-                rowData.push('"' + text.replace(/"/g, '""') + '"');
-            });
-            csv.push(rowData.join(','));
-        });
-
-        const csvContent = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv.join('\n'));
-        const link = document.createElement('a');
-        link.setAttribute('href', csvContent);
-        link.setAttribute('download', filename);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
     }
 
     // Inisialisasi saat load
