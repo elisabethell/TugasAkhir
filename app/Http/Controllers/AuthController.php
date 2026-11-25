@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 
 class AuthController extends Controller
@@ -19,52 +22,68 @@ class AuthController extends Controller
     }
 
     /**
-     * Proses autentikasi admin dengan proteksi brute-force, PIN keamanan, dan regenerasi sesi
+     * Proses autentikasi admin dengan verifikasi Hash bcrypt, proteksi brute-force, PIN keamanan, dan regenerasi sesi
      */
     public function login(Request $request)
     {
         $loginId = trim($request->input('login_id', ''));
-        $password = trim($request->input('password', ''));
+        $password = (string) $request->input('password', '');
         $pin = trim($request->input('pin', ''));
 
-        // 1. Rate Limiting (Proteksi Brute-Force: Maksimal 5 percobaan gagal per IP)
+        // 1. Rate Limiting (Proteksi Brute-Force: Maksimal 5 percobaan gagal per IP dalam 1 menit)
         $throttleKey = 'admin_login_throttle:' . $request->ip();
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
-            return back()->withInput()->with('error', "Terlalu banyak percobaan login gagal. Demi keamanan akun dikunci sementara. Silakan tunggu {$seconds} detik.");
+            return back()->withInput(['login_id' => $loginId])->with('error', "Terlalu banyak percobaan login gagal. Demi keamanan akun dikunci sementara. Silakan tunggu {$seconds} detik.");
         }
 
         // 2. Validasi input wajib terisi
         if (empty($loginId) || empty($password)) {
-            return back()->withInput()->with('error', 'ID Akun / Email dan Kata Sandi wajib diisi.');
+            return back()->withInput(['login_id' => $loginId])->with('error', 'ID Akun / Email dan Kata Sandi wajib diisi.');
         }
 
-        // 3. Verifikasi Kredensial Administrator
-        $validId = config('auth.admin.id', env('ADMIN_LOGIN_ID', 'admin@metascout.gg'));
-        $validPassword = config('auth.admin.password', env('ADMIN_PASSWORD', 'admin123'));
-        $validPin = config('auth.admin.pin', env('ADMIN_PIN', '123456'));
+        // 3. Cari User Administrator di Database (users table)
+        // Mendukung login via email maupun nama user (contoh: 'Superadmin' atau 'admin@metascout.gg')
+        $user = User::where('email', $loginId)
+            ->orWhere('name', $loginId)
+            ->first();
 
-        $isIdValid = (strtolower($loginId) === strtolower($validId) || strtolower($loginId) === 'admin');
-        $isPasswordValid = ($password === $validPassword);
+        // Fallback otoseed jika database baru di-migrate dan record admin belum ada
+        if (!$user && ($loginId === 'admin@metascout.gg' || strtolower($loginId) === 'admin' || strtolower($loginId) === 'superadmin')) {
+            $defaultPassword = config('auth.admin.password', env('ADMIN_PASSWORD', 'admin123'));
+            $user = User::firstOrCreate(
+                ['email' => 'admin@metascout.gg'],
+                [
+                    'name' => 'Superadmin',
+                    'password' => Hash::make($defaultPassword),
+                ]
+            );
+        }
+
+        // 4. Verifikasi Password Terenkripsi Menggunakan Hash::check (Bcrypt) & PIN Keamanan
+        $isPasswordValid = $user && Hash::check($password, $user->password);
+        $validPin = config('auth.admin.pin', env('ADMIN_PIN', '123456'));
         $isPinValid = empty($pin) || ($pin === $validPin);
 
-        if (!$isIdValid || !$isPasswordValid || !$isPinValid) {
+        if (!$user || !$isPasswordValid || !$isPinValid) {
             RateLimiter::hit($throttleKey, 300); // Kunci 5 menit jika gagal berturut-turut
             $remaining = RateLimiter::remaining($throttleKey, 5);
-            return back()->withInput()->with('error', "Kredensial atau PIN keamanan tidak cocok. Sisa kesempatan: {$remaining} kali.");
+            return back()->withInput(['login_id' => $loginId])->with('error', "Kredensial atau PIN keamanan tidak cocok. Sisa kesempatan: {$remaining} kali.");
         }
 
-        // 4. Bersihkan hitung limiter jika berhasil
+        // 5. Bersihkan hitung limiter jika berhasil
         RateLimiter::clear($throttleKey);
 
-        // 5. Anti-Session Fixation: Regenerasi Session ID
+        // 6. Anti-Session Fixation: Regenerasi Session ID
         $request->session()->regenerate();
+        Auth::login($user);
 
-        // 6. Simpan detail sesi terenkripsi dengan metadata keamanan
+        // 7. Simpan detail sesi terenkripsi dengan metadata keamanan
         session([
             'admin_logged_in'     => true,
-            'admin_user'          => 'Superadmin',
-            'admin_email'         => $loginId,
+            'admin_user_id'       => $user->id,
+            'admin_user'          => $user->name,
+            'admin_email'         => $user->email,
             'admin_login_at'      => now()->timestamp,
             'admin_last_activity' => now()->timestamp,
             'admin_ip'            => $request->ip(),
@@ -79,8 +98,11 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        Auth::logout();
+
         $request->session()->forget([
             'admin_logged_in',
+            'admin_user_id',
             'admin_user',
             'admin_email',
             'admin_login_at',

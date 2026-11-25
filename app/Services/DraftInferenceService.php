@@ -1327,18 +1327,27 @@ class DraftInferenceService
                     'playstyle'         => 'Teamfight / War',
                     'winning_condition' => 'Manfaatkan durabilitas tinggi frontliner untuk merebut kendali Turtle & Lord; perang panjang berkelanjutan menguntungkan formasi tim.',
                 ];
+            } elseif ($teamTag === 'Healer / Sustain') {
+                return [
+                    'draft_identity'    => 'Healer / Sustain Comp',
+                    'power_spike'       => 'Mid-to-Late Game (5–12+m)',
+                    'playstyle'         => 'Teamfight / War (Grouping)',
+                    'winning_condition' => 'Wajib grouping rapat (5v5) saat kontes Turtle/Lord untuk memaksimalkan sustain heal dalam war berkepanjangan; hindari bermain terpisah agar tidak mudah di-pick-off.',
+                ];
             } else {
                 return [
-                    'draft_identity'    => 'Balanced Teamfight',
+                    'draft_identity'    => 'Flexible / Adaptive Meta',
                     'power_spike'       => 'Early-to-Mid (0–12m)',
                     'playstyle'         => 'Teamfight / War',
-                    'winning_condition' => 'Pertahankan formasi segitiga saat kontes Turtle; tunggu inisiasi Tank sebelum backline melakukan burst damage.',
+                    'winning_condition' => 'Gaya main fleksibel dan adaptif; komposisi dan win condition menyesuaikan hero yang sedang di-pick untuk mengeksploitasi celah lawan.',
                 ];
             }
         }
 
         // Kasus 2: Minimal 1 hero terpilih di simulator
-        // Baca komposisi role & power spike hero sekutu
+        // Lookup role & atribut hero dinamis dari CsvDataService (tanpa ketergantungan array hardcode)
+        $allCatalog = $this->csvService->getHeroes()->keyBy(fn($h) => preg_replace('/[^a-z0-9]/', '', strtolower($h->hero_name)));
+
         $fighterCount = 0;
         $tankCount = 0;
         $assassinCount = 0;
@@ -1349,26 +1358,25 @@ class DraftInferenceService
         $lateCount = 0;
         $splitCount = 0;
 
-        $knownFighters = ['paquito', 'chou', 'ruby', 'terizla', 'arlott', 'yuzhong', 'yu zhong', 'lapulapu', 'lapu-lapu', 'dyrroth', 'thamuz', 'cici', 'martis', 'freya', 'jawhead', 'badang', 'hilda', 'guinevere', 'leomord', 'khaleed', 'alpha', 'sun', 'bane', 'roger'];
-        $knownTanks = ['tigreal', 'atlas', 'khufra', 'grock', 'akai', 'minotaur', 'fredrinn', 'baxia', 'hylos', 'belerick', 'gloo', 'barats', 'franco', 'lolita', 'gatotkaca', 'johnson', 'uranus', 'edith'];
-        $knownAssassins = ['ling', 'fanny', 'hayabusa', 'nolan', 'joy', 'lancelot', 'suyou', 'saber', 'helcurt', 'natalia', 'gusion', 'aamon', 'karina', 'benedetta', 'yin'];
-        $knownMarksmen = ['claude', 'bruno', 'karrie', 'moskov', 'beatrix', 'brody', 'roger', 'harith', 'natan', 'irithel', 'clint', 'wanwan', 'layla', 'miya', 'popol and kupa', 'popol', 'lesley', 'hanabi', 'ixia'];
         $knownLate = ['claude', 'karrie', 'moskov', 'miya', 'layla', 'bruno', 'irithel', 'cecilion', 'aldous', 'natan', 'lesley', 'wanwan', 'ixia', 'harith'];
         $knownEarly = ['martis', 'hilda', 'grock', 'jawhead', 'fanny', 'selena', 'dyrroth', 'terizla', 'thamuz', 'freya', 'paquito', 'chou', 'saber', 'mathilda'];
         $knownSplit = ['zilong', 'sun', 'hayabusa', 'masha', 'benedetta', 'argus', 'ling', 'chou'];
+        $knownHealers = ['estes', 'floryn', 'angela', 'rafaela', 'mathilda', 'diggie', 'carmilla'];
 
         foreach ($teamHeroes as $h) {
             $name = is_array($h) ? ($h['name'] ?? '') : (is_string($h) ? $h : '');
             $cleanName = preg_replace('/[^a-z0-9]/', '', strtolower($name));
-            $role = is_array($h) ? strtolower($h['role'] ?? '') : '';
+            $hCatalog = $allCatalog[$cleanName] ?? null;
+
+            $role = $hCatalog ? strtolower($hCatalog->class ?: $hCatalog->primary_class) : (is_array($h) ? strtolower($h['role'] ?? '') : '');
             $spike = is_array($h) ? strtolower($h['power_spike'] ?? '') : '';
 
-            if (str_contains($role, 'fighter') || in_array($cleanName, $knownFighters)) $fighterCount++;
-            if (str_contains($role, 'tank') || in_array($cleanName, $knownTanks)) $tankCount++;
-            if (str_contains($role, 'assassin') || in_array($cleanName, $knownAssassins)) $assassinCount++;
-            if (str_contains($role, 'marksman') || in_array($cleanName, $knownMarksmen)) $marksmanCount++;
+            if (str_contains($role, 'fighter')) $fighterCount++;
+            if (str_contains($role, 'tank')) $tankCount++;
+            if (str_contains($role, 'assassin')) $assassinCount++;
+            if (str_contains($role, 'marksman')) $marksmanCount++;
             if (str_contains($role, 'mage')) $mageCount++;
-            if (str_contains($role, 'support')) $supportCount++;
+            if (str_contains($role, 'support') || in_array($cleanName, $knownHealers)) $supportCount++;
 
             if (str_contains($spike, 'early') || in_array($cleanName, $knownEarly)) $earlyCount++;
             if (str_contains($spike, 'late') || in_array($cleanName, $knownLate)) $lateCount++;
@@ -1376,7 +1384,17 @@ class DraftInferenceService
         }
 
         // Aturan IF-THEN Ringan:
-        // 1. Double Fighter / Bruiser
+        // 1. Healer / Sustain Comp
+        if ($supportCount >= 1) {
+            return [
+                'draft_identity'    => 'Healer / Sustain Comp',
+                'power_spike'       => 'Mid-to-Late Game (5–12+m)',
+                'playstyle'         => 'Teamfight / War (Grouping)',
+                'winning_condition' => 'Wajib grouping rapat (5v5) saat kontes Turtle/Lord untuk memaksimalkan sustain heal dalam war berkepanjangan; hindari bermain terpisah agar tidak mudah di-pick-off.',
+            ];
+        }
+
+        // 2. Double Fighter / Bruiser
         if ($fighterCount >= 2 || ($fighterCount >= 1 && $tankCount >= 1 && ($teamTag === 'Double Fighter' || $teamTag === 'Tank Jungler'))) {
             return [
                 'draft_identity'    => 'Double Fighter / Bruiser',
@@ -1386,7 +1404,7 @@ class DraftInferenceService
             ];
         }
 
-        // 2. Marksman Late Scaling
+        // 3. Marksman Late Scaling
         if ($marksmanCount >= 1 && ($lateCount >= 1 || $tankCount >= 1 || $supportCount >= 1 || $teamTag === 'Late Game Scaling')) {
             return [
                 'draft_identity'    => 'Marksman Late Scaling',
@@ -1396,7 +1414,7 @@ class DraftInferenceService
             ];
         }
 
-        // 3. Pick-off / High Mobility
+        // 4. Pick-off / High Mobility
         if ($assassinCount >= 1 || $splitCount >= 1 || $teamTag === 'Assassin Snowball') {
             return [
                 'draft_identity'    => 'Pick-off / High Mobility',
@@ -1406,7 +1424,7 @@ class DraftInferenceService
             ];
         }
 
-        // 4. Split Push / Objective
+        // 5. Split Push / Objective
         if ($splitCount >= 1 && $allyCount >= 2) {
             return [
                 'draft_identity'    => 'Split Push / Objective',
@@ -1416,7 +1434,7 @@ class DraftInferenceService
             ];
         }
 
-        // 5. Balanced Teamfight (Default)
+        // 6. Balanced Teamfight (Default)
         return [
             'draft_identity'    => 'Balanced Teamfight',
             'power_spike'       => ($earlyCount > $lateCount) ? 'Early-to-Mid (0–12m)' : (($lateCount > 0) ? 'Mid-to-Late (12+m)' : 'Early-to-Mid (0–12m)'),

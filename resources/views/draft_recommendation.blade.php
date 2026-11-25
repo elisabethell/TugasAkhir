@@ -584,7 +584,7 @@
                 <div class="pt-3 border-t border-[#FAF0F1] flex items-center justify-between text-[10px] text-gray-500 font-medium">
                     <div class="flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        <span>Basis data: <strong>MPL ID S18</strong> • <strong>{{ $datasetTotalGames ?? 304 }} game</strong> • Diperbarui <strong>{{ $datasetLastUpdated ?? '13 November 2026' }}</strong></span>
+                        <span>Basis data: <strong>MPL ID S18</strong> • <strong>{{ $datasetTotalGames ?? 215 }} game</strong> • Diperbarui <strong>{{ $datasetLastUpdated ?? '13 November 2026' }}</strong></span>
                     </div>
                     <span class="text-gray-400 font-mono text-[9px]">Patch 1.9.14</span>
                 </div>

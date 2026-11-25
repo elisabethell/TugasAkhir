@@ -71,7 +71,7 @@
             @endif
 
             <!-- Form -->
-            <form action="{{ route('login.post') }}" method="POST" class="space-y-4">
+            <form action="{{ route('login.post') }}" method="POST" autocomplete="off" class="space-y-4">
                 @csrf
 
                 <!-- ID Akun / Email -->
@@ -85,7 +85,8 @@
                         </span>
                         <input type="text" 
                                name="login_id" 
-                               value="{{ old('login_id', 'admin@metascout.gg') }}" 
+                               value="{{ old('login_id') }}" 
+                               autocomplete="off"
                                required
                                placeholder="admin@metascout.gg atau analyst_id" 
                                class="w-full bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl py-2.5 pl-10 pr-3 text-xs font-medium text-[#18181B] placeholder-gray-400 focus:outline-none focus:border-[#700B1A] transition">
@@ -104,7 +105,7 @@
                         <input type="password" 
                                id="passwordInput"
                                name="password" 
-                               value="admin123"
+                               autocomplete="new-password"
                                required
                                placeholder="••••••••••••" 
                                class="w-full bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl py-2.5 pl-10 pr-10 text-xs font-medium text-[#18181B] placeholder-gray-400 focus:outline-none focus:border-[#700B1A] transition">
@@ -128,10 +129,11 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                             </svg>
                         </span>
-                        <input type="text" 
+                        <input type="password" 
                                name="pin" 
-                               value="123456"
-                               placeholder="Masukkan 6 digit kode authenticator" 
+                               autocomplete="off"
+                               maxlength="6"
+                               placeholder="Opsional: 6 digit kode authenticator" 
                                class="w-full bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl py-2.5 pl-10 pr-3 text-xs font-medium text-[#18181B] placeholder-gray-400 focus:outline-none focus:border-[#700B1A] transition">
                     </div>
                 </div>

@@ -11,13 +11,99 @@ class CsvDataService
     protected static ?array $statsCache = null;
     protected static ?array $csvPortraitMap = null;
 
+    public static function clearCache(): void
+    {
+        self::$heroesCache = null;
+        self::$matchesCache = null;
+        self::$statsCache = null;
+        self::$csvPortraitMap = null;
+    }
+
     /**
-     * Mengambil seluruh data 133 hero dari database/data/data_hero.csv
+     * Mengambil seluruh data 133 hero dari database MySQL 'heroes' (Prioritas)
+     * atau fallback ke database/data/data_hero.csv jika tabel database kosong.
      */
     public function getHeroes(): Collection
     {
         if (self::$heroesCache !== null) {
             return self::$heroesCache;
+        }
+
+        $cleanStr = function($val) {
+            return trim(str_replace(['[', ']', "'", '"'], '', (string)$val));
+        };
+
+        // 1. Prioritaskan pembacaan data dinamis dari tabel basis data MySQL 'heroes'
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('heroes')) {
+                $dbHeroes = \App\Models\Hero::all();
+                if ($dbHeroes->isNotEmpty()) {
+                    $heroes = collect();
+                    foreach ($dbHeroes as $row) {
+                        $heroName = trim($row->hero_name);
+                        $cleanKey = preg_replace('/[^a-z0-9]/', '', strtolower($heroName));
+                        $portrait = $this->resolveHeroPortrait($heroName, $row->portrait);
+
+                        $classRaw = is_array($row->class) ? implode(',', $row->class) : (string)$row->class;
+                        $classRaw = $cleanStr($classRaw);
+                        $classes = array_filter(array_map('trim', explode(',', str_replace('/', ',', $classRaw))));
+                        $primaryClass = $classes[0] ?? 'Hero';
+
+                        $laningRaw = is_array($row->laning) ? implode(',', $row->laning) : (string)$row->laning;
+                        $laningRaw = $cleanStr($laningRaw);
+                        $lanes = array_filter(array_map('trim', explode(',', str_replace('•', ',', $laningRaw))));
+
+                        $specialtyRaw = is_array($row->specialty) ? implode(',', $row->specialty) : (string)$row->specialty;
+                        $specialtyRaw = $cleanStr($specialtyRaw);
+                        $specialties = array_filter(array_map('trim', explode(',', str_replace('•', ',', $specialtyRaw))));
+
+                        $tag = match (strtolower($primaryClass)) {
+                            'assassin' => 'AS',
+                            'tank'     => 'TK',
+                            'fighter'  => 'FT',
+                            'mage'     => 'MG',
+                            'marksman' => 'MM',
+                            'support'  => 'SP',
+                            default    => strtoupper(substr($primaryClass, 0, 2) ?: 'HR'),
+                        };
+
+                        $tagColor = match ($tag) {
+                            'AS' => 'bg-[#FCECEE] text-[#700B1A] border-[#F8B4BD]',
+                            'TK' => 'bg-[#FEF3C7] text-[#92400E] border-[#FDE68A]',
+                            'FT' => 'bg-[#FFEDD5] text-[#9A3412] border-[#FDBA74]',
+                            'MG' => 'bg-[#F3E8FF] text-[#6B21A8] border-[#E9D5FF]',
+                            'MM' => 'bg-[#FEE2E2] text-[#991B1B] border-[#FECACA]',
+                            'SP' => 'bg-[#ECFDF5] text-[#065F46] border-[#A7F3D0]',
+                            default => 'bg-gray-100 text-gray-700 border-gray-300',
+                        };
+
+                        $counters = is_array($row->counters) ? $row->counters : (json_decode(str_replace("'", '"', (string)$row->counters), true) ?: []);
+                        $synergies = is_array($row->synergies) ? $row->synergies : (json_decode(str_replace("'", '"', (string)$row->synergies), true) ?: []);
+
+                        $heroes->push((object) [
+                            'id'            => (int)$row->id,
+                            'hero_id'       => trim($row->hero_id ?? ''),
+                            'hero_name'     => $heroName,
+                            'clean_key'     => $cleanKey,
+                            'portrait'      => $portrait,
+                            'class'         => implode(' / ', $classes),
+                            'primary_class' => $primaryClass,
+                            'laning'        => implode(' • ', $lanes),
+                            'lanes_array'   => $lanes,
+                            'specialties'   => array_slice($specialties, 0, 2),
+                            'tag'           => $tag,
+                            'tag_color'     => $tagColor,
+                            'counters'      => $counters,
+                            'synergies'     => $synergies,
+                        ]);
+                    }
+
+                    self::$heroesCache = $heroes;
+                    return $heroes;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Lanjutkan ke fallback CSV jika database belum terinisialisasi
         }
 
         $path = database_path('data/data_hero.csv');

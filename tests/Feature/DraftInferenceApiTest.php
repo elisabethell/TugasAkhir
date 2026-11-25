@@ -425,4 +425,109 @@ class DraftInferenceApiTest extends TestCase
         $responseQuery->assertStatus(200);
         $this->assertEquals('Alter Ego', $responseQuery->json('team_name'));
     }
+
+    /**
+     * Test TC-08: Deteksi playstyle_tag menggunakan Relative Deviation vs rata-rata liga MPL ID S18
+     */
+    public function test_tc08_relative_deviation_playstyle_detection_differentiates_teams(): void
+    {
+        $dnaService = app(\App\Services\TeamDraftDnaService::class);
+        \App\Services\TeamDraftDnaService::clearCache();
+
+        $allTeams = $dnaService->getAllTeamsDna();
+        $this->assertCount(9, $allTeams);
+
+        $tags = array_column($allTeams, 'playstyle_tag');
+        $uniqueTags = array_unique($tags);
+
+        // Memastikan tidak seragam hanya 1 playstyle (tidak semuanya Assassin Snowball)
+        $this->assertGreaterThan(1, count($uniqueTags), 'Playstyle tags must differentiate teams across the league.');
+
+        $teamsMap = collect($allTeams)->keyBy('team_name');
+        $this->assertTrue($teamsMap->has('RRQ'));
+        $this->assertTrue($teamsMap->has('Dewa United'));
+        $this->assertTrue($teamsMap->has('Alter Ego'));
+
+        // Tim dengan deviasi spesifik >= +10%
+        $this->assertEquals('Double Fighter', $teamsMap['RRQ']['playstyle_tag']);
+        $this->assertEquals('Assassin Snowball', $teamsMap['Dewa United']['playstyle_tag']);
+        $this->assertEquals('Late Game Scaling', $teamsMap['Geek Fam']['playstyle_tag']);
+
+        // Tim yang berada di sekitar rata-rata liga mendapatkan Flexible / Adaptive Meta
+        $this->assertEquals('Flexible / Adaptive Meta', $teamsMap['Alter Ego']['playstyle_tag']);
+    }
+
+    /**
+     * Test TC-09: Sinkronisasi pembaruan hero oleh Admin langsung tercermin pada CsvDataService dan sistem draf
+     */
+    public function test_tc09_admin_hero_update_syncs_with_csv_data_service_and_consumers(): void
+    {
+        // Pastikan hero Paquito ada di tabel database heroes
+        $hero = \App\Models\Hero::firstOrCreate(
+            ['hero_name' => 'Paquito'],
+            [
+                'hero_id'   => 'h103',
+                'portrait'  => 'https://akmweb.youngjoygame.com/web/svnres/img/mlbb/homepage/100_e2b6d9c6d82b4a27f0bb2710c8ead3e8.png',
+                'laning'    => 'exp lane',
+                'class'     => 'Fighter / Assassin',
+                'specialty' => 'Chase, Damage',
+            ]
+        );
+
+        $this->actingAsAdmin();
+
+        // Admin mengubah role Paquito menjadi Tank
+        $response = $this->post('/admin/heroes/' . $hero->id . '/update', [
+            'class'     => 'Tank',
+            'laning'    => 'roam',
+            'specialty' => 'Crowd Control, Initiator',
+            'portrait'  => $hero->portrait,
+        ]);
+        $response->assertRedirect(route('admin.heroes'));
+
+        // Cek CsvDataService::getHeroes() langsung membaca atribut 'Tank' dari database
+        $csvService = app(\App\Services\CsvDataService::class);
+        $paquitoObj = $csvService->getHeroes()->firstWhere('hero_name', 'Paquito');
+
+        $this->assertNotNull($paquitoObj);
+        $this->assertEquals('Tank', $paquitoObj->class);
+        $this->assertEquals('Tank', $paquitoObj->primary_class);
+        $this->assertEquals('roam', $paquitoObj->laning);
+        $this->assertEquals('TK', $paquitoObj->tag);
+
+        // Kembalikan ke Fighter / Assassin
+        $hero->update([
+            'class'     => 'Fighter / Assassin',
+            'laning'    => 'exp lane',
+            'specialty' => 'Chase, Damage',
+        ]);
+        \App\Services\CsvDataService::clearCache();
+    }
+
+    /**
+     * Test RBR Ringan Dynamic Lookup: Hirara terdeteksi Assassin dan Healer Comp terdeteksi
+     */
+    public function test_draft_strategy_dynamic_lookup_recognizes_hirara_and_healer_comp(): void
+    {
+        $inferenceService = app(\App\Services\DraftInferenceService::class);
+
+        // Hirara sebagai assassin otomatis menghasilkan Pick-off / High Mobility
+        $hiraraStrat = $inferenceService->evaluateDraftStrategyEngine(['Hirara']);
+        $this->assertEquals('Pick-off / High Mobility', $hiraraStrat['draft_identity']);
+        $this->assertEquals('Pick-off / Ganking', $hiraraStrat['playstyle']);
+
+        // Healer murni seperti Estes otomatis menghasilkan Healer / Sustain Comp
+        $estesStrat = $inferenceService->evaluateDraftStrategyEngine(['Estes']);
+        $this->assertEquals('Healer / Sustain Comp', $estesStrat['draft_identity']);
+        $this->assertEquals('Teamfight / War (Grouping)', $estesStrat['playstyle']);
+        $this->assertStringContainsString('grouping rapat (5v5)', $estesStrat['winning_condition']);
+    }
+
+    /**
+     * Helper login admin untuk pengujian
+     */
+    private function actingAsAdmin(): void
+    {
+        session(['admin_logged_in' => true]);
+    }
 }

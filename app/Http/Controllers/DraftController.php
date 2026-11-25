@@ -282,10 +282,10 @@ class DraftController extends Controller
                     $datasetLastUpdated = \Carbon\Carbon::parse($latestDateVal)->translatedFormat('d F Y');
                 }
             } else {
-                $datasetTotalGames = $this->csvService->getMatches()->count() ?: 304;
+                $datasetTotalGames = $this->csvService->getMatches()->count() ?: 215;
             }
         } catch (\Throwable $e) {
-            $datasetTotalGames = 304;
+            $datasetTotalGames = 215;
             $datasetLastUpdated = '13 November 2026';
         }
 

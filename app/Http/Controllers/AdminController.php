@@ -37,8 +37,18 @@ class AdminController extends Controller
                 MatchDataset::where('match_id', 'like', '%R03-M002%')->update(['stage_name' => 'Lower Bracket Final']);
                 MatchDataset::where('match_id', 'like', '%R04-M001%')->update(['stage_name' => 'Grand Final Playoffs']);
 
-                // Ambil data murni relasional dari database lokal
-                $seriesMatches = MatchDataset::with(['games.details'])->orderBy('match_date', 'desc')->get();
+                // Ambil data murni relasional dari database lokal (memfilter game kosong)
+                $seriesMatches = MatchDataset::with(['games' => function($q) {
+                    $q->where(function($sub) {
+                        $sub->whereNotNull('team_1_picks')
+                            ->where('team_1_picks', '!=', '[]')
+                            ->where('team_1_picks', '!=', '');
+                    })->orWhere(function($sub) {
+                        $sub->whereNotNull('team_2_picks')
+                            ->where('team_2_picks', '!=', '[]')
+                            ->where('team_2_picks', '!=', '');
+                    });
+                }, 'games.details'])->orderBy('match_date', 'desc')->get();
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::warning('AdminController DB error: ' . $e->getMessage());
             }
@@ -115,6 +125,10 @@ class AdminController extends Controller
             'specialty' => $request->input('specialty', $hero->specialty),
             'portrait'  => $request->input('portrait', $hero->portrait),
         ]);
+
+        // Bersihkan seluruh cache katalog hero & Draft DNA agar langsung sinkron
+        \App\Services\CsvDataService::clearCache();
+        \App\Services\TeamDraftDnaService::clearCache();
 
         return redirect()->route('admin.heroes')->with('success', "Atribut hero {$hero->hero_name} berhasil diperbarui.");
     }

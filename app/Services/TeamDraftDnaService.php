@@ -23,6 +23,15 @@ class TeamDraftDnaService
 
     protected CsvDataService $csvService;
     protected static array $cache = [];
+    protected static ?array $leagueAveragesCache = null;
+
+    protected static array $baselineLeagueAverages = [
+        'Double Fighter'    => 37.9,
+        'Tank Jungler'      => 30.7,
+        'Assassin Snowball' => 33.0,
+        'Late Game Scaling' => 4.7,
+        'Healer / Sustain'  => 39.5,
+    ];
 
     public function __construct(CsvDataService $csvService)
     {
@@ -32,6 +41,7 @@ class TeamDraftDnaService
     public static function clearCache(): void
     {
         self::$cache = [];
+        self::$leagueAveragesCache = null;
     }
 
     /**
@@ -149,21 +159,19 @@ class TeamDraftDnaService
         // Matriks Counter Tim: hero tim vs hero musuh di match yang sama
         $teamCounterMatchups = [];
 
-        // Counter untuk deteksi gaya main (Playstyle Tag)
+        // Counter untuk deteksi gaya main (Playstyle Tag) 5 Arketipe Utama Turnamen
         $archetypes = [
-            'Double Fighter'         => 0,
-            'Tank Jungler'           => 0,
-            'Assassin Snowball'      => 0,
-            'Late Game Scaling'      => 0,
-            'Support Utility (UBE)'  => 0,
-            'Early Game Aggro'       => 0,
+            'Double Fighter'    => 0,
+            'Tank Jungler'      => 0,
+            'Assassin Snowball' => 0,
+            'Late Game Scaling' => 0,
+            'Healer / Sustain'  => 0,
         ];
 
         $knownHeavyTanks = ['fredrinn', 'baxia', 'akai', 'barats', 'hylos', 'gloo', 'belerick', 'uranus', 'grock', 'tigreal'];
-        $knownAssassins = ['ling', 'fanny', 'hayabusa', 'nolan', 'joy', 'lancelot', 'suyou', 'helcurt', 'gusion', 'aamon', 'karina', 'benedetta'];
+        $knownAssassins = ['ling', 'fanny', 'hayabusa', 'nolan', 'joy', 'lancelot', 'suyou', 'helcurt', 'gusion', 'aamon', 'karina', 'benedetta', 'hirara'];
         $knownLateScalers = ['claude', 'moskov', 'karrie', 'harith', 'cecilion', 'xavier', 'lesley', 'bruno', 'natan', 'irithel', 'miya', 'layla', 'hanabi', 'aldous'];
-        $knownHealerSupports = ['floryn', 'angela', 'mathilda', 'estes', 'rafaela', 'diggie', 'faramis', 'carmilla'];
-        $knownEarlyAggro = ['hilda', 'grock', 'dyrroth', 'martis', 'terizla', 'yu zhong', 'khaleed', 'jawhead', 'chou', 'faramis', 'selena'];
+        $knownHealers = ['estes', 'floryn', 'angela', 'rafaela', 'mathilda', 'diggie', 'carmilla'];
 
         foreach ($matches as $match) {
             $isTeam1 = (strcasecmp($match->team_1_name, $teamName) === 0 || stripos($match->team_1_name, $teamName) !== false);
@@ -262,13 +270,17 @@ class TeamDraftDnaService
                     }
                 }
 
+                // Durasi game untuk kriteria Assassin Snowball (< 15 menit / 900 detik)
+                $durationParts = explode(':', (string)$game->duration);
+                $durationSeconds = count($durationParts) === 2 ? ((int)$durationParts[0] * 60 + (int)$durationParts[1]) : 0;
+                $isFastGame = ($durationSeconds > 0 && $durationSeconds < 900);
+
                 // 5. Analisis Komposisi Game untuk Deteksi Playstyle
                 $fighterCount = 0;
                 $tankCount = 0;
                 $assassinCount = 0;
                 $scalerCount = 0;
-                $supportCount = 0;
-                $earlyCount = 0;
+                $healerCount = 0;
 
                 foreach ($cleanPicks as $hName) {
                     $hObj = $allHeroes[strtolower($hName)] ?? null;
@@ -279,16 +291,14 @@ class TeamDraftDnaService
                     if (str_contains($cls, 'tank') || in_array($hLower, $knownHeavyTanks)) $tankCount++;
                     if (in_array($hLower, $knownAssassins) || str_contains($cls, 'assassin')) $assassinCount++;
                     if (in_array($hLower, $knownLateScalers) || str_contains($cls, 'marksman')) $scalerCount++;
-                    if (in_array($hLower, $knownHealerSupports) || str_contains($cls, 'support')) $supportCount++;
-                    if (in_array($hLower, $knownEarlyAggro)) $earlyCount++;
+                    if (in_array($hLower, $knownHealers) || str_contains($cls, 'support')) $healerCount++;
                 }
 
                 if ($fighterCount >= 2) $archetypes['Double Fighter']++;
                 if ($tankCount >= 2) $archetypes['Tank Jungler']++;
-                if ($assassinCount >= 1) $archetypes['Assassin Snowball']++;
+                if ($assassinCount >= 1 && $isFastGame) $archetypes['Assassin Snowball']++;
                 if ($scalerCount >= 2) $archetypes['Late Game Scaling']++;
-                if ($supportCount >= 1) $archetypes['Support Utility (UBE)']++;
-                if ($earlyCount >= 2) $archetypes['Early Game Aggro']++;
+                if ($healerCount >= 1) $archetypes['Healer / Sustain']++;
             }
         }
 
@@ -358,29 +368,51 @@ class TeamDraftDnaService
             ];
         }
 
-        // C. Deteksi Playstyle Tag Otomatis
-        arsort($archetypes);
-        $primaryPlaystyle = array_key_first($archetypes);
-        $primaryPlaystyleCount = $archetypes[$primaryPlaystyle];
-        $primaryPlaystylePct = round(($primaryPlaystyleCount / max(1, $totalGames)) * 100);
-
-        $playstyleDescriptions = [
-            'Double Fighter'        => "Kerap mengandalkan formasi 2 Fighter untuk dominasi pertarungan objektif Turtle dan invasi jungle.",
-            'Tank Jungler'          => "Mengutamakan frontline tebal dengan Tank Jungler sustain tinggi untuk penguasaan retribution dan lord.",
-            'Assassin Snowball'     => "Berfokus pada Assassin berkecepatan tinggi untuk pick-off instan dan mematikan pergerakan backline lawan.",
-            'Late Game Scaling'     => "Memilih komposisi scaling dengan proteksi maksimal menuju fase late game (12+ menit).",
-            'Support Utility (UBE)' => "Menggunakan Support Healer / Enabler untuk formasi UBE solid dalam teamfight berkelanjutan.",
-            'Early Game Aggro'      => "Menekan tempo permainan sejak menit awal (0-5 menit) dengan inisiator agresif.",
-        ];
-
+        // C. Deteksi Playstyle Tag Otomatis Menggunakan Relative Deviation vs Rata-Rata Liga MPL ID S18
+        $leagueAverages = $this->getLeagueArchetypeAverages();
+        $relativeDeviations = [];
         $compositionBreakdown = [];
+
         foreach ($archetypes as $archName => $cnt) {
+            $pct = round(($cnt / max(1, $totalGames)) * 100, 1);
+            $leagueAvg = $leagueAverages[$archName] ?? 0.0;
+            $diff = round($pct - $leagueAvg, 1);
+            $relativeDeviations[$archName] = $diff;
+
             $compositionBreakdown[] = [
-                'name'       => $archName,
-                'count'      => $cnt,
-                'percentage' => round(($cnt / max(1, $totalGames)) * 100, 1),
+                'name'               => $archName,
+                'count'              => $cnt,
+                'percentage'         => $pct,
+                'league_average'     => $leagueAvg,
+                'relative_deviation' => ($diff >= 0 ? '+' : '') . $diff . '%',
             ];
         }
+
+        arsort($relativeDeviations);
+        $topArch = array_key_first($relativeDeviations);
+        $topDiff = $relativeDeviations[$topArch] ?? 0.0;
+
+        // Ambang batas (threshold) selisih positif minimal +10% (+0.10) di atas rata-rata liga MPL ID S18
+        if ($topDiff >= 10.0) {
+            $primaryPlaystyle = $topArch;
+            $primaryPlaystyleCount = $archetypes[$primaryPlaystyle];
+            $primaryPlaystylePct = round(($primaryPlaystyleCount / max(1, $totalGames)) * 100);
+            $frequencyText = "{$primaryPlaystylePct}% Game ({$primaryPlaystyleCount}/{$totalGames}) • +{$topDiff}% vs Liga";
+        } else {
+            $primaryPlaystyle = 'Flexible / Adaptive Meta';
+            $primaryPlaystyleCount = $totalGames;
+            $primaryPlaystylePct = 100;
+            $frequencyText = "Komposisi adaptif & fleksibel mengikuti draf lawan";
+        }
+
+        $playstyleDescriptions = [
+            'Double Fighter'           => "Kerap mengandalkan formasi 2 Fighter untuk dominasi pertarungan objektif Turtle dan invasi jungle.",
+            'Tank Jungler'             => "Mengutamakan frontline tebal dengan Tank Jungler sustain tinggi untuk penguasaan retribution dan lord.",
+            'Assassin Snowball'        => "Berfokus pada Assassin berkecepatan tinggi dengan penyelesaian objektif cepat (<15 menit) untuk pick-off instan dan kontrol tempo agresif.",
+            'Late Game Scaling'        => "Memilih komposisi scaling dengan proteksi maksimal menuju fase late game (12+ menit).",
+            'Healer / Sustain'         => "Mengandalkan hero Healer / Support sustain murni untuk formasi grouping rapat dan war berkepanjangan.",
+            'Flexible / Adaptive Meta' => "Gaya main adaptif dan fleksibel yang menyesuaikan komposisi draf serta tempo permainan berdasarkan strategi lawan.",
+        ];
 
         // Hitung win rate persentase sinergi & counter
         $computedSynergies = [];
@@ -417,7 +449,7 @@ class TeamDraftDnaService
             'top_heroes'            => $topHeroesList,
             'top_bans'              => $topBansList,
             'playstyle_tag'         => $primaryPlaystyle,
-            'playstyle_frequency'   => "{$primaryPlaystylePct}% Game ({$primaryPlaystyleCount}/{$totalGames})",
+            'playstyle_frequency'   => $frequencyText,
             'playstyle_description' => $playstyleDescriptions[$primaryPlaystyle] ?? "Gaya main kompetitif MPL ID S18.",
             'composition_breakdown' => $compositionBreakdown,
             'hero_pool_keys'        => $heroPoolKeys,
@@ -473,18 +505,95 @@ class TeamDraftDnaService
     }
 
     /**
+     * Hitung rata-rata liga MPL ID Season 18 untuk seluruh 5 arketipe draf utama
+     */
+    public function getLeagueArchetypeAverages(): array
+    {
+        if (self::$leagueAveragesCache !== null) {
+            return self::$leagueAveragesCache;
+        }
+
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('match_games')) {
+                return self::$baselineLeagueAverages;
+            }
+
+            $games = MatchGame::whereNotNull('team_1_picks')
+                ->where('team_1_picks', '!=', '[]')
+                ->where('team_1_picks', '!=', '')
+                ->get();
+
+            if ($games->isEmpty()) {
+                return self::$baselineLeagueAverages;
+            }
+
+            $allHeroes = $this->csvService->getHeroes()->keyBy(fn($h) => strtolower($h->hero_name));
+            $knownHeavyTanks = ['fredrinn', 'baxia', 'akai', 'barats', 'hylos', 'gloo', 'belerick', 'uranus', 'grock', 'tigreal'];
+            $knownAssassins = ['ling', 'fanny', 'hayabusa', 'nolan', 'joy', 'lancelot', 'suyou', 'helcurt', 'gusion', 'aamon', 'karina', 'benedetta', 'hirara'];
+            $knownLateScalers = ['claude', 'moskov', 'karrie', 'harith', 'cecilion', 'xavier', 'lesley', 'bruno', 'natan', 'irithel', 'miya', 'layla', 'hanabi', 'aldous'];
+            $knownHealers = ['estes', 'floryn', 'angela', 'rafaela', 'mathilda', 'diggie', 'carmilla'];
+
+            $leagueCounts = [
+                'Double Fighter'    => 0,
+                'Tank Jungler'      => 0,
+                'Assassin Snowball' => 0,
+                'Late Game Scaling' => 0,
+                'Healer / Sustain'  => 0,
+            ];
+            $totalSides = 0;
+
+            foreach ($games as $g) {
+                $durationParts = explode(':', (string)$g->duration);
+                $durationSeconds = count($durationParts) === 2 ? ((int)$durationParts[0] * 60 + (int)$durationParts[1]) : 0;
+                $isFastGame = ($durationSeconds > 0 && $durationSeconds < 900);
+
+                foreach ([$g->team_1_picks, $g->team_2_picks] as $picks) {
+                    if (empty($picks) || !is_array($picks)) continue;
+                    $totalSides++;
+
+                    $fCount = 0; $tCount = 0; $aCount = 0; $sCount = 0; $hCount = 0;
+                    foreach ($picks as $pName) {
+                        $pLower = strtolower(trim((string)$pName));
+                        $hObj = $allHeroes[$pLower] ?? null;
+                        $cls = $hObj ? strtolower($hObj->primary_class ?: $hObj->class) : '';
+
+                        if (str_contains($cls, 'fighter')) $fCount++;
+                        if (str_contains($cls, 'tank') || in_array($pLower, $knownHeavyTanks)) $tCount++;
+                        if (in_array($pLower, $knownAssassins) || str_contains($cls, 'assassin')) $aCount++;
+                        if (in_array($pLower, $knownLateScalers) || str_contains($cls, 'marksman')) $sCount++;
+                        if (in_array($pLower, $knownHealers) || str_contains($cls, 'support')) $hCount++;
+                    }
+
+                    if ($fCount >= 2) $leagueCounts['Double Fighter']++;
+                    if ($tCount >= 2) $leagueCounts['Tank Jungler']++;
+                    if ($aCount >= 1 && $isFastGame) $leagueCounts['Assassin Snowball']++;
+                    if ($sCount >= 2) $leagueCounts['Late Game Scaling']++;
+                    if ($hCount >= 1) $leagueCounts['Healer / Sustain']++;
+                }
+            }
+
+            $averages = [];
+            foreach ($leagueCounts as $k => $cnt) {
+                $averages[$k] = $totalSides > 0 ? round(($cnt / $totalSides) * 100, 1) : 0.0;
+            }
+
+            self::$leagueAveragesCache = $averages;
+            return $averages;
+        } catch (\Throwable $e) {
+            return self::$baselineLeagueAverages;
+        }
+    }
+
+    /**
      * Profil dasar / fallback Draft DNA untuk 9 tim MPL ID Season 18
      */
     public function getBaselineTeamDna(string $teamName): array
     {
         $tag = match($teamName) {
-            'Alter Ego' => 'Double Fighter',
-            'Bigetron By Vitality', 'ONIC' => 'Late Game Scaling',
-            'RRQ', 'EVOS' => 'Assassin Snowball',
-            'Geek Fam', 'Natus Vincere' => 'Double Fighter',
-            'Team Liquid ID' => 'Late Game Scaling',
-            'Dewa United' => 'Tank Jungler',
-            default => 'Balanced Teamfight',
+            'RRQ' => 'Double Fighter',
+            'Dewa United' => 'Assassin Snowball',
+            'Geek Fam' => 'Late Game Scaling',
+            default => 'Flexible / Adaptive Meta',
         };
 
         return [
