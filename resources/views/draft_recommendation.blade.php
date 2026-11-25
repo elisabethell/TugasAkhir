@@ -47,32 +47,6 @@
         </div>
 
         <div class="flex items-center gap-2 flex-wrap">
-            <!-- Skenario Demo Dropdown Button (FASE 6) -->
-            <div class="relative inline-block text-left" id="demoScenarioDropdown">
-                <button type="button" 
-                        onclick="toggleScenarioMenu(event)" 
-                        class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-amber-900 border border-amber-300 rounded-full px-3.5 py-1.5 sm:py-2 text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition">
-                    <span>Skenario Demo</span>
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
-                <div id="demoScenarioMenu" class="hidden absolute right-0 mt-2 w-72 rounded-2xl bg-white shadow-xl border border-[#F3E8E8] py-2 z-50 text-left divide-y divide-gray-100">
-                    <button type="button" onclick="loadDemoScenario('magic-deficit')" class="w-full px-4 py-2.5 text-left text-xs hover:bg-[#FCECEE] transition block">
-                        <div class="font-extrabold text-[#700B1A]">Skenario 1: Defisit Magic (Mage Wajib)</div>
-                        <div class="text-[10px] text-gray-500 mt-0.5">3 Physical (Tigreal, Bruno, Ling) memicu [RBR-COMP-01] Critical</div>
-                    </button>
-                    <button type="button" onclick="loadDemoScenario('no-frontline')" class="w-full px-4 py-2.5 text-left text-xs hover:bg-[#FCECEE] transition block">
-                        <div class="font-extrabold text-[#700B1A]">Skenario 2: Tanpa Frontline & Minim CC</div>
-                        <div class="text-[10px] text-gray-500 mt-0.5">Layla, Lesley, Hanabi memicu [RBR-COMP-02] & [RBR-CC-01]</div>
-                    </button>
-                    <button type="button" onclick="loadDemoScenario('late-scaling')" class="w-full px-4 py-2.5 text-left text-xs hover:bg-[#FCECEE] transition block">
-                        <div class="font-extrabold text-[#700B1A]">Skenario 3: Late-Heavy vs Early Snowball</div>
-                        <div class="text-[10px] text-gray-500 mt-0.5">Late scalers (Claude, Cecilion, Aldous) vs Early aggro memicu [RBR-POW-02]</div>
-                    </button>
-                </div>
-            </div>
-
             <button type="button" 
                     onclick="resetDraft()" 
                     class="bg-white hover:bg-[#FAF8F8] text-gray-700 border border-[#F3E8E8] rounded-full px-3.5 py-1.5 sm:py-2 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition">
@@ -3593,62 +3567,6 @@
                 loadingBar.classList.add('opacity-0');
             }
         });
-    }
-
-    // Kontrol Menu Skenario Demo (FASE 6)
-    function toggleScenarioMenu(e) {
-        if (e) e.stopPropagation();
-        const menu = document.getElementById('demoScenarioMenu');
-        if (menu) menu.classList.toggle('hidden');
-    }
-
-    function closeScenarioMenu() {
-        const menu = document.getElementById('demoScenarioMenu');
-        if (menu) menu.classList.add('hidden');
-    }
-
-    document.addEventListener('click', (e) => {
-        const dropdown = document.getElementById('demoScenarioDropdown');
-        if (dropdown && !dropdown.contains(e.target)) {
-            closeScenarioMenu();
-        }
-    });
-
-    function loadDemoScenario(type) {
-        closeScenarioMenu();
-        allyBans = [];
-        enemyBans = [];
-        if (type === 'magic-deficit') {
-            // Skenario 1: Defisit Magic (Mage Wajib RBR-COMP-01)
-            allyTeam = ['Tigreal', 'Bruno', 'Ling'];
-            allyLanes = ['ROAM', 'GOLD', 'JGL'];
-            enemyTeam = ['Pharsa', 'Hylos', 'Granger'];
-            enemyLanes = ['MID', 'ROAM', 'JGL'];
-            showToast('Skenario 1 dimuat: Tim Sekutu defisit Magic (memicu [RBR-COMP-01]).');
-        } else if (type === 'no-frontline') {
-            // Skenario 2: Tanpa Frontline & Minim CC (RBR-COMP-02 & RBR-CC-01)
-            allyTeam = ['Layla', 'Lesley', 'Hanabi'];
-            allyLanes = ['GOLD', 'EXP', 'MID'];
-            enemyTeam = ['Tigreal', 'Ling', 'Harith'];
-            enemyLanes = ['ROAM', 'JGL', 'MID'];
-            showToast('Skenario 2 dimuat: Tanpa Frontline & Minim CC (memicu [RBR-COMP-02]).');
-        } else if (type === 'late-scaling') {
-            // Skenario 3: Late-Heavy vs Early Snowball (RBR-POW-02)
-            allyTeam = ['Claude', 'Cecilion', 'Aldous', 'Uranus'];
-            allyLanes = ['GOLD', 'MID', 'EXP', 'ROAM'];
-            enemyTeam = ['Selena', 'Martis', 'Paquito', 'Brody'];
-            enemyLanes = ['ROAM', 'JGL', 'EXP', 'GOLD'];
-            showToast('Skenario 3 dimuat: Late-Heavy scaling vs Early Aggro (memicu [RBR-POW-02]).');
-        }
-
-        activeTarget = { team: 'ally', index: Math.min(4, allyTeam.length), type: 'pick' };
-        activeTeamMode = 'ally';
-        updateTeamModeUI();
-        renderSlots();
-        renderPickerGrid();
-        updateDamageAndPowerSpikes();
-        renderTacticalAnalysis();
-        syncServerDraft();
     }
 
     function shareDraft() {

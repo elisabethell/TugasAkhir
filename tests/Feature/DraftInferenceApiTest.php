@@ -104,7 +104,7 @@ class DraftInferenceApiTest extends TestCase
         $response->assertSee('allyCompositionAlerts');
         $response->assertSee('enemyCompositionAlerts');
         $response->assertSee('Belum ada data');
-        $response->assertSee('Skenario Demo');
+        $response->assertDontSee('Skenario Demo');
         $response->assertSee('allyIdentityBadge');
         $response->assertSee('enemyIdentityBadge');
         $response->assertSee('allyWinConditionText');
