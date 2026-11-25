@@ -524,6 +524,62 @@ class DraftInferenceApiTest extends TestCase
     }
 
     /**
+     * Test: Sinergi dan Counter 100% Liquipedia Data-Driven (Tanpa CSV Statis)
+     */
+    public function test_synergy_and_counter_are_purely_liquipedia_driven(): void
+    {
+        $teamDnaService = app(\App\Services\TeamDraftDnaService::class);
+        $leagueData = $teamDnaService->getLeagueSynergiesAndCounters();
+
+        $this->assertIsArray($leagueData);
+        $this->assertArrayHasKey('synergies', $leagueData);
+        $this->assertArrayHasKey('counters', $leagueData);
+
+        // Pastikan relasi sinergi turnamen terpetakan dari MatchGame
+        $this->assertNotEmpty($leagueData['synergies']);
+        $firstSyn = reset($leagueData['synergies']);
+        $this->assertArrayHasKey('hero_a', $firstSyn);
+        $this->assertArrayHasKey('hero_b', $firstSyn);
+        $this->assertArrayHasKey('picks', $firstSyn);
+        $this->assertArrayHasKey('win_rate', $firstSyn);
+
+        // Uji rekomendasi draft menghasilkan sinergi atau counter berbasis Liquipedia
+        // Dalam setup(), Alter Ego memainkan Paquito bersama [Zhuxin, Belerick, Claude, Nolan] melawan Hirara
+        $response = $this->postJson('/api/analyze-draft', [
+            'team_name'     => 'Alter Ego',
+            'ally_heroes'   => ['Paquito'],
+            'enemy_heroes'  => ['Hirara'],
+            'banned_heroes' => [],
+        ]);
+
+        $response->assertStatus(200);
+        $data = $response->json();
+        $this->assertNotEmpty($data['recommendations']);
+
+        // Verifikasi bahwa hero rekomendasi memiliki data sinergi atau counter turnamen
+        $hasLiquipediaDrivenSynergyOrCounter = false;
+        foreach ($data['recommendations'] as $rec) {
+            $syns = $rec['breakdown']['data']['synergy'] ?? [];
+            $ctrs = $rec['breakdown']['data']['counter'] ?? [];
+
+            foreach ($syns as $s) {
+                if (in_array($s['source'] ?? '', ['team_dna', 'league_mpl_s18'])) {
+                    $hasLiquipediaDrivenSynergyOrCounter = true;
+                    break 2;
+                }
+            }
+            foreach ($ctrs as $c) {
+                if (in_array($c['source'] ?? '', ['team_h2h', 'league_h2h', 'hero_pool_comfort_fallback'])) {
+                    $hasLiquipediaDrivenSynergyOrCounter = true;
+                    break 2;
+                }
+            }
+        }
+
+        $this->assertTrue($hasLiquipediaDrivenSynergyOrCounter, 'Rekomendasi harus memuat data sinergi atau counter empiris dari Liquipedia.');
+    }
+
+    /**
      * Helper login admin untuk pengujian
      */
     private function actingAsAdmin(): void

@@ -24,6 +24,7 @@ class TeamDraftDnaService
     protected CsvDataService $csvService;
     protected static array $cache = [];
     protected static ?array $leagueAveragesCache = null;
+    protected static ?array $leagueSynergiesAndCountersCache = null;
 
     protected static array $baselineLeagueAverages = [
         'Double Fighter'    => 37.9,
@@ -42,6 +43,7 @@ class TeamDraftDnaService
     {
         self::$cache = [];
         self::$leagueAveragesCache = null;
+        self::$leagueSynergiesAndCountersCache = null;
     }
 
     /**
@@ -581,6 +583,156 @@ class TeamDraftDnaService
             return $averages;
         } catch (\Throwable $e) {
             return self::$baselineLeagueAverages;
+        }
+    }
+
+    /**
+     * Hitung seluruh relasi sinergi duet dan counter head-to-head dari seluruh pertandingan MPL ID S18 (Liquipedia)
+     * 100% data-driven tanpa dependensi CSV statis.
+     *
+     * @return array [
+     *   'synergies' => array,
+     *   'counters'  => array
+     * ]
+     */
+    public function getLeagueSynergiesAndCounters(): array
+    {
+        if (self::$leagueSynergiesAndCountersCache !== null) {
+            return self::$leagueSynergiesAndCountersCache;
+        }
+
+        $leagueSynergyPairs = [];
+        $leagueCounterMatchups = [];
+
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('match_games')) {
+                return ['synergies' => [], 'counters' => []];
+            }
+
+            $games = MatchGame::with('match')
+                ->whereNotNull('team_1_picks')
+                ->where('team_1_picks', '!=', '[]')
+                ->where('team_1_picks', '!=', '')
+                ->get();
+
+            foreach ($games as $game) {
+                $team1Picks = is_array($game->team_1_picks) ? $game->team_1_picks : (json_decode($game->team_1_picks, true) ?: []);
+                $team2Picks = is_array($game->team_2_picks) ? $game->team_2_picks : (json_decode($game->team_2_picks, true) ?: []);
+
+                $cleanPicks1 = array_values(array_filter(array_map('trim', $team1Picks)));
+                $cleanPicks2 = array_values(array_filter(array_map('trim', $team2Picks)));
+
+                if (empty($cleanPicks1) || empty($cleanPicks2)) {
+                    continue;
+                }
+
+                $match = $game->match;
+                $t1Name = $match ? $match->team_1_name : 'Team 1';
+                $t2Name = $match ? $match->team_2_name : 'Team 2';
+
+                $isWin1 = ($game->team_1_status === 'W' || $game->winner_team === 'team_1' || $game->winner_team === $t1Name);
+                $isWin2 = ($game->team_2_status === 'W' || $game->winner_team === 'team_2' || $game->winner_team === $t2Name);
+
+                // 1. Sinergi Duet Team 1
+                $cnt1 = count($cleanPicks1);
+                for ($i = 0; $i < $cnt1; $i++) {
+                    for ($j = $i + 1; $j < $cnt1; $j++) {
+                        $p1 = $cleanPicks1[$i];
+                        $p2 = $cleanPicks1[$j];
+                        $k1 = strtolower($p1 . '|' . $p2);
+                        $k2 = strtolower($p2 . '|' . $p1);
+
+                        if (!isset($leagueSynergyPairs[$k1])) {
+                            $leagueSynergyPairs[$k1] = ['hero_a' => $p1, 'hero_b' => $p2, 'picks' => 0, 'wins' => 0];
+                        }
+                        $leagueSynergyPairs[$k1]['picks']++;
+                        if ($isWin1) {
+                            $leagueSynergyPairs[$k1]['wins']++;
+                        }
+                        $leagueSynergyPairs[$k2] = &$leagueSynergyPairs[$k1];
+                    }
+                }
+
+                // 2. Sinergi Duet Team 2
+                $cnt2 = count($cleanPicks2);
+                for ($i = 0; $i < $cnt2; $i++) {
+                    for ($j = $i + 1; $j < $cnt2; $j++) {
+                        $p1 = $cleanPicks2[$i];
+                        $p2 = $cleanPicks2[$j];
+                        $k1 = strtolower($p1 . '|' . $p2);
+                        $k2 = strtolower($p2 . '|' . $p1);
+
+                        if (!isset($leagueSynergyPairs[$k1])) {
+                            $leagueSynergyPairs[$k1] = ['hero_a' => $p1, 'hero_b' => $p2, 'picks' => 0, 'wins' => 0];
+                        }
+                        $leagueSynergyPairs[$k1]['picks']++;
+                        if ($isWin2) {
+                            $leagueSynergyPairs[$k1]['wins']++;
+                        }
+                        $leagueSynergyPairs[$k2] = &$leagueSynergyPairs[$k1];
+                    }
+                }
+
+                // 3. Counter Head-to-Head (Team 1 vs Team 2)
+                foreach ($cleanPicks1 as $h1) {
+                    foreach ($cleanPicks2 as $h2) {
+                        // h1 vs h2
+                        $h2h_1 = strtolower($h1 . '|vs|' . $h2);
+                        if (!isset($leagueCounterMatchups[$h2h_1])) {
+                            $leagueCounterMatchups[$h2h_1] = ['hero' => $h1, 'enemy' => $h2, 'matches' => 0, 'wins' => 0];
+                        }
+                        $leagueCounterMatchups[$h2h_1]['matches']++;
+                        if ($isWin1) {
+                            $leagueCounterMatchups[$h2h_1]['wins']++;
+                        }
+
+                        // h2 vs h1
+                        $h2h_2 = strtolower($h2 . '|vs|' . $h1);
+                        if (!isset($leagueCounterMatchups[$h2h_2])) {
+                            $leagueCounterMatchups[$h2h_2] = ['hero' => $h2, 'enemy' => $h1, 'matches' => 0, 'wins' => 0];
+                        }
+                        $leagueCounterMatchups[$h2h_2]['matches']++;
+                        if ($isWin2) {
+                            $leagueCounterMatchups[$h2h_2]['wins']++;
+                        }
+                    }
+                }
+            }
+
+            // Hitung persentase win rate sinergi
+            $computedSynergies = [];
+            foreach ($leagueSynergyPairs as $k => $item) {
+                $computedSynergies[$k] = [
+                    'hero_a'   => $item['hero_a'],
+                    'hero_b'   => $item['hero_b'],
+                    'picks'    => $item['picks'],
+                    'wins'     => $item['wins'],
+                    'win_rate' => round(($item['wins'] / max(1, $item['picks'])) * 100, 1),
+                ];
+            }
+
+            // Hitung persentase win rate counter head-to-head
+            $computedCounters = [];
+            foreach ($leagueCounterMatchups as $k => $item) {
+                $computedCounters[$k] = [
+                    'hero'     => $item['hero'],
+                    'enemy'    => $item['enemy'],
+                    'matches'  => $item['matches'],
+                    'wins'     => $item['wins'],
+                    'losses'   => $item['matches'] - $item['wins'],
+                    'win_rate' => round(($item['wins'] / max(1, $item['matches'])) * 100, 1),
+                ];
+            }
+
+            self::$leagueSynergiesAndCountersCache = [
+                'synergies' => $computedSynergies,
+                'counters'  => $computedCounters,
+            ];
+
+            return self::$leagueSynergiesAndCountersCache;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Error computing league synergies/counters: " . $e->getMessage());
+            return ['synergies' => [], 'counters' => []];
         }
     }
 

@@ -482,6 +482,9 @@ class DraftInferenceService
         $teamHeroPoolKeys = $hasTeamDna ? ($teamDna['hero_pool_keys'] ?? []) : [];
         $teamPlaystyle = $hasTeamDna ? ($teamDna['playstyle_tag'] ?? null) : null;
 
+        // Ambil data agregat sinergi duet & counter head-to-head 100% dari seluruh 215 game MPL ID S18 (Liquipedia)
+        $leagueData = $this->teamDnaService->getLeagueSynergiesAndCounters();
+
         $results = [];
 
         foreach ($allHeroes as $h) {
@@ -525,22 +528,19 @@ class DraftInferenceService
                 $wrSource = 'overall_mpl_s18';
             }
 
-            // 2. Evaluasi Sinergi (Prioritas Sinergi Tim -> Fallback Association Rule Mining CSV)
+            // 2. Evaluasi Sinergi (Prioritas Sinergi Tim -> Fallback Sinergi Liga MPL ID S18 dari Liquipedia)
             $synergyList = [];
             $synergyScore = 0.0;
             if ($wm['ally_count'] > 0) {
-                $candidateSyns = !empty($h->synergies) ? array_map(function($item) {
-                    return strtolower($item['heroname'] ?? '');
-                }, $h->synergies) : [];
-
                 foreach ($wm['ally_heroes'] as $ah) {
                     $aLower = strtolower($ah['name']);
                     $synKey1 = $nameLower . '|' . $aLower;
                     $synKey2 = $aLower . '|' . $nameLower;
                     $teamSyn = $hasTeamDna ? ($teamDna['synergies'][$synKey1] ?? ($teamDna['synergies'][$synKey2] ?? null)) : null;
+                    $leagueSyn = $leagueData['synergies'][$synKey1] ?? ($leagueData['synergies'][$synKey2] ?? null);
 
                     if ($teamSyn && $teamSyn['picks'] > 0) {
-                        // Data sinergi tim empiris
+                        // Data sinergi tim empiris (Liquipedia match_games)
                         $val = round(8.0 + min(12.0, max(0.0, ($teamSyn['win_rate'] - 45.0) * 0.4)) + min(4.0, $teamSyn['picks'] * 0.8), 1);
                         $synergyScore += $val;
                         $synergyList[] = [
@@ -550,37 +550,33 @@ class DraftInferenceService
                             'picks'    => $teamSyn['picks'],
                             'win_rate' => $teamSyn['win_rate'] . '%',
                         ];
-                    } elseif (in_array($aLower, $candidateSyns)) {
-                        // Fallback ke Sinergi ARM / CSV
-                        $val = 12.0;
+                    } elseif ($leagueSyn && $leagueSyn['picks'] > 0) {
+                        // Data sinergi liga MPL ID S18 empiris (Liquipedia match_games)
+                        $val = round(6.0 + min(10.0, max(0.0, ($leagueSyn['win_rate'] - 45.0) * 0.35)) + min(4.0, $leagueSyn['picks'] * 0.5), 1);
                         $synergyScore += $val;
                         $synergyList[] = [
-                            'dengan' => $ah['name'],
-                            'nilai'  => $val,
-                            'source' => $hasTeamDna ? 'overall_meta_fallback' : 'overall_meta',
+                            'dengan'   => $ah['name'],
+                            'nilai'    => $val,
+                            'source'   => 'league_mpl_s18',
+                            'picks'    => $leagueSyn['picks'],
+                            'win_rate' => $leagueSyn['win_rate'] . '%',
                         ];
                     }
                 }
             }
 
-            // 3. Evaluasi Counter (Prioritas Head-to-Head Tim -> Fallback Overall MPL ID S18)
-            // Sesuai aturan: jika musuh belum pernah dihadapi tim (n = 0), gunakan fallback statistik
-            // overall MPL, namun tetap prioritaskan hero yang masuk dalam top_heroes (Hero Pool) tim.
+            // 3. Evaluasi Counter (Prioritas Head-to-Head Tim -> Fallback Head-to-Head Liga MPL ID S18 dari Liquipedia)
             $counterList = [];
             $counterScore = 0.0;
             if ($wm['enemy_count'] > 0) {
-                $candidateCtrs = !empty($h->counters) ? array_map(function($item) {
-                    return strtolower($item['heroname'] ?? '');
-                }, $h->counters) : [];
-
                 foreach ($wm['enemy_heroes'] as $eh) {
                     $eLower = strtolower($eh['name']);
                     $h2hKey = $nameLower . '|vs|' . $eLower;
                     $teamH2h = $hasTeamDna ? ($teamDna['counters'][$h2hKey] ?? null) : null;
-                    $isMetaCounter = in_array($eLower, $candidateCtrs);
+                    $leagueH2h = $leagueData['counters'][$h2hKey] ?? null;
 
                     if ($teamH2h && $teamH2h['matches'] > 0) {
-                        // Tim pernah menghadapi musuh ini di turnamen
+                        // Head-to-head tim empiris (Liquipedia match_games)
                         $h2hN = $teamH2h['matches'];
                         $h2hWr = $teamH2h['win_rate'];
                         $val = round(8.0 + min(12.0, max(0.0, ($h2hWr - 40.0) * 0.35)) + min(4.0, $h2hN * 1.0), 1);
@@ -592,39 +588,32 @@ class DraftInferenceService
                             'matches'  => $h2hN,
                             'win_rate' => $h2hWr . '%',
                         ];
-                    } else {
-                        // Mekanisme Fallback: Musuh belum pernah dihadapi oleh tim (n = 0)
-                        if ($isMetaCounter) {
-                            $val = 14.0;
-                            // Prioritaskan hero yang masuk dalam top_heroes (Hero Pool) tim
-                            if ($isHeroInPool) {
-                                $heroPoolBonus = 6.0;
-                                $val += $heroPoolBonus;
-                                $counterList[] = [
-                                    'vs'     => $eh['name'],
-                                    'nilai'  => $val,
-                                    'source' => 'overall_meta_fallback_hero_pool',
-                                    'note'   => "Fallback MPL + Hero Pool Priority ({$teamDna['team_name']})",
-                                ];
-                            } else {
-                                $counterList[] = [
-                                    'vs'     => $eh['name'],
-                                    'nilai'  => $val,
-                                    'source' => $hasTeamDna ? 'overall_meta_fallback' : 'overall_meta',
-                                ];
-                            }
-                            $counterScore += $val;
-                        } elseif ($hasTeamDna && $isHeroInPool) {
-                            // Hero signature tim mendapat comfort priority saat menghadapi matchup belum terpetakan
-                            $comfortVal = 8.0;
-                            $counterScore += $comfortVal;
-                            $counterList[] = [
-                                'vs'     => $eh['name'],
-                                'nilai'  => $comfortVal,
-                                'source' => 'hero_pool_comfort_fallback',
-                                'note'   => "Hero Pool Signature ({$teamDna['team_name']}) vs Unfaced Matchup",
-                            ];
+                    } elseif ($leagueH2h && $leagueH2h['matches'] > 0) {
+                        // Head-to-head liga MPL ID S18 empiris (Liquipedia match_games)
+                        $h2hN = $leagueH2h['matches'];
+                        $h2hWr = $leagueH2h['win_rate'];
+                        $val = round(6.0 + min(10.0, max(0.0, ($h2hWr - 40.0) * 0.3)) + min(4.0, $h2hN * 0.4), 1);
+                        if ($isHeroInPool) {
+                            $val += 4.0;
                         }
+                        $counterScore += $val;
+                        $counterList[] = [
+                            'vs'       => $eh['name'],
+                            'nilai'    => $val,
+                            'source'   => 'league_h2h',
+                            'matches'  => $h2hN,
+                            'win_rate' => $h2hWr . '%',
+                        ];
+                    } elseif ($hasTeamDna && $isHeroInPool) {
+                        // Hero signature tim mendapat comfort priority saat menghadapi matchup belum terpetakan di turnamen
+                        $comfortVal = 8.0;
+                        $counterScore += $comfortVal;
+                        $counterList[] = [
+                            'vs'     => $eh['name'],
+                            'nilai'  => $comfortVal,
+                            'source' => 'hero_pool_comfort_fallback',
+                            'note'   => "Hero Signature ({$teamDna['team_name']}) vs Matchup Belum Terpetakan",
+                        ];
                     }
                 }
             }
@@ -829,20 +818,29 @@ class DraftInferenceService
             return "Direct counter efektif melumpuhkan {$eName} sekaligus memiliki sinergi kombo taktis dengan {$aName}.";
         }
 
-        // Cek Counter musuh
+        // Cek Counter musuh (Prioritas H2H Tim -> H2H Liga MPL S18)
         if (!empty($counters)) {
             $eName = $counters[0]['vs'];
+            if (!empty($counters[0]['source']) && $counters[0]['source'] === 'team_h2h') {
+                return "Keunggulan head-to-head {$teamDna['team_name']} melawan {$eName} ({$counters[0]['matches']} game, {$counters[0]['win_rate']} WR).";
+            }
+            if (!empty($counters[0]['source']) && $counters[0]['source'] === 'league_h2h') {
+                return "Keunggulan head-to-head turnamen MPL ID S18 melawan {$eName} ({$counters[0]['matches']} game, {$counters[0]['win_rate']} WR).";
+            }
             if (!empty($counters[0]['note'])) {
                 return "{$counters[0]['note']} efektif meredam pergerakan {$eName}.";
             }
-            return "Direct counter efektif terhadap {$eName} berdasarkan keunggulan mekanik skill pelumpuh lawan.";
+            return "Direct counter efektif terhadap {$eName} berdasarkan data head-to-head turnamen.";
         }
 
-        // Cek Sinergi sekutu
+        // Cek Sinergi sekutu (Prioritas Duet Tim -> Duet Liga MPL S18)
         if (!empty($synergies)) {
             $aName = $synergies[0]['dengan'];
             if (!empty($synergies[0]['source']) && $synergies[0]['source'] === 'team_dna') {
                 return "Duet andalan {$teamDna['team_name']} bersama {$aName} ({$synergies[0]['picks']} game, {$synergies[0]['win_rate']} WR).";
+            }
+            if (!empty($synergies[0]['source']) && $synergies[0]['source'] === 'league_mpl_s18') {
+                return "Duet meta turnamen MPL ID S18 bersama {$aName} ({$synergies[0]['picks']} game, {$synergies[0]['win_rate']} WR).";
             }
             return "Membentuk sinergi taktis yang kuat bersama {$aName} untuk penguasaan teamfight objektif.";
         }

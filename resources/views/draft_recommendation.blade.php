@@ -63,7 +63,7 @@
                 <svg class="w-3.5 h-3.5 text-[#700B1A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
-                <span>Export PDF Cheat Sheet Coach</span>
+                <span>Download / Cetak PDF Cheat Sheet</span>
             </button>
 
             <button type="button" 
@@ -123,12 +123,6 @@
                         ({{ ($allTeamsDna[0]['wins'] ?? 28) }}W - {{ ($allTeamsDna[0]['losses'] ?? 20) }}L)
                     </span>
                 </div>
-
-                <!-- Playstyle Tag Badge -->
-                <span id="compactTeamPlaystyle" class="bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD] text-[10px] font-black px-2.5 py-1 rounded-xl uppercase flex items-center gap-1 shadow-2xs">
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#700B1A]"></span>
-                    <span id="compactTeamPlaystyleText">{{ $allTeamsDna[0]['playstyle_tag'] ?? 'Double Fighter' }}</span>
-                </span>
             </div>
 
             <!-- Right: Compact Top Hero Pool & Top Bans (Baris Compact) -->
@@ -745,19 +739,30 @@
     <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-[#F3E8E8]">
         
         <!-- Modal Top Actions Bar (No Print) -->
-        <div class="px-6 py-4 bg-[#FAF8F8] border-b border-[#F3E8E8] flex items-center justify-between no-print">
+        <div class="px-6 py-4 bg-[#FAF8F8] border-b border-[#F3E8E8] flex items-center justify-between no-print flex-wrap gap-2">
             <div class="flex items-center gap-2">
                 <span class="w-3 h-3 rounded-full bg-[#700B1A]"></span>
                 <span class="font-black text-sm text-[#18181B] uppercase tracking-wider">PREVIEW CHEAT SHEET COACH (A4 READY)</span>
             </div>
             <div class="flex items-center gap-2">
+                <!-- Tombol Download File PDF Langsung -->
+                <button type="button" 
+                        id="downloadPdfBtn"
+                        onclick="downloadCheatSheetPdf()" 
+                        class="bg-[#700B1A] hover:bg-[#550713] text-white text-xs font-extrabold uppercase px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    <span id="downloadPdfBtnText">Download File PDF</span>
+                </button>
+                <!-- Tombol Cetak / Browser Print -->
                 <button type="button" 
                         onclick="triggerPrintPdf()" 
-                        class="bg-[#700B1A] hover:bg-[#550713] text-white text-xs font-extrabold uppercase px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition">
+                        class="bg-white hover:bg-[#FCECEE] text-[#700B1A] border border-[#700B1A] text-xs font-bold uppercase px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                     </svg>
-                    <span>Cetak / Simpan PDF</span>
+                    <span>Print / Cetak</span>
                 </button>
                 <button type="button" 
                         onclick="closeCoachCheatSheetModal()" 
@@ -1141,6 +1146,7 @@
 </div>
 
 @push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
     // Master data dari controller
     const pickerHeroes = @json($pickerHeroes);
@@ -1236,10 +1242,6 @@
         if (wrEl) wrEl.textContent = dna.win_rate_formatted || (dna.win_rate + '%');
         const recEl = document.getElementById('compactTeamRecord');
         if (recEl) recEl.textContent = `(${dna.wins ?? 0}W - ${dna.losses ?? 0}L)`;
-
-        // Update Playstyle Tag tim
-        const playText = document.getElementById('compactTeamPlaystyleText');
-        if (playText) playText.textContent = dna.playstyle_tag || 'Double Fighter';
 
         // Update Top Hero Pool mini icons (4 hero pool signature)
         const heroPoolContainer = document.getElementById('compactTopHeroPool');
@@ -1771,19 +1773,16 @@
                         </button>
                     </div>
                     <span class="font-extrabold text-[10px] text-[#18181B] mt-1 truncate max-w-full text-center">${heroName}</span>
-                    <div class="flex items-center gap-1 mt-0.5">
+                    <div class="flex items-center justify-center mt-0.5">
                         <select onchange="changeSlotLane('ally', ${i}, this.value)" 
                                 title="Pilih Lane Spesifik (Flex Pick)"
-                                class="bg-white border border-[#F3E8E8] hover:border-[#700B1A] text-[#700B1A] text-[7.5px] font-black rounded px-1 py-0.2 focus:outline-none cursor-pointer shadow-2xs">
+                                class="bg-white border border-[#F3E8E8] hover:border-[#700B1A] text-[#700B1A] text-[7.5px] font-black rounded px-1.5 py-0.2 focus:outline-none cursor-pointer shadow-2xs">
                             <option value="ROAM" ${curLane === 'ROAM' ? 'selected' : ''}>ROAM</option>
                             <option value="JGL" ${curLane === 'JGL' ? 'selected' : ''}>JGL</option>
                             <option value="MID" ${curLane === 'MID' ? 'selected' : ''}>MID</option>
                             <option value="EXP" ${curLane === 'EXP' ? 'selected' : ''}>EXP</option>
                             <option value="GOLD" ${curLane === 'GOLD' ? 'selected' : ''}>GOLD</option>
                         </select>
-                        <span class="${heroObj.damage_type === 'Magic' ? 'bg-purple-50 text-purple-700' : 'bg-amber-50 text-amber-700'} text-[7px] font-bold px-1 rounded">
-                            ${heroObj.damage_type === 'Magic' ? 'MG' : 'PH'}
-                        </span>
                     </div>
                 `;
             } else {
@@ -1832,19 +1831,16 @@
                         </button>
                     </div>
                     <span class="font-extrabold text-[10px] text-[#18181B] mt-1 truncate max-w-full text-center">${heroName}</span>
-                    <div class="flex items-center gap-1 mt-0.5">
+                    <div class="flex items-center justify-center mt-0.5">
                         <select onchange="changeSlotLane('enemy', ${i}, this.value)" 
                                 title="Pilih Lane Spesifik (Flex Pick)"
-                                class="bg-white border border-red-200 hover:border-[#DC2626] text-red-700 text-[7.5px] font-black rounded px-1 py-0.2 focus:outline-none cursor-pointer shadow-2xs">
+                                class="bg-white border border-red-200 hover:border-[#DC2626] text-red-700 text-[7.5px] font-black rounded px-1.5 py-0.2 focus:outline-none cursor-pointer shadow-2xs">
                             <option value="ROAM" ${curLane === 'ROAM' ? 'selected' : ''}>ROAM</option>
                             <option value="JGL" ${curLane === 'JGL' ? 'selected' : ''}>JGL</option>
                             <option value="MID" ${curLane === 'MID' ? 'selected' : ''}>MID</option>
                             <option value="EXP" ${curLane === 'EXP' ? 'selected' : ''}>EXP</option>
                             <option value="GOLD" ${curLane === 'GOLD' ? 'selected' : ''}>GOLD</option>
                         </select>
-                        <span class="${heroObj.damage_type === 'Magic' ? 'bg-purple-50 text-purple-700' : 'bg-amber-50 text-amber-700'} text-[7px] font-bold px-1 rounded">
-                            ${heroObj.damage_type === 'Magic' ? 'MG' : 'PH'}
-                        </span>
                     </div>
                 `;
             } else {
@@ -2646,10 +2642,6 @@
             const flexLanes = p.lane_flex || [p.lane || 'flex'];
             const primaryLane = (flexLanes[0] || 'Flex').toUpperCase();
 
-            // Null-check badges
-            const dmgBadgeHtml = (p.damage_type && p.damage_type !== '—') ? 
-                `<span class="${p.damage_type === 'Magic' ? 'bg-purple-100 text-purple-800' : (p.damage_type === 'Mixed' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800')} text-[7.5px] font-bold px-1 rounded" title="Tipe Serangan: ${p.damage_type}">${p.damage_type === 'Magic' ? 'MG' : (p.damage_type === 'Mixed' ? 'MX' : 'PH')}</span>` : '';
-
             // Comfort Pick Check (Draft DNA Tim)
             const isComfortPick = Boolean(p.team_dna && p.team_dna.in_hero_pool);
             const comfortBadgeHtml = isComfortPick ? 
@@ -2695,7 +2687,6 @@
                                 <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-600 text-[8px] font-bold px-1.5 py-0.2 rounded" title="Lane: ${flexLanes.join(', ')}">
                                     ${primaryLane}
                                 </span>
-                                ${dmgBadgeHtml}
                                 ${comfortBadgeHtml}
                             </div>
                             <!-- SATU chip alasan utama (Compact) -->
@@ -3182,6 +3173,42 @@
         window.print();
     }
 
+    function downloadCheatSheetPdf() {
+        const element = document.getElementById('printableCoachSheet');
+        if (!element) return;
+
+        const btn = document.getElementById('downloadPdfBtn');
+        const btnText = document.getElementById('downloadPdfBtnText');
+        const origText = btnText ? btnText.innerText : 'Download File PDF';
+
+        if (btnText) btnText.innerText = 'Mengunduh PDF...';
+        if (btn) btn.disabled = true;
+
+        const opt = {
+            margin:       [8, 8, 8, 8],
+            filename:     'MetaScout_Laporan_Draft_MLBB_' + new Date().toISOString().slice(0, 10) + '.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, logging: false },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        if (window.html2pdf) {
+            window.html2pdf().set(opt).from(element).save().then(() => {
+                if (btnText) btnText.innerText = origText;
+                if (btn) btn.disabled = false;
+            }).catch(err => {
+                console.warn('html2pdf gagal, fallback ke window.print:', err);
+                window.print();
+                if (btnText) btnText.innerText = origText;
+                if (btn) btn.disabled = false;
+            });
+        } else {
+            window.print();
+            if (btnText) btnText.innerText = origText;
+            if (btn) btn.disabled = false;
+        }
+    }
+
     function setPickerLane(lane, btn) {
         pickerLane = lane;
         document.querySelectorAll('.picker-lane-btn').forEach(b => {
@@ -3242,24 +3269,30 @@
 
     function renderSynergyBadges(synList) {
         if (!synList || synList.length === 0) {
-            return '<span class="text-gray-400 italic text-[9.5px]">Belum ada sinergi spesifik dengan hero sekutu saat ini</span>';
+            return '<span class="text-gray-400 italic text-[9.5px]">Belum ada data sinergi duet di turnamen</span>';
         }
-        return synList.map(s => `
-            <span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded font-black text-[9px]">
-                +${(s.nilai || 12).toFixed(1)} dgn ${s.dengan}
-            </span>
-        `).join(' ');
+        return synList.map(s => {
+            const extra = s.win_rate ? ` (${s.win_rate}${s.picks ? `, ${s.picks}G` : ''})` : '';
+            return `
+                <span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded font-black text-[9px]" title="Sinergi Duet Liquipedia: ${s.source === 'team_dna' ? 'Data Historis Tim' : 'Data Liga MPL S18'}">
+                    +${(s.nilai || 12).toFixed(1)} dgn ${s.dengan}${extra}
+                </span>
+            `;
+        }).join(' ');
     }
 
     function renderCounterBadges(ctrList) {
         if (!ctrList || ctrList.length === 0) {
-            return '<span class="text-gray-400 italic text-[9.5px]">Belum ada target counter langsung terhadap hero musuh saat ini</span>';
+            return '<span class="text-gray-400 italic text-[9.5px]">Belum ada data head-to-head di turnamen</span>';
         }
-        return ctrList.map(c => `
-            <span class="bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD] px-1.5 py-0.5 rounded font-black text-[9px]">
-                +${(c.nilai || 14).toFixed(1)} vs ${c.vs}
-            </span>
-        `).join(' ');
+        return ctrList.map(c => {
+            const extra = c.win_rate ? ` (${c.win_rate}${c.matches ? `, ${c.matches}G` : ''})` : '';
+            return `
+                <span class="bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD] px-1.5 py-0.5 rounded font-black text-[9px]" title="Head-to-Head Liquipedia: ${c.source === 'team_h2h' ? 'Data Historis Tim' : (c.source === 'league_h2h' ? 'Data Liga MPL S18' : 'Signature Tim')}">
+                    +${(c.nilai || 14).toFixed(1)} vs ${c.vs}${extra}
+                </span>
+            `;
+        }).join(' ');
     }
 
     function renderFiredRulesList(rules) {

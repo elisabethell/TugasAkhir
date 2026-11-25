@@ -91,32 +91,49 @@ class DraftController extends Controller
             ];
         });
 
-        // 2. Pemetaan Counter (Ancaman) & Sinergi per Hero dari data_hero.csv
+        // 2. Pemetaan Counter & Sinergi 100% dari riwayat pertandingan MPL ID S18 (Liquipedia)
+        $leagueData = $this->teamDnaService->getLeagueSynergiesAndCounters();
         $heroCounterMap = [];
         $heroSynergyMap = [];
         $tournamentStats = $this->csvService->getTournamentStatistics();
         $heroStatsLookup = [];
 
         foreach ($heroes as $h) {
-            $counters = [];
-            if (!empty($h->counters)) {
-                foreach ($h->counters as $c) {
-                    if (!empty($c['heroname'])) {
-                        $counters[] = $c['heroname'];
-                    }
-                }
-            }
-            $heroCounterMap[$h->hero_name] = $counters;
+            $hLower = strtolower($h->hero_name);
 
+            // Sinergi duet turnamen (Liquipedia MPL S18)
             $synergies = [];
-            if (!empty($h->synergies)) {
-                foreach ($h->synergies as $s) {
-                    if (!empty($s['heroname'])) {
-                        $synergies[] = $s['heroname'];
+            foreach ($leagueData['synergies'] as $synItem) {
+                if (strtolower($synItem['hero_a']) === $hLower && $synItem['picks'] >= 2 && $synItem['win_rate'] >= 50.0) {
+                    $synergies[] = $synItem['hero_b'];
+                } elseif (strtolower($synItem['hero_b']) === $hLower && $synItem['picks'] >= 2 && $synItem['win_rate'] >= 50.0) {
+                    $synergies[] = $synItem['hero_a'];
+                }
+            }
+            if (empty($synergies)) {
+                foreach ($leagueData['synergies'] as $synItem) {
+                    if ((strtolower($synItem['hero_a']) === $hLower || strtolower($synItem['hero_b']) === $hLower) && $synItem['wins'] > 0) {
+                        $synergies[] = (strtolower($synItem['hero_a']) === $hLower) ? $synItem['hero_b'] : $synItem['hero_a'];
                     }
                 }
             }
-            $heroSynergyMap[$h->hero_name] = $synergies;
+            $heroSynergyMap[$h->hero_name] = array_values(array_unique($synergies));
+
+            // Counter head-to-head turnamen (Liquipedia MPL S18)
+            $counters = [];
+            foreach ($leagueData['counters'] as $ctrItem) {
+                if (strtolower($ctrItem['hero']) === $hLower && $ctrItem['matches'] >= 2 && $ctrItem['win_rate'] >= 50.0) {
+                    $counters[] = $ctrItem['enemy'];
+                }
+            }
+            if (empty($counters)) {
+                foreach ($leagueData['counters'] as $ctrItem) {
+                    if (strtolower($ctrItem['hero']) === $hLower && $ctrItem['wins'] > 0) {
+                        $counters[] = $ctrItem['enemy'];
+                    }
+                }
+            }
+            $heroCounterMap[$h->hero_name] = array_values(array_unique($counters));
 
             $stat = $tournamentStats[$h->clean_key] ?? null;
             $wrVal = ($stat && $stat['picks'] > 0) ? round($stat['wr'], 1) : 50.0;
@@ -317,9 +334,9 @@ class DraftController extends Controller
 
     public function analyze(Request $request)
     {
-        $myTeam = (array) $request->input('my_team', $request->input('ally_team', []));
-        $enemyTeam = (array) $request->input('enemy_team', []);
-        $banned = (array) $request->input('banned', $request->input('bans', []));
+        $myTeam = (array) $request->input('my_team', $request->input('ally_team', $request->input('ally_heroes', [])));
+        $enemyTeam = (array) $request->input('enemy_team', $request->input('enemy_heroes', []));
+        $banned = (array) $request->input('banned', $request->input('bans', $request->input('banned_heroes', [])));
         $map = $request->input('map', null);
         $myLanes = (array) $request->input('my_lanes', $request->input('ally_lanes', []));
         $enemyLanes = (array) $request->input('enemy_lanes', []);
