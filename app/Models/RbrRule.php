@@ -64,131 +64,114 @@ class RbrRule extends Model
                 });
             }
 
-            $legacyToSimpleCode = [
-                'RBR-COMP-01' => 'R-001',
-                'RBR-COMP-02' => 'R-002',
-                'RBR-SYN-01'  => 'R-003',
-                'RBR-SYN-02'  => 'R-004',
-                'RBR-CTR-01'  => 'R-005',
-                'RBR-CTR-02'  => 'R-006',
-                'RBR-POW-01'  => 'R-007',
-                'RBR-POW-02'  => 'R-008',
-                'RBR-MAP-01'  => 'R-009',
-                'RBR-MAP-02'  => 'R-010',
+            $legacyCodes = [
+                'RBR-COMP-01', 'RBR-COMP-02', 'RBR-SYN-01', 'RBR-SYN-02',
+                'RBR-CTR-01', 'RBR-CTR-02', 'RBR-POW-01', 'RBR-POW-02',
+                'RBR-MAP-01', 'RBR-MAP-02',
+                'R-001', 'R-002', 'R-003', 'R-004', 'R-005',
+                'R-006', 'R-007', 'R-008', 'R-009', 'R-010',
             ];
 
-            $hasLegacy = self::where('rule_code', 'like', 'RBR-%')->exists();
-            $hasAllClean = self::whereIn('rule_code', array_values($legacyToSimpleCode))->count() >= count($legacyToSimpleCode);
+            $targetCodes = [
+                'RULE-001', 'RULE-002', 'RULE-003', 'RULE-004', 'RULE-005',
+                'RULE-006', 'RULE-007', 'RULE-008',
+            ];
+
+            $hasLegacy = self::whereIn('rule_code', $legacyCodes)->exists();
+            $hasAllClean = self::whereIn('rule_code', $targetCodes)->count() >= count($targetCodes);
             if (!$hasLegacy && $hasAllClean) {
                 return;
             }
 
             $defaultRules = [
                 [
-                    'rule_code'           => 'R-001',
-                    'legacy_code'         => 'RBR-COMP-01',
+                    'rule_code'           => 'RULE-001',
+                    'legacy_codes'        => ['RBR-COMP-01', 'R-001'],
                     'category'            => 'Composition',
-                    'if_condition'        => 'Slot tim terisi >= 3 hero DAN total hero bertipe Magic Damage / Midlaner == 0 (atau rasio Magic Damage < 15%)',
-                    'then_recommendation' => 'Prioritaskan hero bertipe Magic Damage / Midlaner dari Hero Pool tim terpilih (atau Overall Meta jika n=0) untuk menjaga keseimbangan komposisi damage.',
-                    'confidence_weight'   => 0.98,
-                    'description'         => 'Aturan Komposisi Mutlak (Balance Check): Mencegah draft 100% full-physical yang sangat rentan dicounter secara telak oleh item physical defense lawan.',
+                    'if_condition'        => 'Rata-rata atribut Crowd Control tim sekutu lebih rendah signifikan dari Target Profil pemenang T_k (selisih > 1.5 poin pada skala 0–10)',
+                    'then_recommendation' => 'Tampilkan flag peringatan berbasis angka nyata (rata-rata Crowd Control tim vs target pemenang T_k) dan arahkan pemilihan hero ber-Crowd Control tinggi.',
+                    'confidence_weight'   => 1.00,
+                    'description'         => 'Aturan interpretasi defisit Crowd Control terhadap Target Profil T_k hasil shrinkage komposisi pemenang MPL ID S18.',
                     'status_aktif'        => 1,
                 ],
                 [
-                    'rule_code'           => 'R-002',
-                    'legacy_code'         => 'RBR-COMP-02',
+                    'rule_code'           => 'RULE-002',
+                    'legacy_codes'        => ['RBR-COMP-02', 'R-002'],
                     'category'            => 'Composition',
-                    'if_condition'        => 'Slot tim terisi >= 2 hero DAN jumlah hero Frontline / Tank berdurabilitas tinggi == 0',
-                    'then_recommendation' => 'Prioritaskan hero Frontline / Tank dengan durabilitas tinggi dari Hero Pool tim terpilih untuk memperkuat inisiasi dan pertahanan tim.',
-                    'confidence_weight'   => 0.94,
-                    'description'         => 'Aturan Pertahanan Tim: Komposisi tanpa pelindung garis depan akan rentan tereliminasi cepat saat inisiasi war di area objektif Lord/Turtle.',
+                    'if_condition'        => 'Rata-rata atribut Sustainability tim sekutu lebih rendah signifikan dari Target Profil pemenang T_k (selisih > 1.5 poin pada skala 0–10)',
+                    'then_recommendation' => 'Tampilkan flag peringatan berbasis angka nyata (rata-rata Sustainability tim vs target pemenang T_k) dan sarankan tambahan hero frontline/sustain.',
+                    'confidence_weight'   => 1.00,
+                    'description'         => 'Aturan interpretasi ketahanan garis depan untuk memastikan komposisi mampu menahan burst dan mengamankan kontes objektif.',
                     'status_aktif'        => 1,
                 ],
                 [
-                    'rule_code'           => 'R-003',
-                    'legacy_code'         => 'RBR-SYN-01',
+                    'rule_code'           => 'RULE-003',
+                    'legacy_codes'        => ['RBR-CTR-01', 'R-005'],
+                    'category'            => 'Composition',
+                    'if_condition'        => 'Rata-rata atribut Attack Power, Mobility, atau Lane Control tim sekutu lebih rendah signifikan dari Target Profil pemenang T_k (selisih > 1.5 poin)',
+                    'then_recommendation' => 'Tampilkan flag peringatan kuantitatif untuk atribut yang tertinggal agar komponen S_comp pada SAW menutup gap komposisi.',
+                    'confidence_weight'   => 1.00,
+                    'description'         => 'Aturan pengecekan keseimbangan damage, mobilitas rotasi, dan kontrol lane berbasis 5 atribut kuantitatif Coach.',
+                    'status_aktif'        => 1,
+                ],
+                [
+                    'rule_code'           => 'RULE-004',
+                    'legacy_codes'        => ['RBR-SYN-01', 'R-003'],
                     'category'            => 'Synergy',
-                    'if_condition'        => 'Tim memiliki Support Enabler / Healer DAN minimal 1 Marksman / Hypercarry Late-Scaling',
-                    'then_recommendation' => 'Aktifkan strategi Protect the Hypercarry: prioritaskan hero pelindung garis depan atau enabler tambahan dari Hero Pool tim terpilih serta amankan ruang safe farming.',
-                    'confidence_weight'   => 0.95,
-                    'description'         => 'Sinergi Proteksi: Hero pendukung dan frontliner bertindak sebagai pembuat ruang serta pelindung carry utama hingga menyelesaikan core item.',
+                    'if_condition'        => '2 atribut tertinggi pada rata-rata komposisi tim sekutu adalah Sustainability dan Crowd Control',
+                    'then_recommendation' => 'Tetapkan Draft Identity & Playstyle = "Teamfight / Front-to-Back" (fokus war 5v5 di area objektif Turtle/Lord).',
+                    'confidence_weight'   => 1.00,
+                    'description'         => 'Lapisan interpretasi strategi untuk komposisi dengan daya tahan dan kontrol kerumunan dominan.',
                     'status_aktif'        => 1,
                 ],
                 [
-                    'rule_code'           => 'R-004',
-                    'legacy_code'         => 'RBR-SYN-02',
+                    'rule_code'           => 'RULE-005',
+                    'legacy_codes'        => ['RBR-SYN-02', 'R-004'],
                     'category'            => 'Synergy',
-                    'if_condition'        => 'Tim memiliki inisiator Crowd Control Area (AoE CC) DAN hero Burst / Sustained Damage Area',
-                    'then_recommendation' => 'Prioritaskan hero dengan skill Follow-up Burst Area atau CC berantai dari Hero Pool tim terpilih untuk mendominasi teamfight di lorong objektif Turtle/Lord.',
-                    'confidence_weight'   => 0.92,
-                    'description'         => 'Sinergi Rantai CC: Setup stun massal mengunci pergerakan lawan sekaligus agar dapat disapu bersih dengan damage area.',
+                    'if_condition'        => '2 atribut tertinggi pada rata-rata komposisi tim sekutu adalah Mobility dan Attack Power',
+                    'then_recommendation' => 'Tetapkan Draft Identity & Playstyle = "Pick-off / Skirmish" (rotasi cepat dan culik core lawan sebelum war 5v5 terbuka).',
+                    'confidence_weight'   => 1.00,
+                    'description'         => 'Lapisan interpretasi strategi untuk komposisi berkecepatan rotasi dan daya serang tinggi.',
                     'status_aktif'        => 1,
                 ],
                 [
-                    'rule_code'           => 'R-005',
-                    'legacy_code'         => 'RBR-CTR-01',
+                    'rule_code'           => 'RULE-006',
+                    'legacy_codes'        => ['RBR-CTR-02', 'R-006'],
+                    'category'            => 'Synergy',
+                    'if_condition'        => '2 atribut tertinggi pada rata-rata komposisi tim sekutu adalah Lane Control dan Sustainability',
+                    'then_recommendation' => 'Tetapkan Draft Identity & Playstyle = "Macro / Split Push" (tarik-ulur lane, unggul kontrol map dan objektif turret).',
+                    'confidence_weight'   => 1.00,
+                    'description'         => 'Lapisan interpretasi strategi untuk komposisi pengendali gelombang minion dan permainan makro.',
+                    'status_aktif'        => 1,
+                ],
+                [
+                    'rule_code'           => 'RULE-007',
+                    'legacy_codes'        => ['RBR-POW-01', 'R-007'],
                     'category'            => 'Counter',
-                    'if_condition'        => 'Tim musuh memilih hero bertipe Assassin / Marksman dengan mobilitas tinggi atau dash berantai',
-                    'then_recommendation' => 'Prioritaskan hero berkarakteristik Hard Crowd Control, Anti-Dash, atau Suppression dari Hero Pool tim terpilih (atau Overall Meta jika n=0) untuk mengunci pergerakan lawan.',
-                    'confidence_weight'   => 0.96,
-                    'description'         => 'Aturan Penjinak Mobilitas: Efek anti-dash dan suppression membatalkan manuver skill pelarian serta dash lincah hero carry lawan seketika.',
+                    'if_condition'        => 'Gabungan rata-rata Crowd Control + Sustainability tim sekutu lebih unggul dari tim musuh',
+                    'then_recommendation' => 'Winning Condition: Paksa teamfight 5v5 di area pit objektif dengan menyertakan perbandingan angka nyata kedua tim.',
+                    'confidence_weight'   => 1.00,
+                    'description'         => 'Aturan perbandingan kuantitatif komposisi Sekutu vs Musuh untuk menentukan rencana kemenangan teamfight.',
                     'status_aktif'        => 1,
                 ],
                 [
-                    'rule_code'           => 'R-006',
-                    'legacy_code'         => 'RBR-CTR-02',
-                    'category'            => 'Counter',
-                    'if_condition'        => 'Tim musuh memilih hero Frontline / Tank dengan tingkat Sustain dan HP Regen tinggi',
-                    'then_recommendation' => 'Prioritaskan hero bertipe True Damage, Max HP Shredder, atau Sustained DPS dari Hero Pool tim terpilih untuk menembus pertahanan lawan.',
-                    'confidence_weight'   => 0.91,
-                    'description'         => 'Aturan Penembus Armor: Serangan true damage dan persentase HP shredder efektif meruntuhkan penumpukan defense serta HP tebal lawan.',
-                    'status_aktif'        => 1,
-                ],
-                [
-                    'rule_code'           => 'R-007',
-                    'legacy_code'         => 'RBR-POW-01',
+                    'rule_code'           => 'RULE-008',
+                    'legacy_codes'        => ['RBR-POW-02', 'R-008'],
                     'category'            => 'PowerSpike',
-                    'if_condition'        => 'Komposisi tim didominasi hero bertipe Early Game Power Spike (0–5 menit) dengan potensi invasi awal tinggi',
-                    'then_recommendation' => 'Prioritaskan hero tempo cepat / agresi early game dari Hero Pool tim terpilih untuk menekan jungle lawan serta mengamankan Turtle pertama.',
-                    'confidence_weight'   => 0.89,
-                    'description'         => 'Kurva Kekuatan Awal: Dominasi awal harus dikonversi menjadi keunggulan net worth dan objektif sebelum menit 10 agar lawan tidak sempat scaling.',
-                    'status_aktif'        => 1,
-                ],
-                [
-                    'rule_code'           => 'R-008',
-                    'legacy_code'         => 'RBR-POW-02',
-                    'category'            => 'PowerSpike',
-                    'if_condition'        => 'Komposisi tim didominasi hero bertipe Late Game Scaling (12+ menit) yang bergantung pada kelengkapan core item',
-                    'then_recommendation' => 'Prioritaskan hero penjaga tempo / wave clear defensif dari Hero Pool tim terpilih untuk mengawal scaling carry menuju fase Evolved Lord menit 12+.',
-                    'confidence_weight'   => 0.90,
-                    'description'         => 'Kurva Kekuatan Akhir: Komposisi unggul dalam pertempuran 5v5 di late game saat seluruh core equipment telah lengkap.',
-                    'status_aktif'        => 1,
-                ],
-                [
-                    'rule_code'           => 'R-009',
-                    'legacy_code'         => 'RBR-MAP-01',
-                    'category'            => 'Synergy',
-                    'if_condition'        => 'Varian Map Turnamen memiliki mekanik penglihatan atau semak aktif (Revealing Wisps / Dangerous Grass)',
-                    'then_recommendation' => 'Prioritaskan hero bertipe Vision Control, Poke Jarak Jauh, atau Bush Ambush dari Hero Pool tim terpilih untuk menguasai area river.',
-                    'confidence_weight'   => 0.88,
-                    'description'         => 'Sinergi Varian Map: Kontrol vision river dan semak lebat memperkuat taktik penyergapan serta pengamanan rotasi antarlane.',
-                    'status_aktif'        => 1,
-                ],
-                [
-                    'rule_code'           => 'R-010',
-                    'legacy_code'         => 'RBR-MAP-02',
-                    'category'            => 'Synergy',
-                    'if_condition'        => 'Varian Map Turnamen memiliki mekanik struktur arena dinamis (Broken Walls / Golden Turret)',
-                    'then_recommendation' => 'Prioritaskan hero dengan mobilitas lintas dinding atau tekanan objektif turret cepat dari Hero Pool tim terpilih untuk memaksimalkan rotasi map.',
-                    'confidence_weight'   => 0.87,
-                    'description'         => 'Sinergi Varian Map: Celah dinding terbuka dan bonus objektif turret mempercepat rotasi gank serta keunggulan gold di fase awal hingga menengah.',
+                    'if_condition'        => 'Rata-rata Lane Control tim sekutu lebih unggul dari tim musuh (atau Mobility + Attack Power lebih tinggi)',
+                    'then_recommendation' => 'Winning Condition: Hindari war langsung dan manfaatkan keunggulan clear wave & split push (atau skirmish cepat jika unggul Mobility & Attack Power).',
+                    'confidence_weight'   => 1.00,
+                    'description'         => 'Aturan perbandingan kuantitatif Sekutu vs Musuh untuk strategi makro dan tempo pertandingan.',
                     'status_aktif'        => 1,
                 ],
             ];
 
+            // Hapus kode aturan usang yang tidak lagi dipakai agar hanya RULE-001..RULE-008 yang rapi
+            self::whereIn('rule_code', ['RBR-MAP-01', 'RBR-MAP-02', 'R-009', 'R-010'])->delete();
+
             foreach ($defaultRules as $r) {
                 $existing = self::where('rule_code', $r['rule_code'])
-                    ->orWhere('rule_code', $r['legacy_code'])
+                    ->orWhereIn('rule_code', $r['legacy_codes'])
                     ->first();
 
                 $payload = [

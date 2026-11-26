@@ -267,6 +267,13 @@ class DraftRecommendationService extends DraftInferenceService
             return strcmp($a['hero'], $b['hero']);
         });
 
+        $rbrExplanation = $this->evaluateQuantitativeStrategyExplanation(
+            $cleanAlly,
+            $cleanEnemy,
+            $targetProfile,
+            $heroByKey
+        );
+
         return [
             'recommendations' => array_slice($scoredResults, 0, max(1, $limit)),
             'total_candidates' => count($scoredResults),
@@ -285,9 +292,206 @@ class DraftRecommendationService extends DraftInferenceService
                 's_comp'    => $hasComp,
                 's_counter' => $hasCounter,
             ],
-            'target_profile' => $targetProfile,
-            'ally_profile'   => $allyProfile,
-            'current_gap'    => $hasComp ? round($currentGap, 4) : null,
+            'target_profile'  => $targetProfile,
+            'ally_profile'    => $allyProfile,
+            'current_gap'     => $hasComp ? round($currentGap, 4) : null,
+            'rbr_explanation' => $rbrExplanation,
+        ];
+    }
+
+    /**
+     * Lapisan RBR Penjelasan Strategi Berbasis Angka Nyata (5 Atribut Coach vs Target Profil T_k).
+     * Tidak menggunakan angka confidence statis.
+     */
+    public function evaluateQuantitativeStrategyExplanation(
+        array $allyPicks,
+        array $enemyPicks,
+        array $targetProfileNormalized,
+        ?array $heroByKey = null
+    ): array {
+        if ($heroByKey === null) {
+            $heroByKey = [];
+            foreach ($this->loadHeroCatalog() as $hero) {
+                $heroByKey[$this->heroKey($hero->hero_name)] = $hero;
+            }
+        }
+
+        $labels = [
+            'sustainability' => 'Sustainability',
+            'attack_power'   => 'Attack Power',
+            'crowd_control'  => 'Crowd Control',
+            'mobility'       => 'Mobility',
+            'lane_control'   => 'Lane Control',
+        ];
+
+        $target10 = [];
+        foreach (self::COACH_ATTRIBUTES as $attr) {
+            $target10[$attr] = round((float) ($targetProfileNormalized[$attr] ?? 0.5) * 10, 1);
+        }
+
+        $enemyAvg10 = null;
+        if (!empty($enemyPicks)) {
+            $enemyVectors = array_map(
+                fn ($name) => $this->extractNormalizedAttributes($heroByKey[$this->heroKey($name)] ?? null),
+                $enemyPicks
+            );
+            $enemyMean = $this->meanVector($enemyVectors);
+            $enemyAvg10 = [];
+            foreach (self::COACH_ATTRIBUTES as $attr) {
+                $enemyAvg10[$attr] = round($enemyMean[$attr] * 10, 1);
+            }
+        }
+
+        if (empty($allyPicks)) {
+            return [
+                'has_ally'           => false,
+                'draft_identity'     => null,
+                'playstyle'          => null,
+                'playstyle_note'     => null,
+                'winning_condition'  => null,
+                'top_two_attributes' => [],
+                'ally_averages'      => null,
+                'enemy_averages'     => $enemyAvg10,
+                'target_averages'    => $target10,
+                'attribute_warnings' => [],
+            ];
+        }
+
+        $allyVectors = array_map(
+            fn ($name) => $this->extractNormalizedAttributes($heroByKey[$this->heroKey($name)] ?? null),
+            $allyPicks
+        );
+        $allyMean = $this->meanVector($allyVectors);
+        $allyAvg10 = [];
+        foreach (self::COACH_ATTRIBUTES as $attr) {
+            $allyAvg10[$attr] = round($allyMean[$attr] * 10, 1);
+        }
+
+        // 1. Flag Peringatan Berbasis Angka Nyata (selisih signifikan > 1.5 poin dari Target Pemenang T_k)
+        $warnings = [];
+        foreach (self::COACH_ATTRIBUTES as $attr) {
+            $diff = round($target10[$attr] - $allyAvg10[$attr], 1);
+            if ($diff > 1.5) {
+                $allyStr = number_format($allyAvg10[$attr], 1);
+                $targetStr = number_format($target10[$attr], 1);
+                $warnings[] = [
+                    'rule_id'    => 'RULE-' . str_pad((string) (array_search($attr, self::COACH_ATTRIBUTES, true) + 1), 3, '0', STR_PAD_LEFT),
+                    'attribute'  => $attr,
+                    'label'      => $labels[$attr],
+                    'ally_avg'   => $allyAvg10[$attr],
+                    'target_avg' => $target10[$attr],
+                    'diff'       => $diff,
+                    'severity'   => $diff >= 2.5 ? 'critical' : 'warning',
+                    'message'    => "{$labels[$attr]} tim masih kurang (rata-rata {$allyStr} vs target pemenang {$targetStr})",
+                ];
+            }
+        }
+        usort($warnings, fn ($a, $b) => $b['diff'] <=> $a['diff']);
+
+        // 2. Draft Identity & Playstyle dari 2 atribut tertinggi komposisi tim
+        $sortedAttrs = $allyAvg10;
+        arsort($sortedAttrs);
+        $topKeys = array_slice(array_keys($sortedAttrs), 0, 2);
+        sort($topKeys);
+        $pairKey = implode('+', $topKeys);
+
+        $identityMap = [
+            'crowd_control+sustainability' => [
+                'identity' => 'Teamfight / Front-to-Back',
+                'note'     => 'Fokus war 5v5 di area objektif Turtle/Lord dengan inisiasi Crowd Control dan ketahanan frontline.',
+            ],
+            'attack_power+mobility' => [
+                'identity' => 'Pick-off / Skirmish',
+                'note'     => 'Rotasi cepat antarlane untuk menculik core lawan sebelum teamfight terbuka.',
+            ],
+            'lane_control+sustainability' => [
+                'identity' => 'Macro / Split Push',
+                'note'     => 'Tarik-ulur lane serta unggul kontrol map dan tekanan objektif turret.',
+            ],
+            'attack_power+crowd_control' => [
+                'identity' => 'Burst Combo / Wombo',
+                'note'     => 'Kunci target menggunakan Crowd Control lalu eksekusi burst damage serempak.',
+            ],
+            'attack_power+lane_control' => [
+                'identity' => 'Siege & Lane Pressure',
+                'note'     => 'Tekan lane lewat clear wave cepat dan damage tinggi untuk meruntuhkan turret.',
+            ],
+            'crowd_control+mobility' => [
+                'identity' => 'Roam Catch & Engage',
+                'note'     => 'Manfaatkan mobilitas tinggi untuk membuka inisiasi mendadak dan menangkap lawan out-of-position.',
+            ],
+            'lane_control+mobility' => [
+                'identity' => 'Fast Rotation & Map Control',
+                'note'     => 'Dominasi rotasi sungai dan gelombang minion untuk mengendalikan tempo objektif.',
+            ],
+            'attack_power+sustainability' => [
+                'identity' => 'Bruiser / Sustained Brawl',
+                'note'     => 'Menangkan pertarungan jarak dekat berkepanjangan dengan kombinasi damage dan ketahanan.',
+            ],
+            'crowd_control+lane_control' => [
+                'identity' => 'Zone Control & Objective Trap',
+                'note'     => 'Kunci area jalur minion dan lorong pit Turtle/Lord dengan kontrol zona berlapis.',
+            ],
+            'mobility+sustainability' => [
+                'identity' => 'Tempo Disengage & Sustain',
+                'note'     => 'Pancing cooldown lawan lalu reset posisi dengan mobilitas dan ketahanan tinggi.',
+            ],
+        ];
+
+        $matchedIdentity = $identityMap[$pairKey] ?? [
+            'identity' => 'Balanced Adaptive',
+            'note'     => 'Komposisi seimbang dengan fleksibilitas strategi antar fase permainan.',
+        ];
+
+        $rawTop2 = array_slice(array_keys($sortedAttrs), 0, 2);
+        $topTwoList = array_map(fn ($attr) => [
+            'attribute' => $attr,
+            'label'     => $labels[$attr],
+            'value'     => $allyAvg10[$attr],
+        ], $rawTop2);
+
+        // 3. Winning Condition berbasis perbandingan 5 atribut Sekutu vs Musuh
+        $allyCC = number_format($allyAvg10['crowd_control'], 1);
+        $allySus = number_format($allyAvg10['sustainability'], 1);
+        $allyLC = number_format($allyAvg10['lane_control'], 1);
+        $allyMob = number_format($allyAvg10['mobility'], 1);
+        $allyAtk = number_format($allyAvg10['attack_power'], 1);
+
+        if ($enemyAvg10 !== null) {
+            $enemyCC = number_format($enemyAvg10['crowd_control'], 1);
+            $enemySus = number_format($enemyAvg10['sustainability'], 1);
+            $enemyLC = number_format($enemyAvg10['lane_control'], 1);
+            $enemyMob = number_format($enemyAvg10['mobility'], 1);
+            $enemyAtk = number_format($enemyAvg10['attack_power'], 1);
+
+            $teamfightDiff = ($allyAvg10['crowd_control'] + $allyAvg10['sustainability']) - ($enemyAvg10['crowd_control'] + $enemyAvg10['sustainability']);
+            $laneDiff = $allyAvg10['lane_control'] - $enemyAvg10['lane_control'];
+            $pickoffDiff = ($allyAvg10['mobility'] + $allyAvg10['attack_power']) - ($enemyAvg10['mobility'] + $enemyAvg10['attack_power']);
+
+            if ($teamfightDiff >= $laneDiff && $teamfightDiff >= $pickoffDiff && $teamfightDiff > 0.3) {
+                $winningCondition = "Paksa teamfight 5v5 di area pit objektif — unggul Crowd Control ({$allyCC} vs {$enemyCC}) & Sustainability ({$allySus} vs {$enemySus}).";
+            } elseif ($laneDiff >= $pickoffDiff && $laneDiff > 0.3) {
+                $winningCondition = "Hindari war langsung, manfaatkan keunggulan Lane Control ({$allyLC} vs {$enemyLC}) untuk clear wave & split push.";
+            } elseif ($pickoffDiff > 0.3) {
+                $winningCondition = "Ciptakan skirmish & pick-off sebelum war terbuka — unggul Mobility ({$allyMob} vs {$enemyMob}) & Attack Power ({$allyAtk} vs {$enemyAtk}).";
+            } else {
+                $winningCondition = "Jaga disiplin rotasi & objektif; maksimalkan 2 atribut terkuat tim ({$topTwoList[0]['label']} {$topTwoList[0]['value']} & {$topTwoList[1]['label']} {$topTwoList[1]['value']}).";
+            }
+        } else {
+            $winningCondition = "{$matchedIdentity['note']} (Atribut tertinggi: {$topTwoList[0]['label']} {$topTwoList[0]['value']} & {$topTwoList[1]['label']} {$topTwoList[1]['value']}).";
+        }
+
+        return [
+            'has_ally'           => true,
+            'draft_identity'     => $matchedIdentity['identity'],
+            'playstyle'          => $matchedIdentity['identity'],
+            'playstyle_note'     => $matchedIdentity['note'],
+            'winning_condition'  => $winningCondition,
+            'top_two_attributes' => $topTwoList,
+            'ally_averages'      => $allyAvg10,
+            'enemy_averages'     => $enemyAvg10,
+            'target_averages'    => $target10,
+            'attribute_warnings' => $warnings,
         ];
     }
 
@@ -345,6 +549,7 @@ class DraftRecommendationService extends DraftInferenceService
             'current_gap'       => $sawResultAll['current_gap'],
             'total_candidates'  => $sawResultAll['total_candidates'],
         ];
+        $base['rbr_explanation'] = $sawResultAll['rbr_explanation'];
 
         return $base;
     }

@@ -88,6 +88,13 @@ class DraftController extends Controller
                 'portrait'    => $h->portrait,
                 'damage_type' => $dmgType,
                 'power_spike' => $spike,
+                'coach_attrs' => [
+                    'sustainability' => (int) ($h->sustainability ?? 5),
+                    'attack_power'   => (int) ($h->attack_power ?? 5),
+                    'crowd_control'  => (int) ($h->crowd_control ?? 5),
+                    'mobility'       => (int) ($h->mobility ?? 5),
+                    'lane_control'   => (int) ($h->lane_control ?? 5),
+                ],
             ];
         });
 
@@ -364,6 +371,7 @@ class DraftController extends Controller
             'recommendations'     => $inference['recommendations'],
             'saw_recommendations' => $inference['saw_recommendations'] ?? [],
             'saw_meta'            => $inference['saw_meta'] ?? null,
+            'rbr_explanation'     => $inference['rbr_explanation'] ?? null,
             'composition_alerts'  => $inference['composition_alerts'] ?? [],
             'power_spikes'        => $inference['power_spikes'] ?? [],
             'draft_identity'      => $inference['draft_identity'] ?? [],

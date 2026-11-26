@@ -16,7 +16,7 @@ class RbrRuleController extends Controller
         RbrRule::seedDefaultRules();
 
         $category = $request->query('category', 'all');
-        $query = RbrRule::orderBy('id_rule');
+        $query = RbrRule::orderBy('rule_code');
 
         if ($category !== 'all') {
             $query->where('category', $category);

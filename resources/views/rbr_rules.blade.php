@@ -17,16 +17,16 @@
             </h1>
             <p class="text-gray-200 text-xs sm:text-sm mt-2.5 leading-relaxed font-medium">
                 Daftar basis aturan formal <strong class="text-white font-mono bg-white/20 px-1.5 py-0.5 rounded">IF-THEN</strong> pada tabel database <code class="text-rose-200 bg-black/40 px-1.5 py-0.5 rounded font-mono">rbr_rules</code>.
-                Aturan-aturan ini dieksekusi oleh mesin inferensi <em>Forward Chaining</em> untuk memvalidasi batasan komposisi tim (keseimbangan damage magic/physical), memicu counter pick terhadap hero ancaman lawan, serta merumuskan panduan <em>winning condition</em> berbasis data turnamen MPL ID S18.
+                Aturan-aturan ini berfungsi sebagai <strong>Lapisan Penjelasan Strategi (Explanation Layer)</strong> berbasis 5 atribut kuantitatif Coach (<em>Sustainability, Attack Power, Crowd Control, Mobility, Lane Control</em>) yang melengkapi peringkat Hybrid SAW + Bayesian Shrinkage tanpa bobot confidence statis.
             </p>
 
             <!-- Metrics Pills -->
             <div class="mt-5 flex flex-wrap items-center gap-2.5 text-xs font-bold">
                 <span class="bg-black/40 text-gray-200 px-3 py-1.5 rounded-xl border border-white/10 flex items-center gap-1.5">
-                    <span class="text-rose-300">Metode:</span> Rule-Based Reasoning (RBR)
+                    <span class="text-rose-300">Peringkat:</span> Hybrid SAW + Bayesian Shrinkage (m=5)
                 </span>
                 <span class="bg-black/40 text-gray-200 px-3 py-1.5 rounded-xl border border-white/10 flex items-center gap-1.5">
-                    <span class="text-rose-300">Inferensi:</span> Forward Chaining (Data-Driven)
+                    <span class="text-rose-300">Peran RBR:</span> Interpretasi Strategi (5 Atribut Coach)
                 </span>
                 <span class="bg-emerald-500/20 text-emerald-300 px-3 py-1.5 rounded-xl border border-emerald-500/30 font-black flex items-center gap-1.5">
                     <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Total: {{ $allRulesCount }} Aturan Terdaftar
@@ -55,7 +55,7 @@
             <input type="text" 
                    id="ruleSearchInput" 
                    oninput="filterRules()" 
-                   placeholder="Cari kode aturan (R-001), kategori, premis IF, atau kesimpulan THEN..." 
+                   placeholder="Cari kode aturan (RULE-001), kategori, premis IF, atau kesimpulan THEN..." 
                    class="w-full bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl py-2 pl-9 pr-3 text-xs font-medium text-[#18181B] placeholder-gray-400 focus:outline-none focus:border-[#700B1A] transition">
         </div>
 
@@ -91,12 +91,9 @@
                     'powerspike'  => 'bg-indigo-100 text-indigo-900 border-indigo-300',
                     default       => 'bg-emerald-100 text-emerald-900 border-emerald-300',
                 };
-                $confidence = (float) ($rule->confidence_weight ?? 0.85);
-                $confPct = (int) round($confidence * 100);
-                $urgencyLabel = $confidence >= 0.90 ? 'Kritis (0.90–1.00)' : ($confidence >= 0.80 ? 'Tinggi (0.80–0.89)' : 'Sedang (0.70–0.79)');
-                $displayCode = $rule->rule_code ?: 'R-' . str_pad($loop->iteration, 3, '0', STR_PAD_LEFT);
+                $displayCode = $rule->rule_code ?: 'RULE-' . str_pad($loop->iteration, 3, '0', STR_PAD_LEFT);
             @endphp
-            <div class="rule-card card-custom relative overflow-visible hover:z-30 focus-within:z-30 p-5 space-y-3.5 hover:border-[#700B1A]/40 transition shadow-sm bg-white"
+            <div class="rule-card card-custom relative p-5 space-y-3.5 hover:border-[#700B1A]/40 transition shadow-sm bg-white"
                  data-category="{{ $cat }}"
                  data-search="{{ strtolower($displayCode . ' ' . ($rule->category ?? '') . ' ' . $rule->if_condition . ' ' . $rule->then_recommendation . ' ' . ($rule->description ?? '')) }}">
                 
@@ -111,41 +108,10 @@
                         </span>
                     </div>
 
-                    <!-- Confidence Weight Pill + Interactive Info Tooltip -->
-                    <div class="relative inline-flex items-center gap-1.5 text-[11px] font-black text-gray-700 group/conf">
-                        <span class="text-gray-400 font-semibold text-[10px]">Confidence:</span>
-                        <span class="text-[#700B1A] font-mono">{{ number_format($confidence, 2) }}</span>
-                        <span class="text-[9px] text-gray-400">({{ $confPct }}%)</span>
-
-                        <button type="button"
-                                onclick="toggleConfidencePopover(this, event)"
-                                aria-label="Penjelasan Bobot Confidence {{ $displayCode }}"
-                                class="w-4 h-4 rounded-full bg-[#FCECEE] hover:bg-[#700B1A] text-[#700B1A] hover:text-white border border-[#F8B4BD] text-[10px] font-serif italic font-black inline-flex items-center justify-center transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#700B1A]/30">
-                            i
-                        </button>
-
-                        <!-- Hover & Click Popover -->
-                        <div class="confidence-popover opacity-0 pointer-events-none group-hover/conf:opacity-100 group-hover/conf:pointer-events-auto absolute right-0 top-full mt-2 w-72 sm:w-80 max-w-[calc(100vw-2.5rem)] bg-white border border-[#F8B4BD] rounded-2xl shadow-xl p-3.5 text-left z-50 transition-all duration-150">
-                            <div class="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-gray-100">
-                                <span class="text-[10px] font-black uppercase tracking-wider text-[#700B1A]">
-                                    Transparansi Confidence ({{ $displayCode }})
-                                </span>
-                                <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD]">
-                                    {{ $urgencyLabel }}
-                                </span>
-                            </div>
-                            <div class="space-y-2 text-[10.5px] font-medium text-gray-600 leading-relaxed">
-                                <div>
-                                    <span class="font-extrabold text-[#18181B] block">Sumber Nilai:</span>
-                                    <span>Bobot Pakar / <em>Certainty Factor</em> (<code class="font-mono text-[#700B1A] bg-[#FAF8F8] px-1 rounded">CF_rule = {{ number_format($confidence, 2) }}</code>) berdasarkan tingkat urgensi aturan (Kritis: 0.90–1.00, Tinggi: 0.80–0.89, Sedang: 0.70–0.79).</span>
-                                </div>
-                                <div>
-                                    <span class="font-extrabold text-[#18181B] block">Peran dalam Rumus Backend:</span>
-                                    <span>Skor akhir menggabungkan data &amp; aturan via <code class="font-mono text-[10px] text-[#700B1A] bg-[#FAF8F8] px-1 rounded block mt-0.5">S_total = (0.50 &times; S_data) + (0.50 &times; S_rule)</code> dan <code class="font-mono text-[#700B1A] bg-[#FAF8F8] px-1 rounded">CF_rule</code> membentuk bobot rata-rata <code class="font-mono text-[#700B1A]">ruleStrength</code> pada perhitungan confidence dinamis <code class="font-mono text-[10px] text-[#700B1A] bg-[#FAF8F8] px-1 rounded block mt-0.5">((0.45 &times; ruleStrength) + (0.55 &times; (0.55 + 0.45 &times; reliability))) &times; 100%</code></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Explanation Layer Indicator (Tanpa Confidence Statis) -->
+                    <span class="text-[10px] font-bold text-gray-500 bg-[#FAF8F8] border border-[#F3E8E8] px-2.5 py-1 rounded-lg">
+                        Interpretasi 5 Atribut Coach
+                    </span>
                 </div>
 
                 <!-- Premise & Conclusion Blocks -->
@@ -224,42 +190,6 @@
             }
         });
     }
-
-    function closeAllConfidencePopovers() {
-        document.querySelectorAll('.confidence-popover.is-open').forEach(pop => {
-            pop.classList.remove('is-open', 'opacity-100', 'pointer-events-auto');
-            pop.classList.add('opacity-0', 'pointer-events-none');
-            pop.closest('.rule-card')?.classList.remove('z-30');
-        });
-    }
-
-    function toggleConfidencePopover(btn, event) {
-        event.stopPropagation();
-        const wrapper = btn.closest('.group\\/conf');
-        const popover = wrapper ? wrapper.querySelector('.confidence-popover') : null;
-        if (!popover) return;
-
-        const isAlreadyOpen = popover.classList.contains('is-open');
-        closeAllConfidencePopovers();
-
-        if (!isAlreadyOpen) {
-            popover.classList.add('is-open', 'opacity-100', 'pointer-events-auto');
-            popover.classList.remove('opacity-0', 'pointer-events-none');
-            popover.closest('.rule-card')?.classList.add('z-30');
-        }
-    }
-
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.group\\/conf')) {
-            closeAllConfidencePopovers();
-        }
-    });
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            closeAllConfidencePopovers();
-        }
-    });
 </script>
 @endpush
 @endsection

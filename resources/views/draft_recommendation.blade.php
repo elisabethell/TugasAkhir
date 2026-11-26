@@ -468,15 +468,35 @@
                 <!-- Thin Loading State Bar (Forward Chaining Sync Indicator) -->
                 <div id="recLoadingBar" class="h-0.5 w-full bg-[#700B1A] transition-all duration-300 opacity-0 rounded-full"></div>
 
+                <!-- SAW FORMULA TRANSPARENCY BANNER -->
+                <div class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl px-3 py-2 flex items-center justify-between gap-2 relative group/sawformula">
+                    <div class="text-[10px] font-mono font-bold text-[#700B1A] leading-snug" id="sawActiveFormulaText">
+                        Score = 0.40·DNA + 0.35·Comp + 0.25·Counter <span class="text-gray-500 font-sans font-semibold">(Bayesian Shrinkage m=5)</span>
+                    </div>
+                    <button type="button"
+                            onclick="document.getElementById('sawFormulaPopover')?.classList.toggle('hidden')"
+                            aria-label="Penjelasan Rumus SAW dan Bayesian Shrinkage"
+                            class="w-4 h-4 rounded-full bg-[#FCECEE] hover:bg-[#700B1A] text-[#700B1A] hover:text-white border border-[#F8B4BD] text-[10px] font-serif italic font-black flex items-center justify-center flex-shrink-0 transition cursor-pointer">
+                        i
+                    </button>
+                    <div id="sawFormulaPopover" class="hidden group-hover/sawformula:block absolute right-0 top-full mt-1.5 w-72 sm:w-80 bg-white border border-[#F8B4BD] rounded-2xl shadow-xl p-3 text-[10.5px] text-gray-600 z-40 space-y-1.5">
+                        <div class="font-black text-[#700B1A] uppercase text-[9.5px] tracking-wider">Transparansi Rumus Hybrid SAW</div>
+                        <p><strong>DNA (0.40):</strong> Preferensi pick tim disusutkan ke meta global MPL S18 (<code class="font-mono text-[#700B1A]">m = 5</code>).</p>
+                        <p><strong>Comp (0.35):</strong> Penutupan gap L1 5 atribut Coach terhadap Target Profil pemenang <code class="font-mono text-[#700B1A]">T_k</code>.</p>
+                        <p><strong>Counter (0.25):</strong> Bayesian win rate head-to-head melawan hero musuh terpilih.</p>
+                        <p class="text-[9.5px] text-gray-500 pt-1 border-t border-gray-100">Jika Sekutu atau Musuh masih kosong, bobot komponen aktif dinormalisasi ulang agar total tetap 1.00.</p>
+                    </div>
+                </div>
+
                 <!-- SECTION 1: REKOMENDASI PICK -->
                 <div class="space-y-3">
                     <div class="flex items-center justify-between flex-wrap gap-2">
                         <div class="flex items-center gap-1.5">
                             <span class="bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD] text-[10px] font-black px-2.5 py-0.5 rounded-md uppercase tracking-wider">
-                                Rekomendasi Pick
+                                Rekomendasi Pick (Top 10 SAW)
                             </span>
                             <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-500 text-[10px] font-bold px-1.5 py-0.5 rounded-md" id="picksCountBadge">
-                                14
+                                10
                             </span>
                         </div>
 
@@ -859,7 +879,7 @@
                     <div class="flex items-center justify-between border-b border-gray-200/60 pb-2">
                         <div class="flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full bg-[#700B1A]"></span>
-                            <h4 class="font-black text-xs text-[#700B1A] uppercase tracking-wider">Langkah Perhitungan Skor Hybrid (Formula Transparan)</h4>
+                            <h4 class="font-black text-xs text-[#700B1A] uppercase tracking-wider">Breakdown Skor Hybrid SAW + Bayesian Shrinkage (Formula Transparan)</h4>
                         </div>
                         <span class="text-[10px] text-[#700B1A] font-bold">Audit Formula Skripsi</span>
                     </div>
@@ -870,15 +890,12 @@
                             <div class="flex items-center justify-between">
                                 <span class="font-black text-[11px] text-[#18181B] flex items-center gap-1.5">
                                     <span class="w-5 h-5 rounded-full bg-[#700B1A] text-white flex items-center justify-center text-[10px] font-black">1</span>
-                                    <span>Smoothing Bayesian Win Rate (M-Estimate Shrinkage)</span>
+                                    <span>S_dna: Bayesian Shrinkage Preferensi Draft DNA Tim</span>
                                 </span>
-                                <span class="text-[10px] font-mono text-gray-500">k = 10, Prior = 50%</span>
+                                <span class="text-[10px] font-mono text-gray-500">m = 5 (Pseudo-count)</span>
                             </div>
-                            <p class="text-[10px] text-gray-600 leading-relaxed">
-                                Menghindari bias sampel kecil turnamen. Hero dengan 1 pick dan 1 kemenangan tidak dihitung 100%, melainkan disusutkan mendekati baseline prior:
-                            </p>
                             <div class="p-2 bg-[#FAF8F8] rounded-lg font-mono text-[10.5px] text-[#700B1A] font-bold text-center">
-                                Smoothed WR = (Wins + 10 × 0.50 × 100) / (n + 10)
+                                p̂_team(h) = (n_team(h) + 5 × p_global(h)) / (N_team + 5)
                             </div>
                         </div>
 
@@ -887,15 +904,12 @@
                             <div class="flex items-center justify-between">
                                 <span class="font-black text-[11px] text-[#18181B] flex items-center gap-1.5">
                                     <span class="w-5 h-5 rounded-full bg-blue-700 text-white flex items-center justify-center text-[10px] font-black">2</span>
-                                    <span>Skor Data-Driven Turnamen (0 - 100)</span>
+                                    <span>S_comp: Penutupan Gap 5 Atribut Coach vs Target T_k</span>
                                 </span>
-                                <span class="text-[10px] font-mono text-blue-800">Liquipedia S18</span>
+                                <span class="text-[10px] font-mono text-blue-800">5 Atribut (0–1)</span>
                             </div>
-                            <p class="text-[10px] text-gray-600 leading-relaxed">
-                                Menggabungkan smoothed win rate dengan sinergi empiris rekan dan direct counter lawan:
-                            </p>
                             <div class="p-2 bg-blue-50 text-blue-900 rounded-lg font-mono text-[10.5px] font-bold text-center">
-                                Data Score = min(100, Smoothed WR + min(25, Sinergi) + min(30, Counter))
+                                Δ(h) = D(C) − D(C + h), dengan D(C) = (1/5) × Σ|T_k − A_k(C)|
                             </div>
                         </div>
 
@@ -904,15 +918,12 @@
                             <div class="flex items-center justify-between">
                                 <span class="font-black text-[11px] text-[#18181B] flex items-center gap-1.5">
                                     <span class="w-5 h-5 rounded-full bg-[#700B1A] text-white flex items-center justify-center text-[10px] font-black">3</span>
-                                    <span>Skor Sistem Pakar Rule-Based Reasoning (0 - 100)</span>
+                                    <span>S_counter: Bayesian Shrinkage Win Rate vs Musuh</span>
                                 </span>
-                                <span class="text-[10px] font-mono text-[#700B1A]">Forward Chaining</span>
+                                <span class="text-[10px] font-mono text-[#700B1A]">Head-to-Head MPL S18</span>
                             </div>
-                            <p class="text-[10px] text-gray-600 leading-relaxed">
-                                Normalisasi total kontribusi rule yang menyala (fired) dikalikan pengali kesesuaian role/kondisi draft:
-                            </p>
                             <div class="p-2 bg-[#FAF8F8] text-[#700B1A] rounded-lg font-mono text-[10.5px] font-bold text-center">
-                                Rule Score = min(100, max(15, (Σ(Kontribusi Rule × Multiplier) / 85) × 100))
+                                ŵ(h|e) = (menang_vs_e + 5 × w_global(h)) / (game_vs_e + 5)
                             </div>
                         </div>
 
@@ -921,17 +932,15 @@
                             <div class="flex items-center justify-between">
                                 <span class="font-black text-[11px] text-[#18181B] flex items-center gap-1.5">
                                     <span class="w-5 h-5 rounded-full bg-emerald-700 text-white flex items-center justify-center text-[10px] font-black">4</span>
-                                    <span>Agregasi Total Skor Hybrid & Dinamis Confidence</span>
+                                    <span>Normalisasi Min-Max &amp; Skor Akhir SAW (Tanpa Confidence Statis)</span>
                                 </span>
                                 <span class="text-[10px] font-mono text-emerald-800">Final Aggregation</span>
                             </div>
                             <div class="p-2 bg-emerald-50 text-emerald-900 rounded-lg font-mono text-[10.5px] font-bold text-center">
-                                Total Score = (0.50 × Data Score) + (0.50 × Rule Score)<br>
-                                Reliability = n / (n + 10)<br>
-                                Confidence = 0.45 × Rule Strength + 0.55 × (0.55 + 0.45 × Reliability)
+                                Score(h) = (0.40 × S_dna_norm) + (0.35 × S_comp_norm) + (0.25 × S_counter_norm)
                             </div>
                             <p class="text-[9.5px] text-gray-500 italic pt-1">
-                                Jika n &lt; 10, sistem otomatis memberikan flag "Data terbatas (n&lt;10)" sehingga penguji dapat melihat transparansi statistik secara jujur.
+                                Komponen RBR bertugas murni sebagai Lapisan Penjelasan Strategi berbasis angka rata-rata 5 atribut Coach vs Target T_k dan komposisi lawan.
                             </p>
                         </div>
                     </div>
@@ -984,7 +993,7 @@
     }
 
     let latestInferenceData = initialInferenceData;
-    let currentRecommendations = @json($defaultPicks ?? []);
+    let currentRecommendations = (initialInferenceData && initialInferenceData.saw_recommendations) ? initialInferenceData.saw_recommendations : @json($defaultPicks ?? []);
     let expandedRecHeroId = null;
     let currentTraceTab = 'working_memory';
 
@@ -1354,6 +1363,107 @@
     // Render 5 Slot Ban MPL per tim (FASE 5)
     function renderBanSlots() {}
 
+    function computeLocalCoachAverages(teamList) {
+        if (!teamList || teamList.length === 0) return null;
+        const attrs = ['sustainability', 'attack_power', 'crowd_control', 'mobility', 'lane_control'];
+        const sums = { sustainability: 0, attack_power: 0, crowd_control: 0, mobility: 0, lane_control: 0 };
+        teamList.forEach(name => {
+            const h = pickerHeroes.find(item => item.name.toLowerCase() === (name || '').toLowerCase());
+            const ca = h?.coach_attrs || {};
+            attrs.forEach(a => {
+                sums[a] += Number(ca[a] ?? 5);
+            });
+        });
+        const avg = {};
+        attrs.forEach(a => {
+            avg[a] = Number((sums[a] / teamList.length).toFixed(1));
+        });
+        return avg;
+    }
+
+    function evaluateLocalQuantitativeExplanation(allyList, enemyList) {
+        if (!allyList || allyList.length === 0) return null;
+        const labels = {
+            sustainability: 'Sustainability',
+            attack_power: 'Attack Power',
+            crowd_control: 'Crowd Control',
+            mobility: 'Mobility',
+            lane_control: 'Lane Control'
+        };
+        const allyAvg = computeLocalCoachAverages(allyList);
+        const enemyAvg = computeLocalCoachAverages(enemyList);
+        const targetRaw = latestInferenceData?.saw_meta?.target_profile || { sustainability: 0.5, attack_power: 0.5, crowd_control: 0.5, mobility: 0.5, lane_control: 0.5 };
+        const targetAvg = {};
+        Object.keys(labels).forEach(k => {
+            targetAvg[k] = Number(((Number(targetRaw[k] ?? 0.5)) * 10).toFixed(1));
+        });
+
+        const warnings = [];
+        Object.keys(labels).forEach((k, idx) => {
+            const diff = Number((targetAvg[k] - allyAvg[k]).toFixed(1));
+            if (diff > 1.5) {
+                warnings.push({
+                    rule_id: `RULE-00${idx + 1}`,
+                    attribute: k,
+                    label: labels[k],
+                    ally_avg: allyAvg[k],
+                    target_avg: targetAvg[k],
+                    diff: diff,
+                    severity: diff >= 2.5 ? 'critical' : 'warning',
+                    message: `${labels[k]} tim masih kurang (rata-rata ${allyAvg[k].toFixed(1)} vs target pemenang ${targetAvg[k].toFixed(1)})`
+                });
+            }
+        });
+        warnings.sort((a, b) => b.diff - a.diff);
+
+        const sorted = Object.entries(allyAvg).sort((a, b) => b[1] - a[1]);
+        const top2 = sorted.slice(0, 2);
+        const pairKey = [top2[0][0], top2[1][0]].sort().join('+');
+        const map = {
+            'crowd_control+sustainability': { identity: 'Teamfight / Front-to-Back', note: 'Fokus war 5v5 di area objektif Turtle/Lord dengan inisiasi Crowd Control dan ketahanan frontline.' },
+            'attack_power+mobility': { identity: 'Pick-off / Skirmish', note: 'Rotasi cepat antarlane untuk menculik core lawan sebelum teamfight terbuka.' },
+            'lane_control+sustainability': { identity: 'Macro / Split Push', note: 'Tarik-ulur lane serta unggul kontrol map dan tekanan objektif turret.' },
+            'attack_power+crowd_control': { identity: 'Burst Combo / Wombo', note: 'Kunci target menggunakan Crowd Control lalu eksekusi burst damage serempak.' },
+            'attack_power+lane_control': { identity: 'Siege & Lane Pressure', note: 'Tekan lane lewat clear wave cepat dan damage tinggi untuk meruntuhkan turret.' },
+            'crowd_control+mobility': { identity: 'Roam Catch & Engage', note: 'Manfaatkan mobilitas tinggi untuk membuka inisiasi mendadak dan menangkap lawan out-of-position.' },
+            'lane_control+mobility': { identity: 'Fast Rotation & Map Control', note: 'Dominasi rotasi sungai dan gelombang minion untuk mengendalikan tempo objektif.' },
+            'attack_power+sustainability': { identity: 'Bruiser / Sustained Brawl', note: 'Menangkan pertarungan jarak dekat berkepanjangan dengan kombinasi damage dan ketahanan.' },
+            'crowd_control+lane_control': { identity: 'Zone Control & Objective Trap', note: 'Kunci area jalur minion dan lorong pit Turtle/Lord dengan kontrol zona berlapis.' },
+            'mobility+sustainability': { identity: 'Tempo Disengage & Sustain', note: 'Pancing cooldown lawan lalu reset posisi dengan mobilitas dan ketahanan tinggi.' }
+        };
+        const matched = map[pairKey] || { identity: 'Balanced Adaptive', note: 'Komposisi seimbang dengan fleksibilitas strategi antar fase permainan.' };
+
+        let winningCondition = `${matched.note} (Atribut tertinggi: ${labels[top2[0][0]]} ${top2[0][1].toFixed(1)} & ${labels[top2[1][0]]} ${top2[1][1].toFixed(1)}).`;
+        if (enemyAvg) {
+            const teamfightDiff = (allyAvg.crowd_control + allyAvg.sustainability) - (enemyAvg.crowd_control + enemyAvg.sustainability);
+            const laneDiff = allyAvg.lane_control - enemyAvg.lane_control;
+            const pickoffDiff = (allyAvg.mobility + allyAvg.attack_power) - (enemyAvg.mobility + enemyAvg.attack_power);
+            if (teamfightDiff >= laneDiff && teamfightDiff >= pickoffDiff && teamfightDiff > 0.3) {
+                winningCondition = `Paksa teamfight 5v5 di area pit objektif — unggul Crowd Control (${allyAvg.crowd_control.toFixed(1)} vs ${enemyAvg.crowd_control.toFixed(1)}) & Sustainability (${allyAvg.sustainability.toFixed(1)} vs ${enemyAvg.sustainability.toFixed(1)}).`;
+            } else if (laneDiff >= pickoffDiff && laneDiff > 0.3) {
+                winningCondition = `Hindari war langsung, manfaatkan keunggulan Lane Control (${allyAvg.lane_control.toFixed(1)} vs ${enemyAvg.lane_control.toFixed(1)}) untuk clear wave & split push.`;
+            } else if (pickoffDiff > 0.3) {
+                winningCondition = `Ciptakan skirmish & pick-off sebelum war terbuka — unggul Mobility (${allyAvg.mobility.toFixed(1)} vs ${enemyAvg.mobility.toFixed(1)}) & Attack Power (${allyAvg.attack_power.toFixed(1)} vs ${enemyAvg.attack_power.toFixed(1)}).`;
+            }
+        }
+
+        return {
+            has_ally: true,
+            draft_identity: matched.identity,
+            playstyle: matched.identity,
+            playstyle_note: matched.note,
+            winning_condition: winningCondition,
+            top_two_attributes: [
+                { attribute: top2[0][0], label: labels[top2[0][0]], value: top2[0][1] },
+                { attribute: top2[1][0], label: labels[top2[1][0]], value: top2[1][1] }
+            ],
+            ally_averages: allyAvg,
+            enemy_averages: enemyAvg,
+            target_averages: targetAvg,
+            attribute_warnings: warnings
+        };
+    }
+
     function renderDraftIdentities() {
         const identData = latestInferenceData?.draft_identity;
         let allyIdent = identData?.ally;
@@ -1369,7 +1479,7 @@
         const aWinText = document.getElementById('allyWinConditionText');
         const aPlanText = document.getElementById('allyGamePlanText');
 
-        // Elemen tampilan RBR Ringan (Strategy Engine)
+        // Elemen tampilan RBR Penjelasan Strategi Berbasis Angka Nyata
         const stratDraftIdent = document.getElementById('strategyDraftIdentity');
         const stratPowerSpike = document.getElementById('strategyPowerSpike');
         const stratPlaystyle = document.getElementById('strategyPlaystyle');
@@ -1393,35 +1503,40 @@
             if (emptyStateEl) emptyStateEl.classList.add('hidden');
             if (resultContentEl) resultContentEl.classList.remove('hidden');
 
-            // Integrasi 4 Output Terstruktur RBR Ringan (Draft Strategy Engine)
+            const serverExp = latestInferenceData?.rbr_explanation;
+            const rbrExp = (serverExp && serverExp.has_ally) ? serverExp : evaluateLocalQuantitativeExplanation(allyTeam, enemyTeam);
             const strat = latestInferenceData?.draft_strategy || identData?.strategy || identData;
-            if (strat && strat.draft_identity) {
-                if (stratDraftIdent) stratDraftIdent.textContent = strat.draft_identity;
-                if (stratPowerSpike) stratPowerSpike.textContent = strat.power_spike || '-';
-                if (stratPlaystyle) stratPlaystyle.textContent = strat.playstyle || '-';
-                if (stratWinningCond) stratWinningCond.textContent = strat.winning_condition || allyIdent.win_condition;
+            const allySpikes = computeTeamPowerSpikes(allyTeam);
+            const spikeInterp = interpretTeamPowerSpike(allySpikes, allyTeam.length);
 
-                if (aBadgeText) aBadgeText.textContent = strat.draft_identity;
-                if (aPowerSpikeBadge) aPowerSpikeBadge.textContent = strat.power_spike || '-';
-                if (aPlaystyleBadge) aPlaystyleBadge.textContent = strat.playstyle || '-';
-                if (aWinText) aWinText.textContent = strat.winning_condition || allyIdent.win_condition;
-            } else {
-                if (stratDraftIdent) stratDraftIdent.textContent = allyIdent.archetype;
-                if (stratPowerSpike) stratPowerSpike.textContent = '-';
-                if (stratPlaystyle) stratPlaystyle.textContent = '-';
-                if (stratWinningCond) stratWinningCond.textContent = allyIdent.win_condition;
+            const identityText = rbrExp?.draft_identity || strat?.draft_identity || allyIdent.archetype;
+            const top2Text = (rbrExp?.top_two_attributes && rbrExp.top_two_attributes.length >= 2)
+                ? `${rbrExp.top_two_attributes[0].label} (${Number(rbrExp.top_two_attributes[0].value).toFixed(1)}) & ${rbrExp.top_two_attributes[1].label} (${Number(rbrExp.top_two_attributes[1].value).toFixed(1)})`
+                : (rbrExp?.playstyle || strat?.playstyle || '-');
+            const spikeText = strat?.power_spike || spikeInterp.badge || '-';
+            const winText = rbrExp?.winning_condition || strat?.winning_condition || allyIdent.win_condition;
 
-                if (aBadgeText) aBadgeText.textContent = allyIdent.archetype;
-                if (aPowerSpikeBadge) aPowerSpikeBadge.textContent = '-';
-                if (aPlaystyleBadge) aPlaystyleBadge.textContent = '-';
-                if (aWinText) aWinText.textContent = allyIdent.win_condition;
+            if (stratDraftIdent) stratDraftIdent.textContent = identityText;
+            if (stratPowerSpike) stratPowerSpike.textContent = spikeText;
+            if (stratPlaystyle) stratPlaystyle.textContent = top2Text;
+            if (stratWinningCond) stratWinningCond.textContent = winText;
+
+            if (aBadgeText) aBadgeText.textContent = identityText;
+            if (aPowerSpikeBadge) aPowerSpikeBadge.textContent = spikeText;
+            if (aPlaystyleBadge) aPlaystyleBadge.textContent = top2Text;
+            if (aWinText) aWinText.textContent = winText;
+
+            if (aPlanText && rbrExp?.ally_averages) {
+                const av = rbrExp.ally_averages;
+                aPlanText.textContent = `Rata-rata 5 Atribut: Sus ${Number(av.sustainability).toFixed(1)} • Atk ${Number(av.attack_power).toFixed(1)} • CC ${Number(av.crowd_control).toFixed(1)} • Mob ${Number(av.mobility).toFixed(1)} • Lane ${Number(av.lane_control).toFixed(1)}`;
+            } else if (aPlanText) {
+                aPlanText.textContent = allyIdent.game_plan;
             }
         }
 
         if (aBadge) {
             aBadge.className = `${allyIdent.badge_color || 'bg-gray-100 text-gray-700 border-gray-200'} border text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1`;
         }
-        if (aPlanText) aPlanText.textContent = allyIdent.game_plan;
 
         const eBadge = document.getElementById('enemyIdentityBadge');
         const eBadgeText = document.getElementById('enemyIdentityBadgeText');
@@ -2008,94 +2123,85 @@
 
         const count = teamList.length;
         const alerts = [];
-        let frontlineCount = 0;
-        let ccCount = 0;
-        let hasMage = false;
 
-        teamList.forEach((name, idx) => {
-            const lane = (teamLanes[idx] || '').toUpperCase();
-            const h = pickerHeroes.find(item => item.name.toLowerCase() === name.toLowerCase());
-            const role = h && h.role ? h.role.toLowerCase() : '';
-            const dmg = h ? (h.damage_type || 'Physical') : 'Physical';
+        // Jika Tim Sekutu: gunakan Flag Peringatan Kuantitatif berbasis 5 Atribut Coach vs Target Profil T_k
+        if (teamType === 'ally') {
+            const serverExp = latestInferenceData?.rbr_explanation;
+            const rbrExp = (serverExp && serverExp.has_ally) ? serverExp : evaluateLocalQuantitativeExplanation(allyTeam, enemyTeam);
 
-            if (role.includes('mage') || lane === 'MID' || dmg === 'Magic') {
-                hasMage = true;
+            if (rbrExp && Array.isArray(rbrExp.attribute_warnings) && rbrExp.attribute_warnings.length > 0) {
+                rbrExp.attribute_warnings.forEach(w => {
+                    alerts.push({
+                        rule_id: w.rule_id || 'RULE-001',
+                        severity: w.severity || 'warning',
+                        title: `Defisit ${w.label}`,
+                        message: w.message
+                    });
+                });
             }
-            if (role.includes('tank') || role.includes('fighter') || lane === 'ROAM') {
-                frontlineCount++;
-            }
-            if (HARD_CC_HEROES.includes(name.toLowerCase())) {
-                ccCount++;
-            }
-        });
 
-        const targetLabel = (teamType === 'ally') ? 'Tim musuh' : 'Tim sekutu';
-
-        // 1. RBR-COMP-01 (Mage Wajib)
-        if (count >= 3 && (!hasMage || damageDist.mag < 15)) {
-            alerts.push({
-                rule_id: 'RBR-COMP-01',
-                severity: 'critical',
-                title: 'Defisit Magic Damage (Belum ada Mage)',
-                message: `Belum ada Mage / Magic Damage (${damageDist.mag}%): ${targetLabel} dapat menumpuk Physical Defense secara bebas.`
-            });
-        } else if (count >= 2 && damageDist.phys >= 100 && damageDist.mag === 0) {
-            alerts.push({
-                rule_id: 'RBR-COMP-01',
-                severity: 'warning',
-                title: 'Peringatan Komposisi Magic',
-                message: `Belum ada Magical Damage (${damageDist.mag}%): Rawan dicounter stack armor fisik.`
-            });
-        }
-
-        // 2. RBR-COMP-02 (Frontline Wajib)
-        if (count >= 3 && frontlineCount === 0) {
-            alerts.push({
-                rule_id: 'RBR-COMP-02',
-                severity: 'critical',
-                title: 'Tidak Ada Frontliner / Tank',
-                message: 'Tidak ada frontliner / Tank: Garis depan rentan ditembus dan kontes Lord berisiko tinggi.'
-            });
-        }
-
-        // 3. RBR-CC-01 (Crowd Control Wajib)
-        if (count >= 3 && ccCount === 0) {
-            alerts.push({
-                rule_id: 'RBR-CC-01',
-                severity: 'warning',
-                title: 'Minim Crowd Control (CC)',
-                message: 'Tidak ada inisiator Crowd Control (CC): Minim kemampuan penguncian target lincah.'
-            });
-        }
-
-        // 4. RBR-DMG-01 (100% Physical)
-        if (count >= 2 && damageDist.phys >= 100) {
-            alerts.push({
-                rule_id: 'RBR-DMG-01',
-                severity: 'warning',
-                title: 'Damage 100% Physical',
-                message: 'Damage 100% Physical: Mudah dilawan stack armor Antique Cuirass & Blade Armor.'
-            });
-        }
-
-        // 5. RBR-DMG-02 (100% Magic)
-        if (count >= 2 && damageDist.mag >= 100) {
-            alerts.push({
-                rule_id: 'RBR-DMG-02',
-                severity: 'warning',
-                title: 'Damage 100% Magic',
-                message: "Damage 100% Magic: Mudah dilawan stack magic defense Radiant Armor & Athena's Shield."
-            });
-        }
-
-        // 6. RBR-COMP-OK (Komposisi Seimbang)
-        if (count >= 3 && alerts.filter(a => a.severity === 'critical').length === 0) {
-            if (damageDist.phys > 0 && damageDist.mag > 0 && frontlineCount > 0) {
+            if (count >= 2 && damageDist.phys >= 100) {
                 alerts.push({
-                    rule_id: 'RBR-COMP-OK',
+                    rule_id: 'RULE-003',
+                    severity: 'warning',
+                    title: 'Damage 100% Physical',
+                    message: 'Komposisi 100% Physical Damage: lawan mudah menumpuk Physical Defense.'
+                });
+            } else if (count >= 2 && damageDist.mag >= 100) {
+                alerts.push({
+                    rule_id: 'RULE-003',
+                    severity: 'warning',
+                    title: 'Damage 100% Magic',
+                    message: 'Komposisi 100% Magic Damage: lawan mudah menumpuk Magic Defense.'
+                });
+            }
+
+            if (alerts.length === 0) {
+                alerts.push({
+                    rule_id: 'RULE-OK',
                     severity: 'info',
-                    title: 'Komposisi Seimbang',
-                    message: `Komposisi seimbang (${damageDist.phys}% Phys / ${damageDist.mag}% Mag) dengan frontliner & CC aktif.`
+                    title: 'Komposisi Mendekati Target Pemenang',
+                    message: 'Seluruh 5 atribut komposisi tim seimbang dan mendekati/melampaui Target Profil pemenang T_k.'
+                });
+            }
+        } else {
+            let frontlineCount = 0;
+            let ccCount = 0;
+            let hasMage = false;
+
+            teamList.forEach((name, idx) => {
+                const lane = (teamLanes[idx] || '').toUpperCase();
+                const h = pickerHeroes.find(item => item.name.toLowerCase() === name.toLowerCase());
+                const role = h && h.role ? h.role.toLowerCase() : '';
+                const dmg = h ? (h.damage_type || 'Physical') : 'Physical';
+
+                if (role.includes('mage') || lane === 'MID' || dmg === 'Magic') hasMage = true;
+                if (role.includes('tank') || role.includes('fighter') || lane === 'ROAM') frontlineCount++;
+                if (HARD_CC_HEROES.includes(name.toLowerCase())) ccCount++;
+            });
+
+            if (count >= 3 && (!hasMage || damageDist.mag < 15)) {
+                alerts.push({
+                    rule_id: 'RULE-003',
+                    severity: 'warning',
+                    title: 'Defisit Magic Damage',
+                    message: `Belum ada Magic Damage (${damageDist.mag}%) di tim musuh.`
+                });
+            }
+            if (count >= 3 && frontlineCount === 0) {
+                alerts.push({
+                    rule_id: 'RULE-002',
+                    severity: 'critical',
+                    title: 'Lawan Tanpa Frontliner',
+                    message: 'Tim musuh belum memiliki Frontliner / Tank yang kuat.'
+                });
+            }
+            if (count >= 3 && ccCount === 0) {
+                alerts.push({
+                    rule_id: 'RULE-001',
+                    severity: 'warning',
+                    title: 'Lawan Minim Crowd Control',
+                    message: 'Tim musuh minim inisiator Crowd Control.'
                 });
             }
         }
@@ -2390,12 +2496,25 @@
             });
         }
 
-        let picks = [];
+        // Update teks rumus aktif SAW di header rekomendasi
+        const formulaBannerEl = document.getElementById('sawActiveFormulaText');
+        if (formulaBannerEl) {
+            const w = latestInferenceData?.saw_meta?.weights;
+            if (w && (allyTeam.length > 0 || enemyTeam.length > 0)) {
+                formulaBannerEl.innerHTML = `Score = 0.40·DNA + 0.35·Comp + 0.25·Counter <span class="text-gray-500 font-sans font-semibold">(Aktif: ${Number(w.alpha).toFixed(2)}·DNA + ${Number(w.beta).toFixed(2)}·Comp + ${Number(w.gamma).toFixed(2)}·Ctr • m=5)</span>`;
+            } else {
+                formulaBannerEl.innerHTML = `Score = 0.40·DNA + 0.35·Comp + 0.25·Counter <span class="text-gray-500 font-sans font-semibold">(Bayesian Shrinkage m=5)</span>`;
+            }
+        }
 
-        // Prioritaskan hasil evaluasi forward chaining dari engine (DraftInferenceService)
-        if (currentRecommendations && currentRecommendations.length > 0) {
+        let picks = [];
+        const sawSource = (latestInferenceData && Array.isArray(latestInferenceData.saw_recommendations) && latestInferenceData.saw_recommendations.length > 0)
+            ? latestInferenceData.saw_recommendations
+            : currentRecommendations;
+
+        if (sawSource && sawSource.length > 0) {
             const allBans = [...allyBans, ...enemyBans];
-            picks = currentRecommendations.filter(rec => {
+            picks = sawSource.filter(rec => {
                 const n = (rec.nama || rec.hero || '').toLowerCase();
                 const inAlly = allyTeam.some(a => a.toLowerCase() === n);
                 const inEnemy = enemyTeam.some(e => e.toLowerCase() === n);
@@ -2404,198 +2523,85 @@
             });
         }
 
-        // Fallback jika belum menerima data dari server
+        // Fallback jika belum ada data SAW dari server
         if (picks.length === 0) {
-            if (allyTeam.length === 0 && enemyTeam.length === 0) {
-                picks = defaultPicks;
-            } else {
-                const pickScoreMap = new Map();
-
-                pickerHeroes.forEach(hero => {
-                    const name = hero.name;
-                    if (allyTeam.includes(name) || enemyTeam.includes(name)) return;
-
-                    let score = 2.0;
-                    let priority = 'P3';
-                    let subType = 'META';
-                    let subHero = 'Meta Standar';
-                    let rbrId = 'RBR-GEN-01';
-                    let rbrRationale = 'Prioritas meta umum berdasarkan statistik win rate turnamen MPL.';
-                    let rbrConfidence = '91.0%';
-
-                    // 1. ATURAN KOMPOSISI WAJIB (MAGE WAJIB) - Prioritas Tertinggi
-                    const isMage = (hero.role && hero.role.toLowerCase() === 'mage') || 
-                                   hero.damage_type === 'Magic' || 
-                                   (hero.lane && hero.lane.toLowerCase().includes('mid'));
-
-                    if (needsMageMandatory && isMage) {
-                        score += 45.0;
-                        priority = 'P1';
-                        subType = 'MAGE WAJIB';
-                        subHero = 'Kekurangan Magic';
-                        rbrId = 'RBR-COMP-01';
-                        rbrRationale = 'Aturan Komposisi Mutlak: Tim sekutu belum memiliki Mage/Magic Damage.';
-                        rbrConfidence = '98.0%';
-                    }
-
-                    // 2. Check Counter terhadap Enemy
-                    let counterCount = 0;
-                    let counterTarget = '';
-                    enemyTeam.forEach(enemyName => {
-                        const countersOfEnemy = heroCounterMap[enemyName] || [];
-                        if (countersOfEnemy.some(c => c.toLowerCase() === name.toLowerCase())) {
-                            counterCount++;
-                            counterTarget = enemyName;
-                        }
-                    });
-
-                    if (counterCount > 0 && !needsMageMandatory) {
-                        score += counterCount * 1.8;
-                        subType = 'CTR';
-                        subHero = counterTarget;
-                        priority = 'P1';
-                        rbrId = `RBR-CTR-${(counterTarget.length % 9) + 1}`;
-                        rbrRationale = `Direct Counter terhadap ${counterTarget}.`;
-                        rbrConfidence = '96.2%';
-                    }
-
-                    // 3. Check Sinergi dengan Ally
-                    let synergyCount = 0;
-                    let synergyPartner = '';
-                    allyTeam.forEach(allyName => {
-                        const synList = heroSynergyMap[allyName] || [];
-                        if (synList.some(s => s.toLowerCase() === name.toLowerCase())) {
-                            synergyCount++;
-                            synergyPartner = allyName;
-                        }
-                    });
-
-                    if (synergyCount > 0 && !needsMageMandatory && counterCount === 0) {
-                        score += synergyCount * 1.5;
-                        subType = 'SYN';
-                        subHero = synergyPartner;
-                        priority = 'P2';
-                        rbrId = `RBR-SYN-${(synergyPartner.length % 9) + 1}`;
-                        rbrRationale = `Sinergi kuat dengan ${synergyPartner}.`;
-                        rbrConfidence = '94.5%';
-                    }
-
-                    // Tournament stat boost
-                    const stat = heroStatsLookup[name];
-                    let rawWrVal = 50;
-                    if (stat) {
-                        rawWrVal = parseFloat(stat.win_rate) || 50;
-                        score += (rawWrVal - 50) / 25;
-                    }
-
-                    const totalSc = Math.round(Math.max(10, Math.min(100, score * 18)));
-                    pickScoreMap.set(name, {
-                        hero: name,
-                        nama: name,
-                        hero_id: hero.clean_key || name.toLowerCase(),
-                        role: (hero.role || 'Hero').charAt(0).toUpperCase() + (hero.role || 'Hero').slice(1),
-                        lane: (hero.lane || 'flex').toLowerCase(),
-                        lane_flex: [hero.lane || 'Flex'],
-                        score: (totalSc / 20.0).toFixed(1),
-                        total_score: totalSc,
-                        priority: totalSc >= 75 ? 'P1' : (totalSc >= 50 ? 'P2' : 'P3'),
-                        progress: totalSc,
-                        portrait: hero.portrait,
-                        subtitle_type: subType,
-                        subtitle_hero: subHero,
-                        damage_type: hero.damage_type || 'Physical',
-                        power_spike: hero.power_spike || 'Mid Game',
-                        confidence: rbrConfidence,
-                        sample_size: 20,
-                        low_data: false,
-                        alasan_ringkas: rbrRationale,
-                        breakdown: {
-                            data: {
-                                score: Math.round(rawWrVal),
-                                win_rate: rawWrVal,
-                                n: 20,
-                                synergy: synergyCount > 0 ? [{ dengan: synergyPartner, nilai: 12.0 }] : [],
-                                counter: counterCount > 0 ? [{ vs: counterTarget, nilai: 14.0 }] : []
-                            },
-                            rule: {
-                                score: totalSc,
-                                fired: [{ rule_id: rbrId, nama: subType, kondisi: rbrRationale, kontribusi_skor: 30.0 }],
-                                not_fired: []
-                            }
-                        }
-                    });
-                });
-
-                picks = Array.from(pickScoreMap.values()).sort((a, b) => parseFloat(b.total_score || b.score) - parseFloat(a.total_score || a.score));
-            }
+            picks = defaultPicks;
         }
 
         const filteredPicks = picks.filter(p => {
             if (recLaneFilter === 'all') return true;
             const lFilter = recLaneFilter.toLowerCase();
-            const flex = p.lane_flex || [p.lane || 'flex'];
-            const matchFlex = flex.some(l => (l || '').toLowerCase().includes(lFilter));
-            const matchLane = (p.lane || '').toLowerCase().includes(lFilter);
-            const matchRole = (p.role || '').toLowerCase().includes(lFilter);
-            return matchFlex || matchLane || matchRole;
+            const flex = [p.lane_1, p.lane_2, ...(p.lane_flex || []), p.lane].filter(Boolean);
+            const matchFlex = flex.some(l => String(l).toLowerCase().includes(lFilter));
+            const matchRole = `${p.role || ''} ${p.role_1 || ''} ${p.role_2 || ''}`.toLowerCase().includes(lFilter);
+            return matchFlex || matchRole;
         });
 
+        const top10Picks = filteredPicks.slice(0, 10);
         const picksBadge = document.getElementById('picksCountBadge');
-        if (picksBadge) picksBadge.textContent = filteredPicks.length;
+        if (picksBadge) picksBadge.textContent = top10Picks.length;
 
-        // FASE 3: RENDER KARTU REKOMENDASI COMPACT (64-72px) DENGAN ACCORDION EXPAND
-        filteredPicks.slice(0, 14).forEach((p, idx) => {
+        const sawWeights = latestInferenceData?.saw_meta?.weights || { alpha: 1.0, beta: 0.0, gamma: 0.0 };
+
+        // RENDER TOP 10 KARTU REKOMENDASI HYBRID SAW + BAYESIAN SHRINKAGE (TANPA CONFIDENCE STATIS)
+        top10Picks.forEach((p, idx) => {
             const pHeroName = p.nama || p.hero;
             const cardKey = p.hero_id || pHeroName;
             const isExpanded = (expandedRecHeroId === cardKey || expandedRecHeroId === pHeroName);
 
-            const totalScoreVal = (p.total_score != null) ? 
-                parseFloat(p.total_score) : (p.score ? parseFloat(p.score) * 20.0 : 50.0);
+            const totalScoreVal = (p.total_score != null)
+                ? parseFloat(p.total_score)
+                : (p.saw_score != null ? parseFloat(p.saw_score) * 100.0 : 50.0);
             const scoreFormatted = totalScoreVal.toFixed(1);
-            const progressPct = Math.min(100, Math.max(10, Math.round(totalScoreVal)));
-            const pConfidence = p.confidence || (p.rbr_confidence || '88.5%');
+            const sawScoreDecimal = (p.saw_score != null) ? parseFloat(p.saw_score) : (totalScoreVal / 100.0);
+            const progressPct = Math.min(100, Math.max(8, Math.round(totalScoreVal)));
 
-            const pPriority = totalScoreVal >= 75.0 ? 'P1' : (totalScoreVal >= 50.0 ? 'P2' : 'P3');
-            const pBadgeColor = pPriority === 'P1' ? 'bg-[#700B1A] text-white' : (pPriority === 'P2' ? 'bg-[#991B1B] text-white' : 'bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD]');
-            const pTitle = pPriority === 'P1' ? 'Prioritas Utama (Skor >= 75): Direct counter, combo sinergi, atau aturan wajib' : (pPriority === 'P2' ? 'Prioritas Menengah (Skor 50-74): Sinergi sekunder yang solid' : 'Pilihan Fleksibel (Skor < 50): Opsi situasional meta umum');
+            const rankBadgeColor = idx === 0
+                ? 'bg-[#700B1A] text-white'
+                : (idx < 3 ? 'bg-[#991B1B] text-white' : 'bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD]');
 
-            const flexLanes = p.lane_flex || [p.lane || 'flex'];
-            const primaryLane = (flexLanes[0] || 'Flex').toUpperCase();
+            const laneLabel = (p.lane_1 || (p.lane_flex && p.lane_flex[0]) || p.lane || 'Flex').toUpperCase();
+            const roleLabel = [p.role_1 || p.role || 'Hero', p.role_2].filter(Boolean).join(' / ');
 
-            // Comfort Pick Check (Draft DNA Tim)
-            const isComfortPick = Boolean(p.team_dna && p.team_dna.in_hero_pool);
-            const comfortBadgeHtml = isComfortPick ? 
-                `<span class="bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD] text-[8px] font-black px-1.5 py-0.2 rounded flex items-center gap-0.5 shadow-2xs flex-shrink-0" title="Comfort Pick / DNA Tim: Hero Pool Signature ${p.team_dna.team_name} (${p.team_dna.team_picks} Game, ${p.team_dna.team_wr}% WR)">
-                    <svg class="w-2.5 h-2.5 text-[#700B1A]" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                    <span>Comfort Pick / DNA Tim</span>
-                </span>` : '';
+            const sDna = p.s_dna || { raw: 0, norm: 0.5, weight: sawWeights.alpha, n_team: 0, n_global: 0, p_global: 0 };
+            const sComp = p.s_comp || { active: false, raw: null, norm: null, weight: sawWeights.beta, gap_before: null, gap_after: null };
+            const sCounter = p.s_counter || { active: false, raw: null, norm: null, weight: sawWeights.gamma, w_global: 0.5, matchups: [] };
 
-            // Data extraction for accordion
-            const dataScoreVal = (p.breakdown && p.breakdown.data && p.breakdown.data.score != null) ? parseFloat(p.breakdown.data.score) : 50.0;
-            const ruleScoreVal = (p.breakdown && p.breakdown.rule && p.breakdown.rule.score != null) ? parseFloat(p.breakdown.rule.score) : 50.0;
-            const winRateVal = (p.breakdown && p.breakdown.data && p.breakdown.data.win_rate != null) ? p.breakdown.data.win_rate : (parseFloat(p.win_rate) || 50.0);
-            const nGamesVal = (p.breakdown && p.breakdown.data && p.breakdown.data.n != null) ? p.breakdown.data.n : (p.sample_size != null ? p.sample_size : 20);
-            const isLowData = Boolean(p.low_data || nGamesVal < 10);
-            const synergyList = p.breakdown?.data?.synergy || [];
-            const counterList = p.breakdown?.data?.counter || [];
-            const firedRulesList = p.breakdown?.rule?.fired || [];
-            const notFiredRulesList = p.breakdown?.rule?.not_fired || [];
-            const pAlasan = p.alasan_ringkas || p.rbr_rationale || 'Prioritas meta turnamen MPL ID S18';
+            const dnaNormPct = Math.round((Number(sDna.norm ?? 0.5)) * 100);
+            const compNormPct = sComp.active && sComp.norm != null ? Math.round(Number(sComp.norm) * 100) : null;
+            const ctrNormPct = sCounter.active && sCounter.norm != null ? Math.round(Number(sCounter.norm) * 100) : null;
 
-            const reasonChip = resolvePrimaryReasonChip(p, counterList, synergyList, firedRulesList, needsMageMandatory, needsFrontlineMandatory);
+            const isTeamPoolPick = Number(sDna.n_team || 0) > 0;
+            const comfortBadgeHtml = isTeamPoolPick
+                ? `<span class="bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD] text-[8px] font-black px-1.5 py-0.2 rounded flex items-center gap-0.5 shadow-2xs flex-shrink-0" title="Dipick ${sDna.n_team}x oleh ${selectedTeamName || 'tim terpilih'} di MPL ID S18">
+                    <span>DNA Tim (${sDna.n_team}x)</span>
+                   </span>`
+                : '';
+
+            const coachRaw = p.coach_attributes?.raw || {
+                sustainability: 5,
+                attack_power: 5,
+                crowd_control: 5,
+                mobility: 5,
+                lane_control: 5
+            };
+
+            const wAlpha = Number(sDna.weight ?? sawWeights.alpha ?? 0.40);
+            const wBeta = Number(sComp.weight ?? sawWeights.beta ?? 0);
+            const wGamma = Number(sCounter.weight ?? sawWeights.gamma ?? 0);
 
             const card = document.createElement('div');
             card.className = `rec-pick-item bg-white border ${isExpanded ? 'border-[#700B1A] ring-1 ring-[#700B1A]/20 shadow-xs' : 'border-[#F3E8E8] hover:border-[#700B1A] shadow-2xs'} rounded-2xl overflow-hidden transition-all duration-200`;
 
             card.innerHTML = `
-                <!-- 1. COMPACT HERO ROW (Default Height ~64-72px) -->
-                <div class="px-3 py-2 flex items-center justify-between gap-2.5 cursor-pointer select-none" onclick="toggleRecCard('${cardKey}')">
+                <!-- 1. COMPACT HERO ROW WITH SAW BREAKDOWN -->
+                <div class="px-3 py-2.5 flex items-center justify-between gap-2.5 cursor-pointer select-none" onclick="toggleRecCard('${cardKey}')">
                     <div class="flex items-center gap-2.5 min-w-0 flex-1">
-                        <span class="text-[9px] font-black px-1.5 py-0.5 rounded flex-shrink-0 ${pBadgeColor}" title="${pTitle}">
-                            ${pPriority}
+                        <span class="text-[9.5px] font-black px-1.5 py-0.5 rounded flex-shrink-0 ${rankBadgeColor}" title="Peringkat #${idx + 1} Hybrid SAW">
+                            #${idx + 1}
                         </span>
                         <div class="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-[#F3E8E8] bg-gray-50 shadow-2xs">
-                            <img src="${p.portrait}" 
+                            <img src="${p.portrait || ''}" 
                                  alt="${pHeroName}" 
                                  class="w-full h-full object-cover rounded-full"
                                  onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(pHeroName)}&background=700B1A&color=fff';">
@@ -2603,34 +2609,39 @@
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center gap-1.5 flex-wrap">
                                 <h4 class="font-black text-xs text-[#18181B] truncate">${pHeroName}</h4>
-                                <span class="text-[9.5px] text-gray-500 font-semibold truncate">${p.role || 'Hero'}</span>
-                                <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-600 text-[8px] font-bold px-1.5 py-0.2 rounded" title="Lane: ${flexLanes.join(', ')}">
-                                    ${primaryLane}
+                                <span class="text-[9.5px] text-gray-500 font-semibold truncate">${roleLabel}</span>
+                                <span class="bg-[#FAF8F8] border border-[#F3E8E8] text-gray-600 text-[8px] font-bold px-1.5 py-0.2 rounded">
+                                    ${laneLabel}
                                 </span>
                                 ${comfortBadgeHtml}
                             </div>
-                            <!-- SATU chip alasan utama (Compact) -->
-                            <div class="flex items-center gap-1 mt-0.5">
-                                <span class="${reasonChip.class} text-[8.5px] font-bold px-2 py-0.2 rounded-full truncate max-w-[200px] sm:max-w-[260px]" title="${pAlasan}">
-                                    ${reasonChip.text}
+                            <!-- Breakdown Transparan 3 Komponen SAW -->
+                            <div class="flex items-center gap-1 mt-1 flex-wrap text-[8.5px] font-bold">
+                                <span class="bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD] px-1.5 py-0.2 rounded" title="S_dna (Bayesian Shrinkage m=5): p̂=${Number(sDna.raw || 0).toFixed(4)}">
+                                    DNA: ${dnaNormPct}%
+                                </span>
+                                <span class="${compNormPct !== null ? 'bg-blue-50 text-blue-800 border-blue-200' : 'bg-gray-50 text-gray-400 border-gray-200'} border px-1.5 py-0.2 rounded" title="${sComp.active ? `S_comp Δ(h)=${Number(sComp.raw || 0).toFixed(4)}` : 'Pilih minimal 1 hero sekutu untuk mengaktifkan S_comp'}">
+                                    Comp: ${compNormPct !== null ? compNormPct + '%' : '—'}
+                                </span>
+                                <span class="${ctrNormPct !== null ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-gray-50 text-gray-400 border-gray-200'} border px-1.5 py-0.2 rounded" title="${sCounter.active ? `S_counter ŵ=${Number(sCounter.raw || 0).toFixed(4)}` : 'Pilih minimal 1 hero musuh untuk mengaktifkan S_counter'}">
+                                    Counter: ${ctrNormPct !== null ? ctrNormPct + '%' : '—'}
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right side: Score, progress bar, confidence, accordion chevron -->
+                    <!-- Right side: Total SAW Score & chevron -->
                     <div class="flex items-center gap-2 flex-shrink-0">
                         <div class="w-20 text-right">
-                            <div class="flex items-center justify-end gap-1">
-                                <span class="font-mono font-black text-xs text-[#700B1A]" title="Total Skor Hybrid">${scoreFormatted}</span>
+                            <div class="flex items-center justify-end gap-0.5">
+                                <span class="font-mono font-black text-xs text-[#700B1A]" title="Total Skor SAW">${scoreFormatted}</span>
                                 <span class="text-[8px] text-gray-400 font-bold">/100</span>
                             </div>
                             <div class="w-full bg-[#FAF0F1] h-1.5 rounded-full overflow-hidden mt-0.5">
                                 <div class="bg-[#700B1A] h-full rounded-full transition-all duration-300" style="width: ${progressPct}%"></div>
                             </div>
-                            <div class="text-[8.5px] font-mono font-extrabold text-emerald-700 mt-0.5 text-right flex items-center justify-end gap-0.5" title="Confidence: weighted average kekuatan rule & reliabilitas data">
-                                <span>${pConfidence}</span>
-                                <span class="text-emerald-500 text-[7.5px]">conf</span>
+                            <div class="text-[8px] font-mono text-gray-400 mt-0.5 text-right">
+                                SAW ${sawScoreDecimal.toFixed(3)}
                             </div>
                         </div>
                         <button type="button" class="w-6 h-6 rounded-full bg-gray-50 hover:bg-[#FCECEE] text-gray-400 hover:text-[#700B1A] flex items-center justify-center transition cursor-pointer">
@@ -2641,141 +2652,92 @@
                     </div>
                 </div>
 
-                <!-- 2. ACCORDION EXPANDED BODY (FASE 3 - PERSYARATAN 2) -->
+                <!-- 2. ACCORDION EXPANDED BODY (RINCIAN SAW + 5 ATRIBUT COACH) -->
                 ${isExpanded ? `
                 <div class="border-t border-[#FAF0F1] bg-[#FAF8F8]/70 p-3 space-y-3 text-xs">
-                    <!-- a. Breakdown skor dua warna: Data-Driven vs Expert Rules -->
+                    <!-- a. Rincian Skor SAW -->
                     <div class="bg-white border border-[#F3E8E8] rounded-xl p-2.5 space-y-2 shadow-2xs">
                         <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-wider">
-                            <span class="text-[#18181B] flex items-center gap-1.5">
-                                <span>Breakdown Skor Hybrid (50% Data + 50% Rule)</span>
-                            </span>
+                            <span class="text-[#18181B]">Breakdown Skor Hybrid SAW</span>
                             <span class="font-mono text-[#700B1A] font-extrabold">${scoreFormatted} / 100</span>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 text-[10px]">
-                            <div class="space-y-1">
-                                <div class="flex justify-between font-bold text-blue-900">
-                                    <span>Data Turnamen (50%):</span>
-                                    <span class="font-mono">${dataScoreVal.toFixed(1)}</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px]">
+                            <div class="space-y-1 p-2 rounded-lg bg-[#FAF8F8] border border-[#F3E8E8]">
+                                <div class="flex justify-between font-bold text-[#700B1A]">
+                                    <span>DNA (w=${wAlpha.toFixed(2)})</span>
+                                    <span class="font-mono">${dnaNormPct}%</span>
+                                </div>
+                                <div class="w-full bg-[#FCECEE] h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-[#700B1A] h-full rounded-full" style="width: ${dnaNormPct}%"></div>
+                                </div>
+                                <div class="text-[8.5px] text-gray-500 font-mono">p̂=${Number(sDna.raw || 0).toFixed(4)} • Tim: ${sDna.n_team || 0}x</div>
+                            </div>
+
+                            <div class="space-y-1 p-2 rounded-lg bg-[#FAF8F8] border border-[#F3E8E8]">
+                                <div class="flex justify-between font-bold text-blue-800">
+                                    <span>Comp (w=${wBeta.toFixed(2)})</span>
+                                    <span class="font-mono">${compNormPct !== null ? compNormPct + '%' : 'Nonaktif'}</span>
                                 </div>
                                 <div class="w-full bg-blue-100 h-1.5 rounded-full overflow-hidden">
-                                    <div class="bg-blue-600 h-full rounded-full" style="width: ${Math.min(100, dataScoreVal)}%"></div>
+                                    <div class="bg-blue-600 h-full rounded-full" style="width: ${compNormPct ?? 0}%"></div>
                                 </div>
-                                <div class="text-[8.5px] text-gray-500">
-                                    Kontribusi: <strong>+${(dataScoreVal * 0.50).toFixed(1)}</strong> poin
-                                </div>
+                                <div class="text-[8.5px] text-gray-500 font-mono">${sComp.active ? `Δ=${Number(sComp.raw || 0).toFixed(4)}` : 'Menunggu ally pick'}</div>
                             </div>
-                            <div class="space-y-1">
-                                <div class="flex justify-between font-bold text-[#700B1A]">
-                                    <span>Expert RBR (50%):</span>
-                                    <span class="font-mono">${ruleScoreVal.toFixed(1)}</span>
+
+                            <div class="space-y-1 p-2 rounded-lg bg-[#FAF8F8] border border-[#F3E8E8]">
+                                <div class="flex justify-between font-bold text-emerald-800">
+                                    <span>Counter (w=${wGamma.toFixed(2)})</span>
+                                    <span class="font-mono">${ctrNormPct !== null ? ctrNormPct + '%' : 'Nonaktif'}</span>
                                 </div>
-                                <div class="w-full bg-[#FAF0F1] h-1.5 rounded-full overflow-hidden">
-                                    <div class="bg-[#700B1A] h-full rounded-full" style="width: ${Math.min(100, ruleScoreVal)}%"></div>
+                                <div class="w-full bg-emerald-100 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-emerald-600 h-full rounded-full" style="width: ${ctrNormPct ?? 0}%"></div>
                                 </div>
-                                <div class="text-[8.5px] text-gray-500">
-                                    Kontribusi: <strong>+${(ruleScoreVal * 0.50).toFixed(1)}</strong> poin
-                                </div>
+                                <div class="text-[8.5px] text-gray-500 font-mono">${sCounter.active ? `ŵ=${Number(sCounter.raw || 0).toFixed(4)}` : 'Menunggu enemy pick'}</div>
                             </div>
                         </div>
-                        <div class="text-[9px] text-gray-500 italic pt-1 border-t border-gray-100 text-center">
-                            Formula: Total = (0.50 × ${dataScoreVal.toFixed(1)}) + (0.50 × ${ruleScoreVal.toFixed(1)}) = ${scoreFormatted}
+                        <div class="text-[9px] text-gray-500 font-mono pt-1 border-t border-gray-100 text-center">
+                            Score = (${wAlpha.toFixed(2)} × ${Number(sDna.norm ?? 0.5).toFixed(2)}) + (${wBeta.toFixed(2)} × ${Number(sComp.norm ?? 0).toFixed(2)}) + (${wGamma.toFixed(2)} × ${Number(sCounter.norm ?? 0).toFixed(2)}) = ${sawScoreDecimal.toFixed(4)}
                         </div>
                     </div>
 
-                    <!-- b. Data: win rate S18, n game, sinergi per sekutu, counter per musuh -->
+                    <!-- b. Profil 5 Atribut Kuantitatif Coach -->
                     <div class="bg-white border border-[#F3E8E8] rounded-xl p-2.5 space-y-2 shadow-2xs">
                         <div class="text-[10px] font-black uppercase tracking-wider text-gray-700 flex items-center justify-between">
-                            <span>Bukti Empiris Turnamen (MPL ID S18)</span>
-                            <span class="text-gray-400 font-medium lowercase">k = 10 (Bayesian Smoothing)</span>
+                            <span>Profil 5 Atribut Coach (Skala 0–10)</span>
+                            <span class="text-[9px] font-mono text-gray-400">Tabel heroes</span>
                         </div>
-                        <div class="flex items-center gap-2 flex-wrap text-[10px]">
-                            <span class="bg-gray-100 text-gray-800 font-bold px-2 py-0.5 rounded-md">
-                                Win Rate: <strong>${winRateVal}%</strong>
-                            </span>
-                            <span class="bg-gray-100 text-gray-700 font-semibold px-2 py-0.5 rounded-md">
-                                Sampel: <strong>${nGamesVal} game</strong>
-                            </span>
-                            ${isLowData ? `
-                                <span class="bg-amber-100 text-amber-800 border border-amber-300 font-bold px-2 py-0.5 rounded-md" title="Sampel kecil (<10 game) sehingga win rate disusutkan mendekati prior 50% melalui Bayesian shrinkage">
-                                    [Perhatian] Data terbatas (n &lt; 10)
-                                </span>
-                            ` : ''}
-                        </div>
-
-                        <!-- Synergy list -->
-                        <div class="text-[10px] space-y-1 pt-1 border-t border-gray-100">
-                            <span class="font-bold text-gray-600">Sinergi dengan Sekutu:</span>
-                            <div class="flex items-center gap-1.5 flex-wrap">
-                                ${renderSynergyBadges(synergyList)}
+                        <div class="grid grid-cols-5 gap-1.5 text-center text-[9.5px]">
+                            <div class="p-1.5 rounded-lg bg-[#FAF8F8] border border-[#F3E8E8]">
+                                <div class="text-[8px] font-bold text-gray-400 uppercase">Sus</div>
+                                <div class="font-black text-[#18181B]">${coachRaw.sustainability}</div>
+                            </div>
+                            <div class="p-1.5 rounded-lg bg-[#FAF8F8] border border-[#F3E8E8]">
+                                <div class="text-[8px] font-bold text-gray-400 uppercase">Atk</div>
+                                <div class="font-black text-[#18181B]">${coachRaw.attack_power}</div>
+                            </div>
+                            <div class="p-1.5 rounded-lg bg-[#FAF8F8] border border-[#F3E8E8]">
+                                <div class="text-[8px] font-bold text-gray-400 uppercase">CC</div>
+                                <div class="font-black text-[#18181B]">${coachRaw.crowd_control}</div>
+                            </div>
+                            <div class="p-1.5 rounded-lg bg-[#FAF8F8] border border-[#F3E8E8]">
+                                <div class="text-[8px] font-bold text-gray-400 uppercase">Mob</div>
+                                <div class="font-black text-[#18181B]">${coachRaw.mobility}</div>
+                            </div>
+                            <div class="p-1.5 rounded-lg bg-[#FAF8F8] border border-[#F3E8E8]">
+                                <div class="text-[8px] font-bold text-gray-400 uppercase">Lane</div>
+                                <div class="font-black text-[#18181B]">${coachRaw.lane_control}</div>
                             </div>
                         </div>
-
-                        <!-- Counter list -->
-                        <div class="text-[10px] space-y-1 pt-1 border-t border-gray-100">
-                            <span class="font-bold text-gray-600">Counter terhadap Musuh:</span>
-                            <div class="flex items-center gap-1.5 flex-wrap">
-                                ${renderCounterBadges(counterList)}
+                        ${sCounter.active && Array.isArray(sCounter.matchups) && sCounter.matchups.length > 0 ? `
+                            <div class="pt-1 border-t border-gray-100 flex items-center gap-1.5 flex-wrap text-[9.5px]">
+                                <span class="font-bold text-gray-600">H2H Shrinkage:</span>
+                                ${sCounter.matchups.map(m => `<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono text-[8.5px]">vs ${m.enemy}: ${(Number(m.shrunk_wr) * 100).toFixed(1)}% (${m.wins}W/${m.games}G)</span>`).join('')}
                             </div>
-                        </div>
+                        ` : ''}
                     </div>
 
-                    <!-- c. Rule Menyala (Fired Rules) with links & actual conditions -->
-                    <div class="bg-white border border-[#F3E8E8] rounded-xl p-2.5 space-y-1.5 shadow-2xs">
-                        <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-[#700B1A]">
-                            <span>Aturan RBR Menyala (Fired)</span>
-                            <span class="text-emerald-700 font-mono">${firedRulesList.length} Rule Aktif</span>
-                        </div>
-                        <div class="space-y-1.5">
-                            ${renderFiredRulesList(firedRulesList)}
-                        </div>
-                    </div>
-
-                    <!-- d. Rule Dievaluasi tapi TIDAK Menyala -->
-                    <div class="bg-white border border-[#F3E8E8] rounded-xl p-2.5 space-y-1.5 shadow-2xs">
-                        <div class="text-[10px] font-black uppercase tracking-wider text-gray-500">
-                            <span>Aturan Dievaluasi Tidak Menyala / Tidak Cocok</span>
-                        </div>
-                        <div class="space-y-1 max-h-28 overflow-y-auto pr-1">
-                            ${renderUnfiredRulesList(notFiredRulesList)}
-                        </div>
-                    </div>
-
-                    ${p.team_dna ? `
-                    <!-- e. Analisis Profil Draft DNA Tim -->
-                    <div class="bg-white border border-[#F8B4BD] rounded-xl p-2.5 space-y-1.5 shadow-2xs">
-                        <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-[#700B1A]">
-                            <span class="flex items-center gap-1">
-                                <svg class="w-3.5 h-3.5 text-[#700B1A]" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                <span>Profil Draft DNA: ${p.team_dna.team_name}</span>
-                            </span>
-                            <span class="${p.team_dna.in_hero_pool ? 'bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD]' : 'bg-gray-100 text-gray-600'} text-[8.5px] font-extrabold px-2 py-0.5 rounded-full">
-                                ${p.team_dna.in_hero_pool ? 'Hero Pool Signature' : 'Opsi Penyesuaian Meta'}
-                            </span>
-                        </div>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[9.5px] pt-1 border-t border-[#FAF0F1]">
-                            <div>
-                                <span class="text-gray-400">Match Tim:</span>
-                                <strong class="text-gray-800 ml-1">${p.team_dna.team_picks > 0 ? p.team_dna.team_picks + ' game (' + p.team_dna.team_wins + 'W)' : '0 game (fallback MPL)'}</strong>
-                            </div>
-                            <div>
-                                <span class="text-gray-400">Win Rate Tim:</span>
-                                <strong class="text-[#700B1A] ml-1">${p.team_dna.team_wr != null ? p.team_dna.team_wr + '%' : (winRateVal + '%')}</strong>
-                            </div>
-                            <div>
-                                <span class="text-gray-400">Playstyle Fit:</span>
-                                <strong class="${p.team_dna.playstyle_fit ? 'text-emerald-700 font-extrabold' : 'text-gray-700'} ml-1">${p.team_dna.playstyle_fit ? 'Sangat Selaras' : 'Standar'}</strong>
-                            </div>
-                        </div>
-                    </div>
-                    ` : ''}
-
-                    <!-- e. Confidence definition & action button -->
-                    <div class="flex items-center justify-between pt-1 flex-wrap gap-2">
-                        <div class="text-[9.5px] text-gray-500 flex items-center gap-1" title="Confidence dihitung dari weighted average kekuatan rule (45%) dan reliabilitas data n/(n+10) (55%). Variasi dinamis sesuai sample size.">
-                            <span>Confidence: <strong class="text-emerald-700 font-mono font-bold">${pConfidence}</strong></span>
-                            <span class="text-gray-400">(Rule strength × Data reliability)</span>
-                        </div>
+                    <!-- c. Action button -->
+                    <div class="flex items-center justify-end pt-1">
                         <button type="button" onclick="event.stopPropagation(); selectRecommendedHero('${pHeroName}')" class="px-3.5 py-1.5 bg-[#700B1A] hover:bg-[#550713] text-white rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer shadow-xs">
                             + Masukkan ke Slot Sekutu
                         </button>
@@ -2786,54 +2748,72 @@
             picksContainer.appendChild(card);
         });
 
-        // RENDER KOTAK EXPLAINABLE AI (XAI) / RULE TRACE AUDIT LOG UNTUK DOSEN
+        // RENDER KOTAK EXPLAINABLE AI (XAI) / LAPISAN PENJELASAN RBR BERBASIS ANGKA NYATA
         if (traceContainer) {
-            const firedRulesFromData = latestInferenceData?.rule_evaluations ? 
-                Object.values(latestInferenceData.rule_evaluations).filter(r => r.fired) : [];
+            const serverExp = latestInferenceData?.rbr_explanation;
+            const rbrExp = (serverExp && serverExp.has_ally) ? serverExp : evaluateLocalQuantitativeExplanation(allyTeam, enemyTeam);
 
-            if (firedRulesFromData.length > 0) {
-                traceContainer.innerHTML = firedRulesFromData.map(r => `
-                    <div class="bg-white border border-[#F3E8E8] rounded-xl p-2.5 shadow-2xs space-y-1">
-                        <div class="flex items-center justify-between text-[10px] font-black">
-                            <span class="text-[#700B1A] flex items-center gap-1">
-                                <span class="bg-[#FCECEE] text-[#700B1A] px-1.5 py-0.5 rounded text-[8.5px] font-black">${r.rule_id}</span>
-                                <span class="text-gray-800 uppercase tracking-wider">${r.nama}</span>
-                            </span>
-                            <span class="text-emerald-700 font-bold font-mono">${r.bobot} Weight</span>
+            if (rbrExp && rbrExp.has_ally) {
+                const items = [];
+                if (Array.isArray(rbrExp.attribute_warnings)) {
+                    rbrExp.attribute_warnings.forEach(w => {
+                        items.push(`
+                            <div class="bg-white border border-amber-200 rounded-xl p-2.5 shadow-2xs space-y-1">
+                                <div class="flex items-center justify-between text-[10px] font-black">
+                                    <span class="text-[#700B1A] flex items-center gap-1">
+                                        <span class="bg-[#FCECEE] text-[#700B1A] px-1.5 py-0.5 rounded text-[8.5px] font-black">${w.rule_id || 'RULE-001'}</span>
+                                        <span class="text-gray-800 uppercase tracking-wider">DEFISIT ${String(w.label || '').toUpperCase()}</span>
+                                    </span>
+                                    <span class="text-amber-700 font-mono text-[9.5px]">Gap -${Number(w.diff).toFixed(1)}</span>
+                                </div>
+                                <div class="text-[10px] text-gray-700 leading-snug">${w.message}</div>
+                            </div>
+                        `);
+                    });
+                }
+
+                if (rbrExp.top_two_attributes && rbrExp.top_two_attributes.length >= 2) {
+                    const t1 = rbrExp.top_two_attributes[0];
+                    const t2 = rbrExp.top_two_attributes[1];
+                    items.push(`
+                        <div class="bg-white border border-[#F3E8E8] rounded-xl p-2.5 shadow-2xs space-y-1">
+                            <div class="flex items-center justify-between text-[10px] font-black">
+                                <span class="text-[#700B1A] flex items-center gap-1">
+                                    <span class="bg-[#FCECEE] text-[#700B1A] px-1.5 py-0.5 rounded text-[8.5px] font-black">RULE-004</span>
+                                    <span class="text-gray-800 uppercase tracking-wider">DRAFT IDENTITY &amp; PLAYSTYLE</span>
+                                </span>
+                                <span class="text-[#700B1A] font-mono text-[9.5px]">Top 2 Atribut</span>
+                            </div>
+                            <div class="text-[10px] text-gray-700 leading-snug">
+                                <strong>IF:</strong> 2 atribut tertinggi adalah <strong>${t1.label} (${Number(t1.value).toFixed(1)})</strong> &amp; <strong>${t2.label} (${Number(t2.value).toFixed(1)})</strong><br>
+                                <strong>THEN:</strong> ${rbrExp.draft_identity} — ${rbrExp.playstyle_note}
+                            </div>
                         </div>
-                        <div class="text-[10px] text-gray-700 leading-snug">
-                            <span class="text-gray-400 font-bold">IF:</span> <span class="font-medium">${r.kondisi}</span>
+                    `);
+                }
+
+                if (rbrExp.winning_condition) {
+                    items.push(`
+                        <div class="bg-white border border-[#F3E8E8] rounded-xl p-2.5 shadow-2xs space-y-1">
+                            <div class="flex items-center justify-between text-[10px] font-black">
+                                <span class="text-[#700B1A] flex items-center gap-1">
+                                    <span class="bg-[#FCECEE] text-[#700B1A] px-1.5 py-0.5 rounded text-[8.5px] font-black">RULE-007</span>
+                                    <span class="text-gray-800 uppercase tracking-wider">WINNING CONDITION</span>
+                                </span>
+                                <span class="text-emerald-700 font-mono text-[9.5px]">Perbandingan Angka</span>
+                            </div>
+                            <div class="text-[10px] text-gray-700 leading-snug">${rbrExp.winning_condition}</div>
                         </div>
-                    </div>
-                `).join('');
-            } else if (ruleTraces.length === 0) {
+                    `);
+                }
+
+                traceContainer.innerHTML = items.join('');
+            } else {
                 traceContainer.innerHTML = `
                     <div class="p-3 bg-white border border-dashed border-[#F3E8E8] rounded-xl text-center text-gray-400 text-xs">
-                        Pilih minimal 1 hero sekutu atau musuh untuk memicu inferensi forward-chaining rules.
+                        Pilih minimal 1 hero sekutu untuk menampilkan interpretasi strategi berbasis 5 atribut Coach.
                     </div>
                 `;
-            } else {
-                ruleTraces.forEach(t => {
-                    const item = document.createElement('div');
-                    item.className = 'bg-white border border-[#F3E8E8] rounded-xl p-2.5 shadow-2xs space-y-1';
-                    item.innerHTML = `
-                        <div class="flex items-center justify-between text-[10px] font-black">
-                            <span class="text-[#700B1A] flex items-center gap-1">
-                                <span class="bg-[#FCECEE] text-[#700B1A] px-1.5 py-0.5 rounded text-[8.5px] font-black">${t.code}</span>
-                                <span class="text-gray-800 uppercase tracking-wider">${t.badge}</span>
-                            </span>
-                            <span class="text-emerald-700 font-bold font-mono">${t.confidence} Confidence</span>
-                        </div>
-                        <div class="text-[10px] text-gray-700 leading-snug">
-                            <span class="text-gray-400 font-bold">IF:</span> <span class="font-medium">${t.condition}</span><br>
-                            <span class="text-[#700B1A] font-bold">THEN:</span> <span class="font-extrabold text-[#18181B]">${t.rec}</span>
-                        </div>
-                        <div class="text-[9px] text-gray-500 italic pt-0.5 border-t border-gray-100">
-                            ${t.desc}
-                        </div>
-                    `;
-                    traceContainer.appendChild(item);
-                });
             }
         }
 
@@ -3281,8 +3261,8 @@
                                 '<span class="bg-emerald-100 text-emerald-800 border border-emerald-200 text-[9px] font-black px-2 py-0.5 rounded-full">AKTIF</span>' : 
                                 '<span class="bg-gray-100 text-gray-500 text-[9px] font-semibold px-2 py-0.5 rounded-full">TIDAK MENYALA</span>'}
                         </td>
-                        <td class="py-2.5 px-3 text-right font-mono font-bold text-gray-700">
-                            ${r.bobot} (W)
+                        <td class="py-2.5 px-3 text-right font-mono font-bold text-gray-500 text-[10px]">
+                            Explanation Layer
                         </td>
                     </tr>
                 `).join('');
@@ -3303,7 +3283,7 @@
                                 <span class="w-5 h-5 rounded-full bg-[#700B1A] text-white flex items-center justify-center text-[10px]">${i + 1}</span>
                                 <span>[${r.rule_id}] ${r.nama}</span>
                             </span>
-                            <span class="text-emerald-700 font-mono font-bold">+${(r.kontribusi_skor || 0).toFixed(1)} Poin</span>
+                            <span class="text-emerald-700 font-mono font-bold text-[10px]">Interpretasi Aktif</span>
                         </div>
                         <div class="text-[10px] text-gray-600 pl-6.5">
                             <strong>Kondisi Aktual:</strong> ${r.kondisi}
@@ -3325,7 +3305,7 @@
         activeTeamMode = 'ally';
         updateTeamModeUI();
         expandedRecHeroId = null;
-        currentRecommendations = @json($defaultPicks ?? []);
+        currentRecommendations = (initialInferenceData && initialInferenceData.saw_recommendations) ? initialInferenceData.saw_recommendations : @json($defaultPicks ?? []);
         latestInferenceData = initialInferenceData;
         renderSlots();
         renderBanSlots();
@@ -3369,9 +3349,15 @@
                 team_name: selectedTeamName
             })
         }).then(res => res.json()).then(data => {
-            if (data && data.recommendations) {
-                currentRecommendations = data.recommendations;
+            if (data && (data.saw_recommendations || data.recommendations)) {
+                currentRecommendations = data.saw_recommendations || data.recommendations;
                 latestInferenceData = data.inference || data;
+                if (data.rbr_explanation && !latestInferenceData.rbr_explanation) {
+                    latestInferenceData.rbr_explanation = data.rbr_explanation;
+                }
+                if (data.saw_meta && !latestInferenceData.saw_meta) {
+                    latestInferenceData.saw_meta = data.saw_meta;
+                }
             }
             if (data && data.team_dna) {
                 teamsDnaMap[data.team_dna.team_name.toLowerCase()] = data.team_dna;

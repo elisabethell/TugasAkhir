@@ -155,4 +155,45 @@ class DraftRecommendationServiceTest extends TestCase
         // Ketika semua nilai mentah sama (max == min), Min-Max mengembalikan 0.5 tanpa division by zero
         $this->assertEqualsWithDelta(0.5, $enemyOnly['recommendations'][0]['s_dna']['norm'], 1e-6);
     }
+
+    public function test_quantitative_rbr_explanation_layer_detects_deficits_identity_and_winning_condition(): void
+    {
+        Hero::create(['hero_id' => 'h1', 'hero_name' => 'Tigreal', 'sustainability' => 9, 'attack_power' => 3, 'crowd_control' => 10, 'mobility' => 4, 'lane_control' => 5]);
+        Hero::create(['hero_id' => 'h2', 'hero_name' => 'Atlas',   'sustainability' => 8, 'attack_power' => 4, 'crowd_control' => 9,  'mobility' => 5, 'lane_control' => 4]);
+        Hero::create(['hero_id' => 'h3', 'hero_name' => 'Fanny',   'sustainability' => 3, 'attack_power' => 9, 'crowd_control' => 2,  'mobility' => 10,'lane_control' => 5]);
+        Hero::create(['hero_id' => 'h4', 'hero_name' => 'Ling',    'sustainability' => 3, 'attack_power' => 9, 'crowd_control' => 2,  'mobility' => 10,'lane_control' => 5]);
+        Hero::create(['hero_id' => 'h5', 'hero_name' => 'Zilong',  'sustainability' => 8, 'attack_power' => 5, 'crowd_control' => 4,  'mobility' => 6, 'lane_control' => 9]);
+
+        // Target pemenang T_k memiliki crowd_control = 0.60 (6.0), attack_power = 0.70 (7.0)
+        $target = [
+            'sustainability' => 0.70,
+            'attack_power'   => 0.70,
+            'crowd_control'  => 0.60,
+            'mobility'       => 0.60,
+            'lane_control'   => 0.60,
+        ];
+
+        // 1. Sustainability + Crowd Control dominan -> Teamfight / Front-to-Back + menang CC/Sus vs Fanny+Ling -> paksa teamfight 5v5
+        $teamfight = $this->service->evaluateQuantitativeStrategyExplanation(['Tigreal', 'Atlas'], ['Fanny', 'Ling'], $target);
+        $this->assertTrue($teamfight['has_ally']);
+        $this->assertEquals('Teamfight / Front-to-Back', $teamfight['draft_identity']);
+        $this->assertStringContainsString('Paksa teamfight 5v5', $teamfight['winning_condition']);
+        // Attack Power rata-rata (3.5) vs target (7.0) -> selisih 3.5 > 1.5 -> warning dengan angka nyata
+        $atkWarn = collect($teamfight['attribute_warnings'])->firstWhere('attribute', 'attack_power');
+        $this->assertNotNull($atkWarn);
+        $this->assertStringContainsString('3.5', $atkWarn['message']);
+        $this->assertStringContainsString('7.0', $atkWarn['message']);
+
+        // 2. Mobility + Attack Power dominan -> Pick-off / Skirmish
+        $pickoff = $this->service->evaluateQuantitativeStrategyExplanation(['Fanny', 'Ling'], [], $target);
+        $this->assertEquals('Pick-off / Skirmish', $pickoff['draft_identity']);
+        $ccWarn = collect($pickoff['attribute_warnings'])->firstWhere('attribute', 'crowd_control');
+        $this->assertNotNull($ccWarn);
+        $this->assertStringContainsString('2.0', $ccWarn['message']);
+        $this->assertStringContainsString('6.0', $ccWarn['message']);
+
+        // 3. Lane Control + Sustainability dominan -> Macro / Split Push + unggul Lane Control vs musuh
+        $macro = $this->service->evaluateQuantitativeStrategyExplanation(['Zilong'], ['Fanny'], $target);
+        $this->assertEquals('Macro / Split Push', $macro['draft_identity']);
+    }
 }
