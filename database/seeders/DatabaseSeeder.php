@@ -25,6 +25,10 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        $this->call([
+            CoachHeroStatsSeeder::class,
+        ]);
+
         // $this->call([
         //     HeroSeeder::class,
         //     DatasetSeeder::class,
