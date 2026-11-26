@@ -42,31 +42,7 @@
         </div>
     </div>
 
-    <!-- 2. QUICK TEST GUIDE FOR EXAMINER / DOSEN -->
-    <div class="card-custom p-4 sm:p-5 bg-[#FAF8F8] border border-[#F3E8E8] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div class="flex items-start gap-3">
-            <div class="w-10 h-10 rounded-xl bg-[#FCECEE] text-[#700B1A] flex items-center justify-center font-black flex-shrink-0 text-lg">
-                💡
-            </div>
-            <div>
-                <h3 class="text-xs font-black text-[#18181B] uppercase tracking-wider">
-                    Panduan Pengujian Sidang Skripsi (Live Validation)
-                </h3>
-                <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">
-                    Dosen penguji dapat memvalidasi kinerja inferensi sistem pakar secara langsung:
-                    <strong>1) Uji Aturan Mage Wajib</strong> (pilih 4 hero non-mage di Tim Sekutu, amati apakah sistem otomatis merekomendasikan Mage di Top 1), 
-                    <strong>2) Uji Counter Assassin</strong> (masukkan Fanny/Ling ke Tim Musuh, amati apakah Khufra/Kaja otomatis di-boost).
-                </p>
-            </div>
-        </div>
-
-        <a href="{{ route('draft.recommendation') }}" class="bg-[#700B1A] hover:bg-[#550713] text-white text-xs font-bold py-2.5 px-4 rounded-xl flex items-center gap-2 transition shadow-sm uppercase tracking-wider flex-shrink-0">
-            <span>Buka Arena Draft Simulator</span>
-            <span>&rarr;</span>
-        </a>
-    </div>
-
-    <!-- 3. SEARCH & CATEGORY FILTER TABS -->
+    <!-- 2. SEARCH & CATEGORY FILTER TABS -->
     <div class="card-custom p-4 flex flex-col md:flex-row items-center justify-between gap-3 flex-wrap">
         
         <!-- Search Input -->
@@ -79,7 +55,7 @@
             <input type="text" 
                    id="ruleSearchInput" 
                    oninput="filterRules()" 
-                   placeholder="Cari rule code, hero, premis IF, atau kesimpulan THEN..." 
+                   placeholder="Cari kode aturan (R-001), kategori, premis IF, atau kesimpulan THEN..." 
                    class="w-full bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl py-2 pl-9 pr-3 text-xs font-medium text-[#18181B] placeholder-gray-400 focus:outline-none focus:border-[#700B1A] transition">
         </div>
 
@@ -115,29 +91,60 @@
                     'powerspike'  => 'bg-indigo-100 text-indigo-900 border-indigo-300',
                     default       => 'bg-emerald-100 text-emerald-900 border-emerald-300',
                 };
-                $confidence = $rule->confidence_weight ?? 0.85;
-                $confPct = (int)($confidence * 100);
+                $confidence = (float) ($rule->confidence_weight ?? 0.85);
+                $confPct = (int) round($confidence * 100);
+                $urgencyLabel = $confidence >= 0.90 ? 'Kritis (0.90–1.00)' : ($confidence >= 0.80 ? 'Tinggi (0.80–0.89)' : 'Sedang (0.70–0.79)');
+                $displayCode = $rule->rule_code ?: 'R-' . str_pad($loop->iteration, 3, '0', STR_PAD_LEFT);
             @endphp
-            <div class="rule-card card-custom p-5 space-y-3.5 hover:border-[#700B1A]/40 transition shadow-sm bg-white"
+            <div class="rule-card card-custom relative overflow-visible hover:z-30 focus-within:z-30 p-5 space-y-3.5 hover:border-[#700B1A]/40 transition shadow-sm bg-white"
                  data-category="{{ $cat }}"
-                 data-search="{{ strtolower(($rule->rule_code ?? '') . ' ' . ($rule->category ?? '') . ' ' . $rule->if_condition . ' ' . $rule->then_recommendation . ' ' . ($rule->description ?? '')) }}">
+                 data-search="{{ strtolower($displayCode . ' ' . ($rule->category ?? '') . ' ' . $rule->if_condition . ' ' . $rule->then_recommendation . ' ' . ($rule->description ?? '')) }}">
                 
                 <!-- Card Header -->
                 <div class="flex items-center justify-between border-b border-gray-100 pb-3 flex-wrap gap-2">
                     <div class="flex items-center gap-2">
                         <span class="font-mono font-black text-xs px-2.5 py-1 rounded-md bg-[#FAF8F8] border border-[#F3E8E8] text-[#700B1A]">
-                            {{ $rule->rule_code ?: 'RBR-' . str_pad($rule->id_rule, 2, '0', STR_PAD_LEFT) }}
+                            {{ $displayCode }}
                         </span>
                         <span class="text-[9.5px] font-black uppercase px-2 py-0.5 rounded-full border {{ $catBadgeStyle }}">
                             {{ strtoupper($rule->category ?: 'SYNERGY') }}
                         </span>
                     </div>
 
-                    <!-- Confidence Weight Pill -->
-                    <div class="flex items-center gap-1.5 text-[11px] font-black text-gray-700">
+                    <!-- Confidence Weight Pill + Interactive Info Tooltip -->
+                    <div class="relative inline-flex items-center gap-1.5 text-[11px] font-black text-gray-700 group/conf">
                         <span class="text-gray-400 font-semibold text-[10px]">Confidence:</span>
                         <span class="text-[#700B1A] font-mono">{{ number_format($confidence, 2) }}</span>
                         <span class="text-[9px] text-gray-400">({{ $confPct }}%)</span>
+
+                        <button type="button"
+                                onclick="toggleConfidencePopover(this, event)"
+                                aria-label="Penjelasan Bobot Confidence {{ $displayCode }}"
+                                class="w-4 h-4 rounded-full bg-[#FCECEE] hover:bg-[#700B1A] text-[#700B1A] hover:text-white border border-[#F8B4BD] text-[10px] font-serif italic font-black inline-flex items-center justify-center transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#700B1A]/30">
+                            i
+                        </button>
+
+                        <!-- Hover & Click Popover -->
+                        <div class="confidence-popover opacity-0 pointer-events-none group-hover/conf:opacity-100 group-hover/conf:pointer-events-auto absolute right-0 top-full mt-2 w-72 sm:w-80 max-w-[calc(100vw-2.5rem)] bg-white border border-[#F8B4BD] rounded-2xl shadow-xl p-3.5 text-left z-50 transition-all duration-150">
+                            <div class="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-gray-100">
+                                <span class="text-[10px] font-black uppercase tracking-wider text-[#700B1A]">
+                                    Transparansi Confidence ({{ $displayCode }})
+                                </span>
+                                <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD]">
+                                    {{ $urgencyLabel }}
+                                </span>
+                            </div>
+                            <div class="space-y-2 text-[10.5px] font-medium text-gray-600 leading-relaxed">
+                                <div>
+                                    <span class="font-extrabold text-[#18181B] block">Sumber Nilai:</span>
+                                    <span>Bobot Pakar / <em>Certainty Factor</em> (<code class="font-mono text-[#700B1A] bg-[#FAF8F8] px-1 rounded">CF_rule = {{ number_format($confidence, 2) }}</code>) berdasarkan tingkat urgensi aturan (Kritis: 0.90–1.00, Tinggi: 0.80–0.89, Sedang: 0.70–0.79).</span>
+                                </div>
+                                <div>
+                                    <span class="font-extrabold text-[#18181B] block">Peran dalam Rumus Backend:</span>
+                                    <span>Skor akhir menggabungkan data &amp; aturan via <code class="font-mono text-[10px] text-[#700B1A] bg-[#FAF8F8] px-1 rounded block mt-0.5">S_total = (0.50 &times; S_data) + (0.50 &times; S_rule)</code> dan <code class="font-mono text-[#700B1A] bg-[#FAF8F8] px-1 rounded">CF_rule</code> membentuk bobot rata-rata <code class="font-mono text-[#700B1A]">ruleStrength</code> pada perhitungan confidence dinamis <code class="font-mono text-[10px] text-[#700B1A] bg-[#FAF8F8] px-1 rounded block mt-0.5">((0.45 &times; ruleStrength) + (0.55 &times; (0.55 + 0.45 &times; reliability))) &times; 100%</code></span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -171,12 +178,8 @@
                     </div>
                 @endif
 
-                <!-- Card Bottom Status -->
-                <div class="flex items-center justify-between pt-1 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-                    <span class="flex items-center gap-1 text-emerald-600">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                        Status: Aktif di Engine
-                    </span>
+                <!-- Card Bottom Action -->
+                <div class="flex items-center justify-end pt-1 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
                     <a href="{{ route('draft.recommendation') }}" class="text-[#700B1A] hover:underline font-extrabold">
                         Uji di Simulator &rarr;
                     </a>
@@ -221,6 +224,42 @@
             }
         });
     }
+
+    function closeAllConfidencePopovers() {
+        document.querySelectorAll('.confidence-popover.is-open').forEach(pop => {
+            pop.classList.remove('is-open', 'opacity-100', 'pointer-events-auto');
+            pop.classList.add('opacity-0', 'pointer-events-none');
+            pop.closest('.rule-card')?.classList.remove('z-30');
+        });
+    }
+
+    function toggleConfidencePopover(btn, event) {
+        event.stopPropagation();
+        const wrapper = btn.closest('.group\\/conf');
+        const popover = wrapper ? wrapper.querySelector('.confidence-popover') : null;
+        if (!popover) return;
+
+        const isAlreadyOpen = popover.classList.contains('is-open');
+        closeAllConfidencePopovers();
+
+        if (!isAlreadyOpen) {
+            popover.classList.add('is-open', 'opacity-100', 'pointer-events-auto');
+            popover.classList.remove('opacity-0', 'pointer-events-none');
+            popover.closest('.rule-card')?.classList.add('z-30');
+        }
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.group\\/conf')) {
+            closeAllConfidencePopovers();
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeAllConfidencePopovers();
+        }
+    });
 </script>
 @endpush
 @endsection

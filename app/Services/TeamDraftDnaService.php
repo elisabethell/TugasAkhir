@@ -781,7 +781,12 @@ class TeamDraftDnaService
      */
     public function getSimilarMatches(array $currentPicks = [], ?string $teamInput = 'Alter Ego', int $limit = 3): array
     {
-        $teamName = $this->normalizeTeamName($teamInput) ?: 'Alter Ego';
+        $teamName = null;
+        if ($teamInput === null) {
+            $teamName = 'Alter Ego';
+        } elseif (trim($teamInput) !== '') {
+            $teamName = $this->normalizeTeamName($teamInput) ?: 'Alter Ego';
+        }
 
         try {
             if (!\Illuminate\Support\Facades\Schema::hasTable('match_games') || !\Illuminate\Support\Facades\Schema::hasTable('match_datasets')) {
@@ -795,15 +800,23 @@ class TeamDraftDnaService
             return strtolower(trim((string)$p));
         }, $currentPicks)));
 
-        $games = MatchGame::with('dataset')
-            ->whereHas('dataset', function($sub) use ($teamName) {
-                $sub->where('team_1_name', 'like', "%{$teamName}%")
-                    ->orWhere('team_2_name', 'like', "%{$teamName}%");
-            })
+        if ($teamName === null && empty($cleanCurrentPicks)) {
+            return [];
+        }
+
+        $query = MatchGame::with('dataset')
             ->whereNotNull('team_1_picks')
             ->where('team_1_picks', '!=', '[]')
-            ->where('team_1_picks', '!=', '')
-            ->get();
+            ->where('team_1_picks', '!=', '');
+
+        if ($teamName !== null) {
+            $query->whereHas('dataset', function($sub) use ($teamName) {
+                $sub->where('team_1_name', 'like', "%{$teamName}%")
+                    ->orWhere('team_2_name', 'like', "%{$teamName}%");
+            });
+        }
+
+        $games = $query->get();
 
         if ($games->isEmpty()) {
             return [];
@@ -816,7 +829,16 @@ class TeamDraftDnaService
             $t1Name = $dataset->team_1_name ?? 'Team 1';
             $t2Name = $dataset->team_2_name ?? 'Team 2';
 
-            $isTeam1 = (stripos($t1Name, $teamName) !== false);
+            if ($teamName !== null) {
+                $isTeam1 = (stripos($t1Name, $teamName) !== false);
+            } else {
+                $p1 = is_array($game->team_1_picks) ? array_map(fn($p) => strtolower(trim((string)$p)), $game->team_1_picks) : [];
+                $p2 = is_array($game->team_2_picks) ? array_map(fn($p) => strtolower(trim((string)$p)), $game->team_2_picks) : [];
+                $m1 = count(array_intersect($cleanCurrentPicks, $p1));
+                $m2 = count(array_intersect($cleanCurrentPicks, $p2));
+                $isTeam1 = ($m1 >= $m2);
+            }
+
             $myPicks = $isTeam1 ? $game->team_1_picks : $game->team_2_picks;
             $enemyPicks = $isTeam1 ? $game->team_2_picks : $game->team_1_picks;
 

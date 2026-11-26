@@ -59,9 +59,6 @@
             <h1 class="text-2xl sm:text-3xl font-black text-[#18181B] tracking-tight uppercase">
                 DATASET PERTANDINGAN MATCH
             </h1>
-            <p class="text-xs text-gray-500 font-medium mt-1">
-                Rekap seluruh seri pertandingan dan draft hero (Picks & Bans) turnamen MPL ID S18 bersumber resmi dari Liquipedia DB API.
-            </p>
         </div>
 
         @if(session('admin_logged_in'))

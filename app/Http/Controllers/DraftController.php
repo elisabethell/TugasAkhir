@@ -154,8 +154,8 @@ class DraftController extends Controller
             ];
         }
 
-        // 3. Evaluasi Forward Chaining RBR Dinamis untuk Draft Awal (Default: Tim Alter Ego)
-        $initialInference = $this->inferenceService->evaluateDraft(teamName: 'Alter Ego');
+        // 3. Evaluasi Forward Chaining RBR Dinamis untuk Draft Awal (Tanpa Auto-Select Tim)
+        $initialInference = $this->inferenceService->evaluateDraft(teamName: '');
         $defaultPicks = array_map(function($rec) {
             return array_merge($rec, [
                 'hero'          => $rec['nama'],
@@ -340,8 +340,8 @@ class DraftController extends Controller
         $map = $request->input('map', null);
         $myLanes = (array) $request->input('my_lanes', $request->input('ally_lanes', []));
         $enemyLanes = (array) $request->input('enemy_lanes', []);
-        $teamInput = $request->input('team_name', $request->input('team', 'Alter Ego'));
-        $teamName = !empty($teamInput) ? $teamInput : 'Alter Ego';
+        $teamInput = $request->input('team_name', $request->input('team', ''));
+        $teamName = is_string($teamInput) ? trim($teamInput) : '';
 
         // Evaluasi Forward Chaining melalui DraftInferenceService (didukung Draft DNA spesifik tim & RBR Ringan)
         $inference = $this->inferenceService->evaluateDraft(
@@ -404,8 +404,8 @@ class DraftController extends Controller
      */
     public function getSimilarMatches(Request $request, ?string $team = null)
     {
-        $teamInput = $team ?: $request->query('team_name', $request->query('team', 'Alter Ego'));
-        $teamName = !empty($teamInput) ? $teamInput : 'Alter Ego';
+        $teamInput = $team ?? $request->query('team_name', $request->query('team', ''));
+        $teamName = is_string($teamInput) ? trim($teamInput) : '';
         $currentPicks = (array) $request->query('picks', $request->input('picks', []));
         $limit = (int) $request->query('limit', 3);
 

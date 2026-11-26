@@ -25,9 +25,9 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $this->call([
-            HeroSeeder::class,
-            DatasetSeeder::class,
-        ]);
+        // $this->call([
+        //     HeroSeeder::class,
+        //     DatasetSeeder::class,
+        // ]);
     }
 }

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'List Hero Directory - MetaScout: Land of Dawn')
+@section('title', 'List Hero - MetaScout: Land of Dawn')
 
 @section('content')
 <div class="space-y-6">
@@ -13,7 +13,7 @@
                 <span>TOURNAMENT DATABASE • PATCH 1.9.14</span>
             </div>
             <h1 class="text-3xl sm:text-4xl font-black text-[#18181B] tracking-tight">
-                List Hero Directory
+                List Hero
             </h1>
         </div>
 

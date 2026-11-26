@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'MetaScout: Land of Dawn - Sistem Cerdas Rekomendasi Draft MLBB & Analisis Taktis')
+@section('title', 'MetaScout: Land of Dawn - Rekomendasi Draft Pick & Analisis Strategi Mobile Legends')
 
 @section('content')
 <div class="space-y-8 py-2">
@@ -17,23 +17,23 @@
             <div class="flex items-center gap-2 flex-wrap text-[11px] font-black uppercase tracking-wider">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FCECEE] text-[#700B1A] border border-[#F8B4BD] shadow-2xs">
                     <span class="w-2 h-2 rounded-full bg-[#700B1A] animate-pulse"></span>
-                    SISTEM PAKAR FORWARD CHAINING
+                    DRAFT DNA &amp; RBR
                 </span>
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-gray-700 border border-[#E5E7EB] shadow-2xs">
                     DATA TURNAMEN MPL ID S18
                 </span>
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F0FDF4] text-[#166534] border border-[#BBF7D0] shadow-2xs">
-                    133 HERO TERDAFTAR
+                    {{ $totalHeroes ?? 133 }} HERO TERDAFTAR
                 </span>
             </div>
 
             <!-- Main Heading -->
             <div class="space-y-3">
                 <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-[#18181B] tracking-tight leading-[1.15]">
-                    Sistem Cerdas <span class="text-[#700B1A]">Rekomendasi Draft Pick</span> & Analisis Taktis Mobile Legends
+                    Rekomendasi <span class="text-[#700B1A]">Draft Pick</span> &amp; Analisis Strategi Mobile Legends
                 </h1>
                 <p class="text-xs sm:text-sm md:text-base text-gray-600 font-medium leading-relaxed max-w-3xl">
-                    Platform pendukung keputusan taktis pelatih dan analis esports untuk menyusun komposisi tim optimal, mendeteksi counter ancaman musuh, mengontrol kurva power spike, serta menjaga keseimbangan damage Physical dan Magic berbasis penalaran pakar (Rule-Based Reasoning) dan dataset turnamen resmi MPL Indonesia Season 18.
+                    Susun komposisi tim berbasis Draft DNA dari 9 tim MPL ID Season 18. Dapatkan rekomendasi hero, analisis power spike hingga winning condition, serta referensi pertandingan asli secara real-time.
                 </p>
             </div>
 
@@ -42,7 +42,7 @@
                 <!-- Rekomendasi Draft (Main Feature) -->
                 <a href="{{ route('draft.recommendation') }}" 
                    class="bg-[#700B1A] hover:bg-[#550713] text-white px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-extrabold uppercase tracking-wider flex items-center gap-2.5 transition shadow-md shadow-[#700B1A]/20 hover:scale-[1.01] active:scale-[0.99]">
-                    <span>Mulai Rekomendasi Draft</span>
+                    <span>Mulai Draft</span>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path>
                     </svg>
@@ -54,14 +54,14 @@
                     <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"></path>
                     </svg>
-                    <span>Masuk Homepage</span>
+                    <span>Lihat Ringkasan MPL</span>
                 </a>
 
                 <!-- Login Admin Button -->
                 <a href="{{ route('login') }}" 
                    class="bg-[#FAF8F8] hover:bg-[#FCECEE] text-gray-700 hover:text-[#700B1A] border border-[#F3E8E8] px-4 py-3.5 rounded-2xl text-xs sm:text-sm font-extrabold uppercase tracking-wider flex items-center gap-1.5 transition">
                     <span class="w-1.5 h-1.5 bg-[#700B1A] rounded-full"></span>
-                    <span>Login Admin</span>
+                    <span>Admin</span>
                 </a>
             </div>
 
@@ -70,22 +70,22 @@
                 <div class="p-3 bg-white rounded-xl border border-[#F3E8E8]">
                     <div class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Katalog Hero</div>
                     <div class="text-lg sm:text-xl font-black text-[#18181B] mt-0.5">{{ $totalHeroes ?? 133 }} Hero</div>
-                    <div class="text-[10px] text-gray-500 font-semibold">Atribut & Laning Lengkap</div>
+                    <div class="text-[10px] text-gray-500 font-semibold">Role, laning &amp; atribut lengkap</div>
                 </div>
                 <div class="p-3 bg-white rounded-xl border border-[#F3E8E8]">
-                    <div class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Turnamen Resmi</div>
+                    <div class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Dataset Turnamen</div>
                     <div class="text-lg sm:text-xl font-black text-[#18181B] mt-0.5">MPL ID S18</div>
-                    <div class="text-[10px] text-gray-500 font-semibold">{{ $totalGames ?? 7 }} Game Tersinkronisasi</div>
+                    <div class="text-[10px] text-gray-500 font-semibold">{{ $totalGames ?? 215 }} game resmi tervalidasi</div>
                 </div>
                 <div class="p-3 bg-white rounded-xl border border-[#F3E8E8]">
-                    <div class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Metode Inferensi</div>
-                    <div class="text-lg sm:text-xl font-black text-[#700B1A] mt-0.5">RBR + Hybrid</div>
-                    <div class="text-[10px] text-gray-500 font-semibold">Forward-Chaining Engine</div>
+                    <div class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Acuan Draft</div>
+                    <div class="text-lg sm:text-xl font-black text-[#700B1A] mt-0.5">9 Tim Pro</div>
+                    <div class="text-[10px] text-gray-500 font-semibold">Profil Draft DNA &amp; hero pool tim</div>
                 </div>
                 <div class="p-3 bg-white rounded-xl border border-[#F3E8E8]">
-                    <div class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Transparansi AI</div>
-                    <div class="text-lg sm:text-xl font-black text-emerald-700 mt-0.5">XAI Trace</div>
-                    <div class="text-[10px] text-gray-500 font-semibold">Audit Log Inferensi Lengkap</div>
+                    <div class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Analisis Strategi</div>
+                    <div class="text-lg sm:text-xl font-black text-emerald-700 mt-0.5">RBR Ringan</div>
+                    <div class="text-[10px] text-gray-500 font-semibold">Identity, Power Spike &amp; Winning Condition</div>
                 </div>
             </div>
 
@@ -100,7 +100,7 @@
                     Eksplorasi Fitur MetaScout
                 </h2>
                 <p class="text-xs text-gray-500 font-medium">
-                    Akses langsung seluruh modul sistem pendukung keputusan rekomendasi draft dan analisis kompetitif.
+                    Akses cepat seluruh fitur analisis draft dan data turnamen MPL ID S18.
                 </p>
             </div>
             <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-white border border-[#F3E8E8] px-3 py-1 rounded-full">
@@ -125,16 +125,16 @@
                     </div>
                     <div>
                         <h3 class="font-black text-base text-[#18181B] group-hover:text-[#700B1A] transition">
-                            Rekomendasi Draft & Analisis Taktis
+                            Rekomendasi Draft &amp; Strategi
                         </h3>
                         <p class="text-xs text-gray-600 mt-1.5 leading-relaxed font-medium">
-                            Simulasi pick & ban 5v5 dengan mesin inferensi forward chaining. Menyajikan rekomendasi berbobot hybrid, deteksi counter hero, alert komposisi tim, dan komparasi kurva power spike.
+                            Simulasi pick &amp; ban 5v5 berbasis Draft DNA tim. Dilengkapi rekomendasi hero, analisis gaya main (playstyle), winning condition, dan referensi match mirip.
                         </p>
                     </div>
                 </div>
                 <div class="pt-4 mt-4 border-t border-[#F3E8E8]">
                     <a href="{{ route('draft.recommendation') }}" class="text-xs font-extrabold text-[#700B1A] hover:underline flex items-center gap-1.5 uppercase tracking-wider">
-                        <span>Buka Rekomendasi Draft</span>
+                        <span>Buka Simulator</span>
                         <span>&rarr;</span>
                     </a>
                 </div>
@@ -150,21 +150,21 @@
                             </svg>
                         </div>
                         <span class="text-[10px] font-black uppercase tracking-wider bg-gray-100 text-gray-700 px-2.5 py-0.5 rounded-full">
-                            OVERVIEW
+                            RINGKASAN
                         </span>
                     </div>
                     <div>
                         <h3 class="font-black text-base text-[#18181B] group-hover:text-[#700B1A] transition">
-                            Homepage & Ringkasan Turnamen
+                            Overview MPL ID S18
                         </h3>
                         <p class="text-xs text-gray-600 mt-1.5 leading-relaxed font-medium">
-                            Ringkasan statistik metrik kompetitif MPL ID S18, 6 hero terkontes teratas (Pick & Ban), rasio kemenangan sisi Blue vs Red, dan analisis rotasi map aktif.
+                            Statistik utama turnamen: hero paling sering di-pick dan di-ban, rasio kemenangan Blue vs Red side, serta tren meta musim ini.
                         </p>
                     </div>
                 </div>
                 <div class="pt-4 mt-4 border-t border-[#F3E8E8]">
                     <a href="{{ route('home') }}" class="text-xs font-extrabold text-[#700B1A] hover:underline flex items-center gap-1.5 uppercase tracking-wider">
-                        <span>Masuk Homepage</span>
+                        <span>Lihat Ringkasan</span>
                         <span>&rarr;</span>
                     </a>
                 </div>
@@ -180,21 +180,21 @@
                             </svg>
                         </div>
                         <span class="text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full">
-                            DATA DINAMIS
+                            STATISTIK
                         </span>
                     </div>
                     <div>
                         <h3 class="font-black text-base text-[#18181B] group-hover:text-[#700B1A] transition">
-                            Statistik Hero & Tier List
+                            Tier List &amp; Performa Hero
                         </h3>
                         <p class="text-xs text-gray-600 mt-1.5 leading-relaxed font-medium">
-                            Tabel metrik performa Win Rate, Pick Rate, dan Ban Rate yang dihitung 100% dinamis dari database pertandingan turnamen asli. Lengkap dengan filter peran dan multi-sorting.
+                            Data Win Rate, Pick Rate, dan Ban Rate yang dihitung langsung dari data pertandingan asli, lengkap dengan filter role dan pengurutan.
                         </p>
                     </div>
                 </div>
                 <div class="pt-4 mt-4 border-t border-[#F3E8E8]">
                     <a href="{{ route('hero.statistics') }}" class="text-xs font-extrabold text-[#700B1A] hover:underline flex items-center gap-1.5 uppercase tracking-wider">
-                        <span>Buka Statistik Hero</span>
+                        <span>Buka Statistik</span>
                         <span>&rarr;</span>
                     </a>
                 </div>
@@ -210,15 +210,15 @@
                             </svg>
                         </div>
                         <span class="text-[10px] font-black uppercase tracking-wider bg-gray-100 text-gray-700 px-2.5 py-0.5 rounded-full">
-                            DIREKTORI
+                            KATALOG
                         </span>
                     </div>
                     <div>
                         <h3 class="font-black text-base text-[#18181B] group-hover:text-[#700B1A] transition">
-                            Katalog 133 Hero MLBB
+                            133 Hero MLBB
                         </h3>
                         <p class="text-xs text-gray-600 mt-1.5 leading-relaxed font-medium">
-                            Kamus data komprehensif seluruh hero Mobile Legends: Bang Bang beserta peran utama (Mage, Tank, Fighter, dll.), fleksibilitas laning, spesialisasi, dan potret resmi Moonton CDN.
+                            Daftar lengkap seluruh hero beserta role, fleksibilitas lane, spesialisasi, dan atribut dasarnya.
                         </p>
                     </div>
                 </div>
@@ -240,21 +240,21 @@
                             </svg>
                         </div>
                         <span class="text-[10px] font-black uppercase tracking-wider bg-[#F5F8FC] text-[#0A285F] border border-[#D0E1F5] px-2.5 py-0.5 rounded-full">
-                            LIQUIPEDIA LPDB
+                            ARSIP MATCH
                         </span>
                     </div>
                     <div>
                         <h3 class="font-black text-base text-[#18181B] group-hover:text-[#700B1A] transition">
-                            Data Pertandingan Turnamen
+                            Data Pertandingan MPL
                         </h3>
                         <p class="text-xs text-gray-600 mt-1.5 leading-relaxed font-medium">
-                            Arsip data seri pertandingan MPL ID S18 (Bo3/Bo5/Bo7). Menampilkan durasi ronde, map arena, tim pemenang, line-up pick dan ban hero, serta Series MVP.
+                            Riwayat seri pertandingan MPL ID S18 (Bo3/Bo5/Bo7), lengkap dengan susunan pick &amp; ban, tim pemenang, dan durasi game.
                         </p>
                     </div>
                 </div>
                 <div class="pt-4 mt-4 border-t border-[#F3E8E8]">
                     <a href="{{ route('matches') }}" class="text-xs font-extrabold text-[#700B1A] hover:underline flex items-center gap-1.5 uppercase tracking-wider">
-                        <span>Akses Data Pertandingan</span>
+                        <span>Lihat Pertandingan</span>
                         <span>&rarr;</span>
                     </a>
                 </div>
@@ -270,21 +270,21 @@
                             </svg>
                         </div>
                         <span class="text-[10px] font-black uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200 px-2.5 py-0.5 rounded-full">
-                            TRANSPARANSI SKRIPSI
+                            BASIS PENGETAHUAN
                         </span>
                     </div>
                     <div>
                         <h3 class="font-black text-base text-[#18181B] group-hover:text-[#700B1A] transition">
-                            Knowledge Base & Rules RBR
+                            Aturan Strategi (RBR)
                         </h3>
                         <p class="text-xs text-gray-600 mt-1.5 leading-relaxed font-medium">
-                            Dokumentasi aturan kaidah pakar Rule-Based Reasoning untuk verifikasi akademik dan sidang skripsi. Menampilkan premise aturan, conflict resolution, dan formula hybrid.
+                            Daftar aturan Rule-Based Reasoning yang digunakan sistem untuk membaca pola komposisi dan menentukan strategi tim.
                         </p>
                     </div>
                 </div>
                 <div class="pt-4 mt-4 border-t border-[#F3E8E8]">
                     <a href="{{ route('rules') }}" class="text-xs font-extrabold text-[#700B1A] hover:underline flex items-center gap-1.5 uppercase tracking-wider">
-                        <span>Inspeksi Basis Aturan</span>
+                        <span>Lihat Aturan</span>
                         <span>&rarr;</span>
                     </a>
                 </div>
@@ -293,17 +293,17 @@
         </div>
     </section>
 
-    <!-- 3. SECTION: CARA KERJA SISTEM (FORWARD CHAINING EXPLAINER) -->
+    <!-- 3. SECTION: CARA KERJA SISTEM (4 LANGKAH) -->
     <section class="card-custom p-6 sm:p-8 bg-white border border-[#F3E8E8]">
         <div class="max-w-3xl mb-6">
             <span class="text-[10px] font-black text-[#700B1A] uppercase tracking-wider bg-[#FCECEE] px-3 py-1 rounded-full border border-[#F8B4BD]">
-                METODOLOGI SISTEM PAKAR
+                CARA KERJA SISTEM
             </span>
             <h2 class="text-xl sm:text-2xl font-black text-[#18181B] tracking-tight uppercase mt-2">
-                Alur Penalaran Forward Chaining MetaScout
+                Alur Kerja MetaScout
             </h2>
             <p class="text-xs text-gray-600 font-medium mt-1">
-                Proses inferensi terstruktur dari data kondisi awal hingga rekomendasi taktis hero akhir:
+                Tahapan analisis Draft DNA tim hingga menghasilkan rekomendasi hero dan rencana strategi:
             </p>
         </div>
 
@@ -313,9 +313,9 @@
                 <div class="w-7 h-7 rounded-lg bg-[#700B1A] text-white flex items-center justify-center font-black text-xs mb-3 shadow-sm">
                     1
                 </div>
-                <h4 class="font-black text-xs uppercase text-[#18181B]">Working Memory</h4>
+                <h4 class="font-black text-xs uppercase text-[#18181B]">Pilih Tim (Draft DNA)</h4>
                 <p class="text-[11px] text-gray-600 mt-1 font-medium leading-relaxed">
-                    Mencatat state draft terkini: hero sekutu, hero musuh, role/lane yang telah terisi, dan rasio damage Physical/Magic.
+                    Tentukan 1 dari 9 tim MPL ID S18 sebagai acuan hero pool, lalu masukkan kondisi ban dan pick saat ini.
                 </p>
             </div>
 
@@ -323,9 +323,9 @@
                 <div class="w-7 h-7 rounded-lg bg-[#700B1A] text-white flex items-center justify-center font-black text-xs mb-3 shadow-sm">
                     2
                 </div>
-                <h4 class="font-black text-xs uppercase text-[#18181B]">Evaluasi Aturan RBR</h4>
+                <h4 class="font-black text-xs uppercase text-[#18181B]">Analisis Data &amp; Fallback</h4>
                 <p class="text-[11px] text-gray-600 mt-1 font-medium leading-relaxed">
-                    Mengevaluasi premise aturan sinergi, counter pick, alert frontline/CC, dan power spike terhadap working memory.
+                    Sistem menghitung kecocokan hero dari histori tim tersebut. Jika belum ada sampel lawan (n = 0), sistem otomatis memakai data meta keseluruhan MPL ID S18.
                 </p>
             </div>
 
@@ -333,9 +333,9 @@
                 <div class="w-7 h-7 rounded-lg bg-[#700B1A] text-white flex items-center justify-center font-black text-xs mb-3 shadow-sm">
                     3
                 </div>
-                <h4 class="font-black text-xs uppercase text-[#18181B]">Kalkulasi Skor Hybrid</h4>
+                <h4 class="font-black text-xs uppercase text-[#18181B]">Inferensi Strategi (RBR)</h4>
                 <p class="text-[11px] text-gray-600 mt-1 font-medium leading-relaxed">
-                    Menggabungkan data-score (win rate turnamen S18 tersmoothing) dengan rule-score (bobot aturan yang menyala).
+                    Aturan pakar menerjemahkan komposisi hero terpilih menjadi Draft Identity, Power Spike, Playstyle, dan Winning Condition.
                 </p>
             </div>
 
@@ -343,9 +343,9 @@
                 <div class="w-7 h-7 rounded-lg bg-[#700B1A] text-white flex items-center justify-center font-black text-xs mb-3 shadow-sm">
                     4
                 </div>
-                <h4 class="font-black text-xs uppercase text-[#18181B]">Rekomendasi & Jejak XAI</h4>
+                <h4 class="font-black text-xs uppercase text-[#18181B]">Rekomendasi &amp; Match Mirip</h4>
                 <p class="text-[11px] text-gray-600 mt-1 font-medium leading-relaxed">
-                    Menghasilkan daftar rekomendasi hero beserta confidence level, alert komposisi, dan jejak inferensi audit dosen.
+                    Menampilkan urutan rekomendasi hero terbaik beserta 2–3 referensi pertandingan asli MPL ID S18 yang paling mendekati.
                 </p>
             </div>
 

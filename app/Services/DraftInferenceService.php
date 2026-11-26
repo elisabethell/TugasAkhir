@@ -60,9 +60,18 @@ class DraftInferenceService
         $tournamentStats = $this->csvService->getTournamentStatistics();
         $powerSpikesMap = $this->csvService->getEmpiricalPowerSpikes();
 
-        // Ambil profil Draft DNA historis untuk 9 tim MPL ID S18 (default ke 'Alter Ego' jika tidak ada parameter)
-        $normalizedTeam = !empty($teamName) ? $this->teamDnaService->normalizeTeamName($teamName) : 'Alter Ego';
-        $teamDna = $this->teamDnaService->getTeamDraftDna($normalizedTeam);
+        // Ambil profil Draft DNA historis untuk 9 tim MPL ID S18.
+        // Jika $teamName === null (omitted pada pemanggilan service langsung), fallback ke 'Alter Ego'.
+        // Jika $teamName === '' (string kosong eksplisit = belum memilih tim di UI), biarkan $teamDna = null.
+        $normalizedTeam = null;
+        $teamDna = null;
+        if ($teamName === null) {
+            $normalizedTeam = 'Alter Ego';
+            $teamDna = $this->teamDnaService->getTeamDraftDna($normalizedTeam);
+        } elseif (trim($teamName) !== '') {
+            $normalizedTeam = $this->teamDnaService->normalizeTeamName($teamName);
+            $teamDna = $this->teamDnaService->getTeamDraftDna($normalizedTeam);
+        }
 
         // 1. Inisialisasi Working Memory
         $workingMemory = $this->buildWorkingMemory(
@@ -111,7 +120,9 @@ class DraftInferenceService
         $draftStrategy = $this->evaluateDraftStrategyEngine($workingMemory['ally_heroes'], $teamDna);
 
         // 8. Match Mirip (Similar Matches) Turnamen MPL ID Season 18
-        $similarMatches = $this->teamDnaService->getSimilarMatches($allyTeam, $normalizedTeam, 3);
+        $similarMatches = (!empty($normalizedTeam) || !empty($allyTeam))
+            ? $this->teamDnaService->getSimilarMatches($allyTeam, $normalizedTeam ?? '', 3)
+            : [];
 
         return [
             'working_memory'      => $workingMemory,
@@ -1295,51 +1306,14 @@ class DraftInferenceService
         $teamTag = $teamDna['playstyle_tag'] ?? '';
 
         // Kasus 1: Belum ada hero yang di-pick di simulator (draft awal)
-        // Gunakan profil identitas dasar dari Draft DNA tim turnamen yang dipilih
+        // Kembalikan nilai null agar UI menampilkan empty state hingga minimal 1 hero sekutu dipilih
         if ($allyCount === 0) {
-            if ($teamTag === 'Double Fighter') {
-                return [
-                    'draft_identity'    => 'Double Fighter / Bruiser',
-                    'power_spike'       => 'Early-to-Mid (0–12m)',
-                    'playstyle'         => 'Pick-off / Ganking',
-                    'winning_condition' => 'Wajib snowball dan amankan objektif Turtle/Lord di early-to-mid game; hindari late game karena minim hitter turret.',
-                ];
-            } elseif ($teamTag === 'Late Game Scaling') {
-                return [
-                    'draft_identity'    => 'Marksman Late Scaling',
-                    'power_spike'       => 'Mid-to-Late (12+m)',
-                    'playstyle'         => 'Teamfight / War',
-                    'winning_condition' => 'Fokus proteksi Goldlaner hingga 2-3 core item selesai; stall game hingga menit 12+ untuk mendominasi war Evolved Lord.',
-                ];
-            } elseif ($teamTag === 'Assassin Snowball') {
-                return [
-                    'draft_identity'    => 'Pick-off / High Mobility',
-                    'power_spike'       => 'Early Game (0–5m)',
-                    'playstyle'         => 'Pick-off / Ganking',
-                    'winning_condition' => 'Kuasai vision semak river untuk mengisolasi carry musuh sebelum kontes objektif; hindari teamfight 5v5 frontal terbuka.',
-                ];
-            } elseif ($teamTag === 'Tank Jungler') {
-                return [
-                    'draft_identity'    => 'Double Fighter / Bruiser',
-                    'power_spike'       => 'Early-to-Mid (0–12m)',
-                    'playstyle'         => 'Teamfight / War',
-                    'winning_condition' => 'Manfaatkan durabilitas tinggi frontliner untuk merebut kendali Turtle & Lord; perang panjang berkelanjutan menguntungkan formasi tim.',
-                ];
-            } elseif ($teamTag === 'Healer / Sustain') {
-                return [
-                    'draft_identity'    => 'Healer / Sustain Comp',
-                    'power_spike'       => 'Mid-to-Late Game (5–12+m)',
-                    'playstyle'         => 'Teamfight / War (Grouping)',
-                    'winning_condition' => 'Wajib grouping rapat (5v5) saat kontes Turtle/Lord untuk memaksimalkan sustain heal dalam war berkepanjangan; hindari bermain terpisah agar tidak mudah di-pick-off.',
-                ];
-            } else {
-                return [
-                    'draft_identity'    => 'Flexible / Adaptive Meta',
-                    'power_spike'       => 'Early-to-Mid (0–12m)',
-                    'playstyle'         => 'Teamfight / War',
-                    'winning_condition' => 'Gaya main fleksibel dan adaptif; komposisi dan win condition menyesuaikan hero yang sedang di-pick untuk mengeksploitasi celah lawan.',
-                ];
-            }
+            return [
+                'draft_identity'    => null,
+                'power_spike'       => null,
+                'playstyle'         => null,
+                'winning_condition' => null,
+            ];
         }
 
         // Kasus 2: Minimal 1 hero terpilih di simulator
