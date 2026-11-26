@@ -5,20 +5,20 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\CsvDataService;
 use App\Services\RbrInferenceEngine;
-use App\Services\DraftInferenceService;
+use App\Services\DraftRecommendationService;
 use App\Services\TeamDraftDnaService;
 
 class DraftController extends Controller
 {
     protected CsvDataService $csvService;
     protected RbrInferenceEngine $engine;
-    protected DraftInferenceService $inferenceService;
+    protected DraftRecommendationService $inferenceService;
     protected TeamDraftDnaService $teamDnaService;
 
     public function __construct(
         CsvDataService $csvService,
         RbrInferenceEngine $engine,
-        DraftInferenceService $inferenceService,
+        DraftRecommendationService $inferenceService,
         TeamDraftDnaService $teamDnaService
     ) {
         $this->csvService = $csvService;
@@ -362,6 +362,8 @@ class DraftController extends Controller
             'working_memory'      => $inference['working_memory'],
             'rule_evaluations'    => $inference['rule_evaluations'],
             'recommendations'     => $inference['recommendations'],
+            'saw_recommendations' => $inference['saw_recommendations'] ?? [],
+            'saw_meta'            => $inference['saw_meta'] ?? null,
             'composition_alerts'  => $inference['composition_alerts'] ?? [],
             'power_spikes'        => $inference['power_spikes'] ?? [],
             'draft_identity'      => $inference['draft_identity'] ?? [],
