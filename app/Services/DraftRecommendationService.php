@@ -33,6 +33,17 @@ class DraftRecommendationService extends DraftInferenceService
     ];
 
     /**
+     * 5 Lane Standar Turnamen MLBB sesuai konvensi Coach.
+     */
+    public const STANDARD_LANES = [
+        'EXP Lane',
+        'Jungle',
+        'Mid Lane',
+        'Gold Lane',
+        'Roaming',
+    ];
+
+    /**
      * Menghitung Top N rekomendasi hero menggunakan arsitektur 4-lapis
      * Hybrid SAW + Bayesian Shrinkage berbasis dataset MPL ID S18 dan 5 atribut Coach.
      *
@@ -67,18 +78,60 @@ class DraftRecommendationService extends DraftInferenceService
         }
 
         // Lapisan 1 — Filter (Hard Constraint):
-        // Eksklusi hero yang sudah ada di banned_heroes, ally_picks, atau enemy_picks
+        // 1. Eksklusi hero yang sudah ada di banned_heroes, ally_picks, atau enemy_picks
         $excludedKeys = [];
         foreach (array_merge($cleanBanned, $cleanAlly, $cleanEnemy) as $exName) {
             $excludedKeys[$this->heroKey($exName)] = true;
         }
 
-        $candidates = [];
+        $allAvailableCandidates = [];
         foreach ($allHeroes as $hero) {
             $key = $this->heroKey($hero->hero_name);
             if (!isset($excludedKeys[$key])) {
-                $candidates[$key] = $hero;
+                $allAvailableCandidates[$key] = $hero;
             }
+        }
+
+        // 2. Deteksi lane yang sudah terisi berdasarkan ally_picks (kolom lane_1 sebagai lane utama)
+        $filledLanes = [];
+        foreach ($cleanAlly as $allyName) {
+            $aKey = $this->heroKey($allyName);
+            $allyHero = $heroByKey[$aKey] ?? null;
+            if ($allyHero && !empty($allyHero->lane_1)) {
+                $normL1 = $this->normalizeLaneName($allyHero->lane_1);
+                if ($normL1 && !in_array($normL1, $filledLanes, true)) {
+                    $filledLanes[] = $normL1;
+                }
+            }
+        }
+
+        // 3. Hitung daftar needed_lanes = 5 lane standar dikurangi filled_lanes
+        $neededLanes = array_values(array_diff(self::STANDARD_LANES, $filledLanes));
+
+        // 4. Terapkan filter pada kandidat hero:
+        // Jika needed_lanes masih ada (belum semua 5 lane terisi) dan ally_picks < 5:
+        // hanya loloskan kandidat hero yang kolom lane_1 ATAU lane_2-nya termasuk dalam needed_lanes.
+        $allyCount = count($cleanAlly);
+        $candidates = [];
+
+        if (!empty($neededLanes) && $allyCount < 5) {
+            foreach ($allAvailableCandidates as $key => $hero) {
+                $normL1 = $this->normalizeLaneName($hero->lane_1 ?? null);
+                $normL2 = $this->normalizeLaneName($hero->lane_2 ?? null);
+
+                $matchesL1 = $normL1 && in_array($normL1, $neededLanes, true);
+                $matchesL2 = $normL2 && in_array($normL2, $neededLanes, true);
+
+                if ($matchesL1 || $matchesL2) {
+                    $candidates[$key] = $hero;
+                }
+            }
+        }
+
+        // Fallback keamanan: jika ally_picks sudah 5 hero (atau semua lane sudah terisi),
+        // atau jika hasil filter kosong: kembalikan ke semua kandidat hero yang belum di-ban/pick agar tidak menghasilkan array kosong
+        if (empty($candidates)) {
+            $candidates = $allAvailableCandidates;
         }
 
         // Agregasi data pertandingan MPL ID S18
@@ -275,9 +328,11 @@ class DraftRecommendationService extends DraftInferenceService
         );
 
         return [
-            'recommendations' => array_slice($scoredResults, 0, max(1, $limit)),
+            'recommendations'  => array_slice($scoredResults, 0, max(1, $limit)),
             'total_candidates' => count($scoredResults),
-            'team_name'       => $normalizedTeam,
+            'needed_lanes'     => $neededLanes,
+            'filled_lanes'     => $filledLanes,
+            'team_name'        => $normalizedTeam,
             'weights'         => [
                 'alpha'       => round($wAlpha, 4),
                 'beta'        => round($wBeta, 4),
@@ -541,6 +596,8 @@ class DraftRecommendationService extends DraftInferenceService
         }, $base['recommendations']);
 
         $base['saw_recommendations'] = array_slice($sawResultAll['recommendations'], 0, 10);
+        $base['needed_lanes'] = $sawResultAll['needed_lanes'] ?? [];
+        $base['filled_lanes'] = $sawResultAll['filled_lanes'] ?? [];
         $base['saw_meta'] = [
             'weights'           => $sawResultAll['weights'],
             'active_components' => $sawResultAll['active_components'],
@@ -548,10 +605,49 @@ class DraftRecommendationService extends DraftInferenceService
             'ally_profile'      => $sawResultAll['ally_profile'],
             'current_gap'       => $sawResultAll['current_gap'],
             'total_candidates'  => $sawResultAll['total_candidates'],
+            'needed_lanes'      => $sawResultAll['needed_lanes'] ?? [],
+            'filled_lanes'      => $sawResultAll['filled_lanes'] ?? [],
         ];
         $base['rbr_explanation'] = $sawResultAll['rbr_explanation'];
 
         return $base;
+    }
+
+    /**
+     * Normalisasi nama lane ke format 5 lane standar MLBB:
+     * ['EXP Lane', 'Jungle', 'Mid Lane', 'Gold Lane', 'Roaming']
+     */
+    public function normalizeLaneName(?string $lane): ?string
+    {
+        if ($lane === null || trim($lane) === '') {
+            return null;
+        }
+
+        $clean = strtolower(trim($lane));
+
+        if ($clean === 'exp lane' || $clean === 'exp') {
+            return 'EXP Lane';
+        }
+        if ($clean === 'jungle' || $clean === 'jgl') {
+            return 'Jungle';
+        }
+        if ($clean === 'mid lane' || $clean === 'mid') {
+            return 'Mid Lane';
+        }
+        if ($clean === 'gold lane' || $clean === 'gold') {
+            return 'Gold Lane';
+        }
+        if ($clean === 'roam' || $clean === 'roaming') {
+            return 'Roaming';
+        }
+
+        foreach (self::STANDARD_LANES as $std) {
+            if (strcasecmp($clean, $std) === 0) {
+                return $std;
+            }
+        }
+
+        return null;
     }
 
     /**

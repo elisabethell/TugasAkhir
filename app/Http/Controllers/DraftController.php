@@ -371,6 +371,8 @@ class DraftController extends Controller
             'recommendations'     => $inference['recommendations'],
             'saw_recommendations' => $inference['saw_recommendations'] ?? [],
             'saw_meta'            => $inference['saw_meta'] ?? null,
+            'needed_lanes'        => $inference['needed_lanes'] ?? ($inference['saw_meta']['needed_lanes'] ?? []),
+            'filled_lanes'        => $inference['filled_lanes'] ?? ($inference['saw_meta']['filled_lanes'] ?? []),
             'rbr_explanation'     => $inference['rbr_explanation'] ?? null,
             'composition_alerts'  => $inference['composition_alerts'] ?? [],
             'power_spikes'        => $inference['power_spikes'] ?? [],

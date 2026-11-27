@@ -104,7 +104,7 @@ class DraftRecommendationServiceTest extends TestCase
             limit: 10
         );
 
-        $this->assertCount(9, $activeDraft['recommendations']); // 12 total - 3 excluded = 9
+        $this->assertCount(7, $activeDraft['recommendations']); // 12 total - 3 excluded (Harith, Fanny, Ling) - 2 duplicate Mid Lane (Pharsa, Zhuxin) = 7
         $this->assertTrue($activeDraft['active_components']['s_dna']);
         $this->assertTrue($activeDraft['active_components']['s_comp']);
         $this->assertTrue($activeDraft['active_components']['s_counter']);
@@ -116,6 +116,8 @@ class DraftRecommendationServiceTest extends TestCase
         $this->assertNotContains('Harith', $namesActive);
         $this->assertNotContains('Fanny', $namesActive);
         $this->assertNotContains('Ling', $namesActive);
+        $this->assertNotContains('Claude', $namesActive, 'Claude terfilter karena Harith sudah mengisi Gold Lane');
+        $this->assertNotContains('Moskov', $namesActive, 'Moskov terfilter karena Harith sudah mengisi Gold Lane');
 
         // Verifikasi struktur transparan & urutan descending
         $top = $activeDraft['recommendations'][0];
@@ -195,5 +197,58 @@ class DraftRecommendationServiceTest extends TestCase
         // 3. Lane Control + Sustainability dominan -> Macro / Split Push + unggul Lane Control vs musuh
         $macro = $this->service->evaluateQuantitativeStrategyExplanation(['Zilong'], ['Fanny'], $target);
         $this->assertEquals('Macro / Split Push', $macro['draft_identity']);
+    }
+
+    public function test_empty_lane_hard_constraint_filter_in_layer_1(): void
+    {
+        // 1. Verifikasi konstanta STANDARD_LANES
+        $expectedLanes = ['EXP Lane', 'Jungle', 'Mid Lane', 'Gold Lane', 'Roaming'];
+        $this->assertSame($expectedLanes, DraftRecommendationService::STANDARD_LANES);
+
+        // 2. Verifikasi fungsi normalizeLaneName
+        $this->assertSame('EXP Lane', $this->service->normalizeLaneName('exp lane'));
+        $this->assertSame('Jungle', $this->service->normalizeLaneName('jungle'));
+        $this->assertSame('Mid Lane', $this->service->normalizeLaneName('mid lane'));
+        $this->assertSame('Gold Lane', $this->service->normalizeLaneName('gold lane'));
+        $this->assertSame('Roaming', $this->service->normalizeLaneName('roam'));
+        $this->assertSame('Roaming', $this->service->normalizeLaneName('roaming'));
+
+        // 3. Seed 6 hero dengan variasi lane_1 & lane_2
+        Hero::create(['hero_id' => 'h_roam_1', 'hero_name' => 'Tigreal', 'lane_1' => 'Roaming',  'lane_2' => null,       'sustainability' => 9, 'attack_power' => 3, 'crowd_control' => 10, 'mobility' => 4, 'lane_control' => 6]);
+        Hero::create(['hero_id' => 'h_roam_2', 'hero_name' => 'Khufra',  'lane_1' => 'Roaming',  'lane_2' => null,       'sustainability' => 9, 'attack_power' => 3, 'crowd_control' => 10, 'mobility' => 6, 'lane_control' => 5]);
+        Hero::create(['hero_id' => 'h_mid',    'hero_name' => 'Pharsa',   'lane_1' => 'Mid Lane', 'lane_2' => null,       'sustainability' => 3, 'attack_power' => 9, 'crowd_control' => 5,  'mobility' => 6, 'lane_control' => 9]);
+        Hero::create(['hero_id' => 'h_gold',   'hero_name' => 'Claude',   'lane_1' => 'Gold Lane','lane_2' => null,       'sustainability' => 3, 'attack_power' => 9, 'crowd_control' => 2,  'mobility' => 8, 'lane_control' => 8]);
+        Hero::create(['hero_id' => 'h_jgl',    'hero_name' => 'Fanny',    'lane_1' => 'Jungle',   'lane_2' => null,       'sustainability' => 4, 'attack_power' => 9, 'crowd_control' => 2,  'mobility' => 10,'lane_control' => 6]);
+        Hero::create(['hero_id' => 'h_flex',   'hero_name' => 'Paquito',  'lane_1' => 'EXP Lane', 'lane_2' => 'Jungle',   'sustainability' => 7, 'attack_power' => 8, 'crowd_control' => 6,  'mobility' => 8, 'lane_control' => 7]);
+
+        // Skenario A: Draft awal kosong (0 ally picks)
+        // Semua 5 lane dibutuhkan, semua kandidat hero lolos filter
+        $emptyResult = $this->service->recommend([], [], [], 'Alter Ego', 10);
+        $this->assertSame($expectedLanes, $emptyResult['needed_lanes']);
+        $this->assertEmpty($emptyResult['filled_lanes']);
+        $this->assertCount(6, $emptyResult['recommendations']);
+
+        // Skenario B: Ally sudah pick Tigreal (lane_1: Roaming)
+        // Roaming sudah terisi -> needed_lanes tersisa ['EXP Lane', 'Jungle', 'Mid Lane', 'Gold Lane']
+        // Khufra (hanya Roaming) harus TERFILTER / TIDAK LOLOS
+        // Pharsa (Mid Lane), Claude (Gold Lane), Fanny (Jungle), Paquito (EXP Lane / Jungle) HARUS LOLOS
+        $roamPickedResult = $this->service->recommend(['Tigreal'], [], [], 'Alter Ego', 10);
+        $this->assertContains('Roaming', $roamPickedResult['filled_lanes']);
+        $this->assertNotContains('Roaming', $roamPickedResult['needed_lanes']);
+        $this->assertCount(4, $roamPickedResult['needed_lanes']);
+
+        $recNames = array_column($roamPickedResult['recommendations'], 'hero');
+        $this->assertNotContains('Khufra', $recNames, 'Khufra harus terfilter karena lane Roaming sudah terisi oleh Tigreal');
+        $this->assertContains('Pharsa', $recNames);
+        $this->assertContains('Claude', $recNames);
+        $this->assertContains('Fanny', $recNames);
+        $this->assertContains('Paquito', $recNames);
+
+        // Skenario C: Skenario Fallback Keamanan jika semua 5 hero sudah di-pick
+        $fiveAllyResult = $this->service->recommend(['Tigreal', 'Pharsa', 'Claude', 'Fanny', 'Paquito'], [], [], 'Alter Ego', 10);
+        $this->assertEmpty($fiveAllyResult['needed_lanes']);
+        // Khufra tetap bisa muncul sebagai fallback daripada array kosong
+        $fiveRecNames = array_column($fiveAllyResult['recommendations'], 'hero');
+        $this->assertContains('Khufra', $fiveRecNames);
     }
 }

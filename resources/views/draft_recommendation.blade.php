@@ -511,6 +511,25 @@
                         </div>
                     </div>
 
+                    <!-- Info Lane yang Dibutuhkan (Lapisan 1 Hard Constraint Filter) -->
+                    <div id="neededLanesInfoBanner" class="bg-[#FAF8F8] border border-[#F3E8E8] rounded-xl px-3 py-1.5 flex items-center justify-between gap-2 text-[10.5px]">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="text-gray-500 font-extrabold text-[9.5px] uppercase tracking-wider flex items-center gap-1">
+                                <svg class="w-3 h-3 text-[#700B1A]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
+                                </svg>
+                                <span>Lane Dibutuhkan:</span>
+                            </span>
+                            <div id="neededLanesBadgeList" class="flex items-center gap-1 flex-wrap">
+                                <span class="bg-[#FAF0F1] text-[#700B1A] border border-[#F8B4BD] px-1.5 py-0.5 rounded text-[9px] font-black">EXP Lane</span>
+                                <span class="bg-[#FAF0F1] text-[#700B1A] border border-[#F8B4BD] px-1.5 py-0.5 rounded text-[9px] font-black">Jungle</span>
+                                <span class="bg-[#FAF0F1] text-[#700B1A] border border-[#F8B4BD] px-1.5 py-0.5 rounded text-[9px] font-black">Mid Lane</span>
+                                <span class="bg-[#FAF0F1] text-[#700B1A] border border-[#F8B4BD] px-1.5 py-0.5 rounded text-[9px] font-black">Gold Lane</span>
+                                <span class="bg-[#FAF0F1] text-[#700B1A] border border-[#F8B4BD] px-1.5 py-0.5 rounded text-[9px] font-black">Roaming</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Recommended Picks Cards List (Compact Cards & Accordion Expand) -->
                     <div class="space-y-2 max-h-[460px] overflow-y-auto pr-1" id="recommendedPicksList">
                         <!-- Populated dynamically via JS with compact cards and accordion expand -->
@@ -2507,6 +2526,28 @@
             }
         }
 
+        // Update Info Lane Dibutuhkan (Lapisan 1 Hard Constraint Filter)
+        const neededLanesContainer = document.getElementById('neededLanesBadgeList');
+        if (neededLanesContainer) {
+            const neededLanes = (latestInferenceData && Array.isArray(latestInferenceData.needed_lanes)) 
+                ? latestInferenceData.needed_lanes 
+                : ((latestInferenceData && latestInferenceData.saw_meta && Array.isArray(latestInferenceData.saw_meta.needed_lanes))
+                    ? latestInferenceData.saw_meta.needed_lanes 
+                    : (initialInferenceData && Array.isArray(initialInferenceData.needed_lanes) ? initialInferenceData.needed_lanes : ['EXP Lane', 'Jungle', 'Mid Lane', 'Gold Lane', 'Roaming']));
+
+            if (allyTeam.length >= 5) {
+                neededLanesContainer.innerHTML = `<span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded text-[9px] font-bold">Lengkap (5/5 Hero Terpilih)</span>`;
+            } else if (Array.isArray(neededLanes)) {
+                if (neededLanes.length === 0) {
+                    neededLanesContainer.innerHTML = `<span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded text-[9px] font-bold">Lengkap (Semua 5 Lane Terisi)</span>`;
+                } else {
+                    neededLanesContainer.innerHTML = neededLanes.map(lane => 
+                        `<span class="bg-[#FAF0F1] text-[#700B1A] border border-[#F8B4BD] px-1.5 py-0.5 rounded text-[9px] font-black">${lane}</span>`
+                    ).join(' ');
+                }
+            }
+        }
+
         let picks = [];
         const sawSource = (latestInferenceData && Array.isArray(latestInferenceData.saw_recommendations) && latestInferenceData.saw_recommendations.length > 0)
             ? latestInferenceData.saw_recommendations
@@ -3352,6 +3393,12 @@
             if (data && (data.saw_recommendations || data.recommendations)) {
                 currentRecommendations = data.saw_recommendations || data.recommendations;
                 latestInferenceData = data.inference || data;
+                if (data.needed_lanes) {
+                    latestInferenceData.needed_lanes = data.needed_lanes;
+                }
+                if (data.filled_lanes) {
+                    latestInferenceData.filled_lanes = data.filled_lanes;
+                }
                 if (data.rbr_explanation && !latestInferenceData.rbr_explanation) {
                     latestInferenceData.rbr_explanation = data.rbr_explanation;
                 }

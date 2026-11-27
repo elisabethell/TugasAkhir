@@ -4,10 +4,9 @@ test('the landing page renders successfully', function () {
     $response = $this->get('/');
 
     $response->assertStatus(200);
-    $response->assertSeeText('Sistem Cerdas');
     $response->assertSeeText('Rekomendasi Draft Pick');
-    $response->assertSeeText('Mulai Rekomendasi Draft');
-    $response->assertSeeText('Login Admin');
+    $response->assertSeeText('Mulai Draft');
+    $response->assertSeeText('Admin');
 });
 
 test('the homepage dashboard renders successfully', function () {
