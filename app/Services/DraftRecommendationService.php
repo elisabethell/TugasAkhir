@@ -59,7 +59,8 @@ class DraftRecommendationService extends DraftInferenceService
         array $enemyPicks = [],
         array $bannedHeroes = [],
         ?string $teamName = null,
-        int $limit = 10
+        int $limit = 10,
+        array $allyLanes = []
     ): array {
         $cleanAlly = $this->sanitizeNames($allyPicks);
         $cleanEnemy = $this->sanitizeNames($enemyPicks);
@@ -92,16 +93,22 @@ class DraftRecommendationService extends DraftInferenceService
             }
         }
 
-        // 2. Deteksi lane yang sudah terisi berdasarkan ally_picks (kolom lane_1 sebagai lane utama)
+        // 2. Deteksi lane yang sudah terisi berdasarkan ally_picks (kolom lane_1 sebagai lane utama atau override allyLanes)
         $filledLanes = [];
-        foreach ($cleanAlly as $allyName) {
-            $aKey = $this->heroKey($allyName);
-            $allyHero = $heroByKey[$aKey] ?? null;
-            if ($allyHero && !empty($allyHero->lane_1)) {
-                $normL1 = $this->normalizeLaneName($allyHero->lane_1);
-                if ($normL1 && !in_array($normL1, $filledLanes, true)) {
-                    $filledLanes[] = $normL1;
+        foreach ($cleanAlly as $idx => $allyName) {
+            $normLane = null;
+            if (!empty($allyLanes[$idx])) {
+                $normLane = $this->normalizeLaneName($allyLanes[$idx]);
+            }
+            if (!$normLane) {
+                $aKey = $this->heroKey($allyName);
+                $allyHero = $heroByKey[$aKey] ?? null;
+                if ($allyHero && !empty($allyHero->lane_1)) {
+                    $normLane = $this->normalizeLaneName($allyHero->lane_1);
                 }
+            }
+            if ($normLane && !in_array($normLane, $filledLanes, true)) {
+                $filledLanes[] = $normLane;
             }
         }
 
@@ -574,28 +581,97 @@ class DraftRecommendationService extends DraftInferenceService
         );
 
         $sawTeam = ($teamName === null) ? 'Alter Ego' : $teamName;
-        $sawResultAll = $this->recommend($allyTeam, $enemyTeam, $bannedHeroes, $sawTeam, 250);
+        $sawResultAll = $this->recommend($allyTeam, $enemyTeam, $bannedHeroes, $sawTeam, 250, $allyLanes);
 
-        // Petakan skor SAW ke setiap kandidat di recommendations agar UI punya rincian transparan
-        $sawByHero = [];
-        foreach ($sawResultAll['recommendations'] as $item) {
-            $sawByHero[$this->heroKey($item['hero'])] = $item;
+        $baseByHero = [];
+        foreach ($base['recommendations'] as $rec) {
+            $baseByHero[$this->heroKey($rec['nama'] ?? $rec['hero'] ?? '')] = $rec;
         }
 
-        $base['recommendations'] = array_map(function (array $rec) use ($sawByHero) {
-            $key = $this->heroKey($rec['nama'] ?? $rec['hero'] ?? '');
-            $saw = $sawByHero[$key] ?? null;
-            if ($saw) {
-                $rec['saw_score'] = $saw['saw_score'];
-                $rec['s_dna'] = $saw['s_dna'];
-                $rec['s_comp'] = $saw['s_comp'];
-                $rec['s_counter'] = $saw['s_counter'];
-                $rec['coach_attributes'] = $saw['coach_attributes'];
-            }
-            return $rec;
-        }, $base['recommendations']);
+        $isComp01Fired = !empty($base['rule_evaluations']['RBR-COMP-01']['fired']);
+        $isComp02Fired = !empty($base['rule_evaluations']['RBR-COMP-02']['fired']);
 
-        $base['saw_recommendations'] = array_slice($sawResultAll['recommendations'], 0, 10);
+        // Bangun daftar rekomendasi final berbasis SAW + Bayesian Shrinkage + Filter Lane Kosong
+        $finalRecommendations = [];
+        foreach ($sawResultAll['recommendations'] as $sawItem) {
+            $key = $this->heroKey($sawItem['hero']);
+            $bRec = $baseByHero[$key] ?? [];
+
+            $merged = array_merge($bRec, $sawItem);
+            $merged['hero'] = $sawItem['hero'];
+            $merged['nama'] = $sawItem['hero'];
+            $merged['role'] = $sawItem['role'];
+            $merged['saw_score'] = $sawItem['saw_score'];
+            $merged['total_score'] = $sawItem['total_score'];
+            $merged['confidence'] = $bRec['confidence'] ?? (number_format($sawItem['saw_score'] * 100, 1) . '%');
+            $merged['sample_size'] = $bRec['sample_size'] ?? ($sawItem['s_dna']['n_global'] ?? 20);
+            $merged['low_data'] = $bRec['low_data'] ?? (($sawItem['s_dna']['n_team'] ?? 0) < 3);
+
+            $flex = array_values(array_filter([$sawItem['lane_1'], $sawItem['lane_2']]));
+            $merged['lane_flex'] = !empty($flex) ? $flex : ($bRec['lane_flex'] ?? [$sawItem['lane_1'] ?: 'Flex']);
+
+            // Pastikan struktur breakdown tersedia lengkap
+            if (!isset($merged['breakdown'])) {
+                $merged['breakdown'] = [
+                    'data' => [
+                        'score'    => round($sawItem['saw_score'] * 100, 1),
+                        'win_rate' => round(($sawItem['s_dna']['norm'] ?? 0.5) * 100, 1),
+                        'n'        => $sawItem['s_dna']['n_team'] ?? 0,
+                        'synergy'  => $bRec['breakdown']['data']['synergy'] ?? [],
+                        'counter'  => $bRec['breakdown']['data']['counter'] ?? [],
+                    ],
+                    'rule' => [
+                        'score'     => round($sawItem['saw_score'] * 100, 1),
+                        'fired'     => $bRec['breakdown']['rule']['fired'] ?? [],
+                        'not_fired' => $bRec['breakdown']['rule']['not_fired'] ?? [],
+                    ],
+                ];
+            }
+
+            // Integrasi Aturan Komposisi Mutlak RBR:
+            $isMagicHero = ($merged['damage_type'] ?? '') === 'Magic' || strcasecmp($merged['role'], 'Mage') === 0;
+            if ($isComp01Fired && $isMagicHero) {
+                $merged['alasan_ringkas'] = "Aturan Komposisi Mutlak: Wajib mengamankan magic damage/midlaner agar musuh tidak menumpuk Armor Fisik.";
+            } elseif ($isComp02Fired && (str_contains(strtolower($merged['role']), 'tank') || str_contains(strtolower($merged['role']), 'fighter'))) {
+                $merged['alasan_ringkas'] = "Aturan Komposisi Frontline: Menyediakan ketahanan garis depan penting untuk kontes objektif Turtle dan Lord.";
+            } else {
+                $merged['alasan_ringkas'] = $bRec['alasan_ringkas'] ?? 'Rekomendasi Hybrid SAW + Bayesian Shrinkage Turnamen MPL ID S18';
+            }
+
+            // Team DNA metadata
+            $inHeroPool = ($sawItem['s_dna']['n_team'] ?? 0) > 0;
+            $merged['team_dna'] = array_merge($bRec['team_dna'] ?? [], [
+                'in_hero_pool' => $inHeroPool,
+                'team_picks'   => $sawItem['s_dna']['n_team'] ?? 0,
+                'team_name'    => $sawResultAll['team_name'] ?? ($base['team_dna']['team_name'] ?? 'Alter Ego'),
+            ]);
+
+            $finalRecommendations[] = $merged;
+        }
+
+        // Jika aturan mutlak RBR-COMP-01 aktif, hero Magic diprioritaskan di puncak rekomendasi
+        if ($isComp01Fired) {
+            usort($finalRecommendations, function ($a, $b) {
+                $aMagic = (($a['damage_type'] ?? '') === 'Magic' || strcasecmp($a['role'], 'Mage') === 0) ? 1 : 0;
+                $bMagic = (($b['damage_type'] ?? '') === 'Magic' || strcasecmp($b['role'], 'Mage') === 0) ? 1 : 0;
+                if ($aMagic !== $bMagic) {
+                    return $bMagic <=> $aMagic;
+                }
+                return $b['saw_score'] <=> $a['saw_score'];
+            });
+        } elseif ($isComp02Fired) {
+            usort($finalRecommendations, function ($a, $b) {
+                $aFront = (str_contains(strtolower($a['role']), 'tank') || str_contains(strtolower($a['role']), 'fighter')) ? 1 : 0;
+                $bFront = (str_contains(strtolower($b['role']), 'tank') || str_contains(strtolower($b['role']), 'fighter')) ? 1 : 0;
+                if ($aFront !== $bFront) {
+                    return $bFront <=> $aFront;
+                }
+                return $b['saw_score'] <=> $a['saw_score'];
+            });
+        }
+
+        $base['recommendations'] = $finalRecommendations;
+        $base['saw_recommendations'] = array_slice($finalRecommendations, 0, 10);
         $base['needed_lanes'] = $sawResultAll['needed_lanes'] ?? [];
         $base['filled_lanes'] = $sawResultAll['filled_lanes'] ?? [];
         $base['saw_meta'] = [
@@ -604,7 +680,7 @@ class DraftRecommendationService extends DraftInferenceService
             'target_profile'    => $sawResultAll['target_profile'],
             'ally_profile'      => $sawResultAll['ally_profile'],
             'current_gap'       => $sawResultAll['current_gap'],
-            'total_candidates'  => $sawResultAll['total_candidates'],
+            'total_candidates'  => count($finalRecommendations),
             'needed_lanes'      => $sawResultAll['needed_lanes'] ?? [],
             'filled_lanes'      => $sawResultAll['filled_lanes'] ?? [],
         ];

@@ -1012,7 +1012,7 @@
     }
 
     let latestInferenceData = initialInferenceData;
-    let currentRecommendations = (initialInferenceData && initialInferenceData.saw_recommendations) ? initialInferenceData.saw_recommendations : @json($defaultPicks ?? []);
+    let currentRecommendations = (initialInferenceData && (initialInferenceData.saw_recommendations || initialInferenceData.recommendations)) ? (initialInferenceData.saw_recommendations || initialInferenceData.recommendations) : @json($defaultPicks ?? []);
     let expandedRecHeroId = null;
     let currentTraceTab = 'working_memory';
 
@@ -2551,7 +2551,9 @@
         let picks = [];
         const sawSource = (latestInferenceData && Array.isArray(latestInferenceData.saw_recommendations) && latestInferenceData.saw_recommendations.length > 0)
             ? latestInferenceData.saw_recommendations
-            : currentRecommendations;
+            : (latestInferenceData && Array.isArray(latestInferenceData.recommendations) && latestInferenceData.recommendations.length > 0
+                ? latestInferenceData.recommendations
+                : currentRecommendations);
 
         if (sawSource && sawSource.length > 0) {
             const allBans = [...allyBans, ...enemyBans];
@@ -3346,7 +3348,7 @@
         activeTeamMode = 'ally';
         updateTeamModeUI();
         expandedRecHeroId = null;
-        currentRecommendations = (initialInferenceData && initialInferenceData.saw_recommendations) ? initialInferenceData.saw_recommendations : @json($defaultPicks ?? []);
+        currentRecommendations = (initialInferenceData && (initialInferenceData.saw_recommendations || initialInferenceData.recommendations)) ? (initialInferenceData.saw_recommendations || initialInferenceData.recommendations) : @json($defaultPicks ?? []);
         latestInferenceData = initialInferenceData;
         renderSlots();
         renderBanSlots();

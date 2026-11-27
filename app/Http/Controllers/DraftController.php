@@ -161,23 +161,25 @@ class DraftController extends Controller
             ];
         }
 
-        // 3. Evaluasi Forward Chaining RBR Dinamis untuk Draft Awal (Tanpa Auto-Select Tim)
+        // 3. Evaluasi Forward Chaining RBR Dinamis untuk Draft Awal (SAW + Bayesian Shrinkage)
         $initialInference = $this->inferenceService->evaluateDraft(teamName: '');
+        $recSource = $initialInference['saw_recommendations'] ?? $initialInference['recommendations'];
         $defaultPicks = array_map(function($rec) {
+            $totalScore = (float) ($rec['total_score'] ?? (($rec['saw_score'] ?? 0.5) * 100));
             return array_merge($rec, [
-                'hero'          => $rec['nama'],
-                'nama'          => $rec['nama'],
-                'score'         => number_format($rec['total_score'] / 20.0, 1),
-                'priority'      => $rec['total_score'] >= 75.0 ? 'P1' : ($rec['total_score'] >= 50.0 ? 'P2' : 'P3'),
-                'progress'      => (int) min(98, max(25, round($rec['total_score']))),
+                'hero'          => $rec['nama'] ?? $rec['hero'],
+                'nama'          => $rec['nama'] ?? $rec['hero'],
+                'score'         => number_format($totalScore / 20.0, 1),
+                'priority'      => $totalScore >= 75.0 ? 'P1' : ($totalScore >= 50.0 ? 'P2' : 'P3'),
+                'progress'      => (int) min(98, max(25, round($totalScore))),
                 'subtitle_type' => 'META',
-                'subtitle_hero' => 'Prioritas Awal Meta S18',
-                'win_rate'      => $rec['breakdown']['data']['win_rate'] . '%',
+                'subtitle_hero' => 'Prioritas Awal Meta S18 (Hybrid SAW)',
+                'win_rate'      => ($rec['breakdown']['data']['win_rate'] ?? 50) . '%',
                 'rbr_id'        => 'RBR-GEN-01',
-                'rbr_confidence'=> $rec['confidence'],
-                'rbr_rationale' => $rec['alasan_ringkas'],
+                'rbr_confidence'=> $rec['confidence'] ?? (number_format($totalScore, 1) . '%'),
+                'rbr_rationale' => $rec['alasan_ringkas'] ?? 'Rekomendasi Hybrid SAW + Bayesian Shrinkage Turnamen MPL ID S18',
             ]);
-        }, $initialInference['recommendations']);
+        }, $recSource);
 
         // 4. Default Rekomendasi Ban (Hero prioritas ban turnamen tertinggi)
         $defaultBans = [

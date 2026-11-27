@@ -853,6 +853,15 @@ class TeamDraftDnaService
             $matchingHeroes = !empty($cleanCurrentPicks) ? array_values(array_intersect($cleanCurrentPicks, $myPicksClean)) : [];
             $matchCount = count($matchingHeroes);
 
+            // Jaccard Similarity Coefficient: J(A, B) = |A ∩ B| / |A ∪ B|
+            $unionHeroes = !empty($cleanCurrentPicks)
+                ? array_values(array_unique(array_merge($cleanCurrentPicks, $myPicksClean)))
+                : $myPicksClean;
+            $unionCount = count($unionHeroes);
+
+            $jaccard = ($unionCount > 0 && !empty($cleanCurrentPicks)) ? ($matchCount / $unionCount) : 0.0;
+            $similarityPercentage = round($jaccard * 100, 1) . '%';
+
             $stage = !empty($dataset->formatted_stage_name) ? $dataset->formatted_stage_name : (!empty($dataset->stage_name) ? $dataset->stage_name : 'Regular Season');
             $score = ($dataset && $dataset->team_1_score !== null && $dataset->team_2_score !== null)
                 ? "{$dataset->team_1_score} : {$dataset->team_2_score}"
@@ -891,18 +900,23 @@ class TeamDraftDnaService
                 'enemy_picks'               => is_array($enemyPicks) ? array_values($enemyPicks) : [],
                 'team_picks_with_portraits' => $teamPicksWithPortraits,
                 'enemy_picks_with_portraits'=> $enemyPicksWithPortraits,
+                'jaccard_similarity'        => round($jaccard, 4),
+                'similarity_percentage'     => $similarityPercentage,
                 'matched_count'             => $matchCount,
-                'matched_label'             => $matchCount > 0 ? "Mirip {$matchCount} Hero" : "Pertandingan Referensi",
+                'matched_label'             => $matchCount > 0 ? "Kemiripan {$similarityPercentage}" : "Pertandingan Referensi",
                 'matching_heroes'           => $matchingHeroes,
                 'is_win'                    => ($myStatus === 'W'),
             ];
         }
 
         // Sorting:
-        // Jika ada hero terpilih di simulator, utamakan matched_count terbanyak, lalu game menang (W), lalu id terbaru
+        // Jika ada hero terpilih di simulator, urutkan dari Jaccard Similarity tertinggi, lalu matched_count, lalu game menang (W), lalu id terbaru
         // Jika simulator kosong, utamakan game menang (W), lalu id terbaru
         usort($scored, function($a, $b) use ($cleanCurrentPicks) {
             if (!empty($cleanCurrentPicks)) {
+                if ($b['jaccard_similarity'] !== $a['jaccard_similarity']) {
+                    return $b['jaccard_similarity'] <=> $a['jaccard_similarity'];
+                }
                 if ($b['matched_count'] !== $a['matched_count']) {
                     return $b['matched_count'] <=> $a['matched_count'];
                 }
